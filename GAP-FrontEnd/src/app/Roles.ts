@@ -1,0 +1,13 @@
+export const ROLES = {
+  ADMIN: 'admin',
+  CONSULTEUR: 'consulteur',
+  AGENTSAISIE: 'agentSaisie',
+  LOGISTIQUE: 'logistique',
+  EXPORT: 'EXPORT',
+  RH: 'RH'
+
+};
+export const ROLES_ADMIN = [ROLES.ADMIN];
+export const ROLES_ADMIN_LOGISTIQUE = [ROLES.ADMIN, ROLES.LOGISTIQUE];
+export const ROLES_ADMIN_AGENTSAISIE = [ROLES.ADMIN, ROLES.CONSULTEUR, ROLES.AGENTSAISIE];
+export const ROLES_ADMIN_RH = [ROLES.ADMIN, ROLES.RH];

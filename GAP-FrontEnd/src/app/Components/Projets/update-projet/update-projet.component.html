@@ -1,0 +1,61 @@
+<div class="modal-dialog modal-dialog-centered modal-lg-custom">
+  <div class="modal-content card radius-15">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h5 class="modal-title">Éditer une affaire</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form name="form" [formGroup]="myFormUpdate" (ngSubmit)="onUpdate()">
+      <div class="modal-body">
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Code Affaire</label>
+          <div class="col-sm-9">
+            <input type="text" id="code" [max]="" class="form-control"
+                   placeholder="Saisir le code affaire"
+                   formControlName="code">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Code Affaire</label>
+          <div class="col-sm-9">
+            <input type="text" id="designation" [max]="" class="form-control"
+                   placeholder="Saisir la designation"
+                   formControlName="designation">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Atelier</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Selectionnez un statut"
+                       formControlName="status"  name="status">
+              <ng-option value="Actif" selected>Actif</ng-option>
+              <ng-option value="Inactif">Inactif</ng-option>
+            </ng-select>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          #closebutton
+          data-dismiss="modal">
+          Fermer
+        </button>
+        <button
+          type="submit"
+          [disabled]="!myFormUpdate.valid"
+          class="btn btn-primary">
+          Valider
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,307 @@
+<div class="modal-dialog modal-dialog-centered modal-lg-custom">
+  <div class="modal-content card radius-15">
+    <div class="modal-header">
+      <h5 class="modal-title">Détail de la livraison N° {{livraison?.id}}</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form name="form" [formGroup]="myFormAdd" (ngSubmit)="onAdd()">
+        <!-- Article Selection -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Article :</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Sélectionnez un article"
+                       formControlName="ordreFabrication"
+                       (change)="onValueChangeQteMax($event)"
+                       name="ordreFabrication"
+                       [loading]="loading">
+              <ng-option *ngFor="let orf of ordreFabrications" [value]="orf">
+                {{orf.numOF + ' | ' + orf.designation + ' | Qte:' + orf.qteRest}}
+              </ng-option>
+              <!-- Message si aucun OF disponible -->
+              <ng-option *ngIf="ordreFabrications.length === 0" value="" disabled>
+                Aucun ordre de fabrication disponible
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+
+        <!-- Quantité -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Quantité :</label>
+          <div class="col-sm-9">
+            <input type="number"
+                   class="form-control"
+                   formControlName="quantite"
+                   placeholder="Saisissez la quantité"
+                   max="{{qteMax}}"
+                   min="1">
+            <small class="form-text text-muted" *ngIf="qteMax">
+              Maximum autorisé: {{qteMax}}
+            </small>
+          </div>
+        </div>
+
+        <!-- Emplacement -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Emplacement :</label>
+          <div class="col-sm-9">
+            <input type="text"
+                   class="form-control"
+                   formControlName="emplacement"
+                   placeholder="Saisissez l'emplacement">
+          </div>
+        </div>
+
+        <!-- Observation -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Observation :</label>
+          <div class="col-sm-9">
+            <textarea class="form-control"
+                      formControlName="observation"
+                      rows="3"
+                      placeholder="Saisissez vos observations"></textarea>
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="row mb-3">
+          <div class="col-sm-12 text-right">
+            <button type="submit"
+                    [disabled]="!myFormAdd.valid || loading"
+                    class="btn btn-primary mr-2">
+              Valider
+            </button>
+            <button type="button"
+                    class="btn btn-secondary"
+                    #closebutton
+                    data-dismiss="modal">
+              Fermer
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Tableau des détails existants -->
+      <div class="row" *ngIf="detailsLivraison && detailsLivraison.length > 0">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6>Détails de la livraison ({{totalItems}} éléments)</h6>
+            <div class="d-flex align-items-center">
+              <label class="mr-2 mb-0">Lignes par page:</label>
+              <select class="form-control form-control-sm"
+                      style="width: auto;"
+                      [(ngModel)]="pageSize"
+                      (ngModelChange)="currentPage = 1; updatePaginatedData()">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Conteneur avec scroll pour la table -->
+          <div class="table-container" [style.max-height.px]="getTableMaxHeight()">
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered table-hover">
+                <thead class="thead-dark sticky-top">
+                <tr>
+                  <th style="width: 12%;">N° OF</th>
+                  <th style="width: 25%;">Article</th>
+                  <th style="width: 15%;">Quantité</th>
+                  <th style="width: 20%;">Emplacement</th>
+                  <th style="width: 20%;">Observation</th>
+                  <th style="width: 8%;">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let detail of paginatedDetails; let i = index"
+                    [class.table-warning]="isEditing(i)">
+                  <!-- N° OF -->
+                  <td class="align-middle">
+                    <strong>{{detail.ordreFabrication?.numOF}}</strong>
+                  </td>
+
+                  <!-- Article -->
+                  <td class="align-middle">
+                    <div class="text-wrap">{{detail.ordreFabrication?.article?.designation}}</div>
+                  </td>
+
+                  <!-- Quantité (éditable) -->
+                  <td class="align-middle">
+                    <!-- Mode affichage normal - SANS Max -->
+                    <div *ngIf="!isEditing(i)" class="text-center">
+                      <strong>{{detail.quantite}}</strong>
+                    </div>
+
+                    <!-- Mode édition - AVEC Max -->
+                    <div *ngIf="isEditing(i)" class="quantity-edit-container">
+                      <input type="number"
+                             class="form-control form-control-sm text-center"
+                             [value]="getTempQuantite(detail, i)"
+                             (input)="onQuantiteInputChange($event, detail, i)"
+                             [max]="getMaxQuantiteForDetail(detail)"
+                             min="1">
+                      <small class="text-muted">Max: {{getMaxQuantiteForDetail(detail)}}</small>
+                    </div>
+                  </td>
+
+                  <!-- Emplacement (éditable) -->
+                  <td class="align-middle">
+                    <span *ngIf="!isEditing(i)" class="text-wrap">{{detail.emplacement}}</span>
+                    <input *ngIf="isEditing(i)"
+                           type="text"
+                           class="form-control form-control-sm"
+                           [(ngModel)]="detail.emplacement"
+                           placeholder="Emplacement">
+                  </td>
+
+                  <!-- Observation (éditable) -->
+                  <td class="align-middle">
+                      <span *ngIf="!isEditing(i)" class="text-wrap text-truncate"
+                            [title]="detail.observation">{{detail.observation}}</span>
+                    <textarea *ngIf="isEditing(i)"
+                              class="form-control form-control-sm"
+                              [(ngModel)]="detail.observation"
+                              rows="2"
+                              placeholder="Observations"></textarea>
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="col-actions text-center">
+                    <div class="d-flex justify-content-center flex-wrap">
+
+                      <div *ngIf="!isEditing(i)" class="btn-group-sm">
+                        <a
+                          title="Modifier détail"
+                          (click)="startEdit(detail, i)"
+                          class="action-btn">
+                          <i class='bx bxs-edit icon-large'></i>
+                        </a>
+                        <a
+                          title="Supprimer détail"
+                          (click)="deleteDetail(detail)"
+                          class="action-btn">
+                          <i class='bx bxs-trash icon-large'></i>
+                        </a>
+                        <a
+                          title="Imprimer détail"
+                          class="action-btn">
+                          <i class='bx bxs-file-pdf icon-large'></i>
+                        </a>
+
+                      </div>
+
+                      <!-- Mode édition -->
+                      <div *ngIf="isEditing(i)">
+                        <a
+                          title="Sauvegarder"
+                          (click)="saveEdit(detail, i)"
+                          class="action-btn">
+                          <i class='fadeIn animated bx bx-comment-check'></i>
+                        </a>
+                        <a
+                          title="Annuler"
+                          (click)="cancelEdit(detail, i)"
+                          class="action-btn">
+                          <i class='fadeIn animated bx bx-comment-x'></i>
+
+                        </a>
+                      </div>
+                    </div>
+                  </td>
+
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <nav aria-label="Pagination des détails" *ngIf="totalPages > 1">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="text-muted">
+                Affichage de {{(currentPage - 1) * pageSize + 1}} à
+                {{Math.min(currentPage * pageSize, totalItems)}} sur {{totalItems}} éléments
+              </div>
+
+              <ul class="pagination pagination-sm mb-0">
+                <!-- Bouton Précédent -->
+                <li class="page-item" [class.disabled]="currentPage === 1">
+                  <button class="page-link"
+                          (click)="onPageChange(currentPage - 1)"
+                          [disabled]="currentPage === 1">
+                    <i class="fas fa-chevron-left"></i>
+                  </button>
+                </li>
+
+                <!-- Première page -->
+                <li class="page-item" *ngIf="pages[0] > 1">
+                  <button class="page-link" (click)="onPageChange(1)">1</button>
+                </li>
+                <li class="page-item disabled" *ngIf="pages[0] > 2">
+                  <span class="page-link">...</span>
+                </li>
+
+                <!-- Pages visibles -->
+                <li class="page-item"
+                    *ngFor="let page of pages"
+                    [class.active]="page === currentPage">
+                  <button class="page-link"
+                          (click)="onPageChange(page)"
+                          [class.bg-primary]="page === currentPage"
+                          [class.text-white]="page === currentPage">
+                    {{page}}
+                  </button>
+                </li>
+
+                <!-- Dernière page -->
+                <li class="page-item disabled" *ngIf="pages[pages.length - 1] < totalPages - 1">
+                  <span class="page-link">...</span>
+                </li>
+                <li class="page-item" *ngIf="pages[pages.length - 1] < totalPages">
+                  <button class="page-link" (click)="onPageChange(totalPages)">{{totalPages}}</button>
+                </li>
+
+                <!-- Bouton Suivant -->
+                <li class="page-item" [class.disabled]="currentPage === totalPages">
+                  <button class="page-link"
+                          (click)="onPageChange(currentPage + 1)"
+                          [disabled]="currentPage === totalPages">
+                    <i class="fas fa-chevron-right"></i>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Message si aucun détail -->
+      <div class="row" *ngIf="!loading && detailsLivraison && detailsLivraison.length === 0">
+        <div class="col-12">
+          <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle mr-2"></i>
+            Aucun détail de livraison disponible
+          </div>
+        </div>
+      </div>
+
+      <!-- Message de chargement -->
+      <div *ngIf="loading" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Chargement...</span>
+        </div>
+      </div>
+
+      <!-- Message d'erreur -->
+      <div *ngIf="error" class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        {{error}}
+      </div>
+    </div>
+  </div>
+</div>

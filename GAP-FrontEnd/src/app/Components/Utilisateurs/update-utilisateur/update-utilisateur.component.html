@@ -1,0 +1,91 @@
+
+<div class="modal-dialog modal-dialog-centered crud-modal ">
+  <div class="modal-content card radius-15">
+    <div class="modal-header">
+      <h5 class="modal-title">Editer un utilisateur</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">	<span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <form name="form" [formGroup]="myFormUpdate" (ngSubmit)="onUpdateUser()">
+      <div class="modal-body">
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Nom d'utilisateur</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" placeholder="Entrez le nom d'utilisateur"
+                   formControlName="username" autocomplete="off"
+                   id="username" name="username" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Nom</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" placeholder="Entrez le nom"
+                   formControlName="nom" autocomplete="off"
+                   id="nom" name="nom" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Prénom</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" placeholder="Entrez le prénom"
+                   formControlName="prenom" autocomplete="off"
+                   id="prenom" name="prenom" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Email</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" placeholder="Entrez l'adresse email"
+                   formControlName="email" autocomplete="off"
+                   id="email" name="email" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Matricule</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" placeholder="Entrez le matricule"
+                   formControlName="matricule" autocomplete="off"
+                   id="matricule" name="matricule" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Session</label>
+          <div class="col-sm-9">
+            <ng-select formControlName="session"
+                       name="session">
+              <ng-option value="active" >Actif</ng-option>
+              <ng-option value="inactive" >Inactif</ng-option>
+            </ng-select>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Roles</label>
+          <div class="col-sm-9">
+            <ng-select  placeholder="Selectionnez un role" [multiple]="true" formControlName="listeRoles"
+                        name="selectName">
+
+              <ng-option *ngFor="let role of listeRoles" [value]="role.name" (change)="onMaterialGroupChange($event)">
+                {{role.name}}</ng-option>
+            </ng-select>
+          </div>
+
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Ateliers</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Selectionnez un atelier" [multiple]="true" formControlName="listeAteliers"
+                       name="listeAteliers">
+              <ng-option *ngFor="let atelier of listeAteliers" [value]="atelier.code" (change)="onMaterialGroupChange($event)">
+                {{atelier.designation}}</ng-option>
+            </ng-select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" #closebutton data-dismiss="modal">Fermer</button>
+        <button type="submit" [disabled]="!myFormUpdate.valid" class="btn btn-primary">Valider</button>
+      </div>
+    </form>
+  </div>
+</div>

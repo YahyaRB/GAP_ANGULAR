@@ -1,0 +1,86 @@
+
+<div class="modal-dialog modal-dialog-centered modal-lg-custom">
+
+  <div class="modal-content card radius-15">
+    <div class="modal-header">
+      <h5 class="modal-title">Editer un ordre de fabrication</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">	<span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <form name="form" [formGroup]="myFormUpdate" (ngSubmit)="onUpdate()">
+      <div class="modal-body">
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Atelier</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Selectionnez un atelier"
+                       formControlName="atelier" (change)="onValueChangeAtelier($event)" name="atelier">
+              <ng-option *ngFor="let atelier of ateliers" [value]="atelier.id">
+                {{atelier.designation}}</ng-option>
+            </ng-select>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label mb-0">Affaire</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Selectionnez une affaire"
+                       formControlName="projet" (change)="onValueChangeAffaire($event)"  name="projet">
+              <ng-option *ngFor="let affaire of projets" [value]="affaire.id" >
+                {{affaire.code+'-'+affaire.designation}}</ng-option>
+            </ng-select>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label mb-0">Article</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Selectionnez un article"
+                       formControlName="article"  name="article">
+              <ng-option *ngFor="let article of articles" [value]="article.id" (change)="onMaterialGroupChange($event)">
+                {{article.designation}}</ng-option>
+            </ng-select>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Quantité</label>
+          <div class="col-sm-9">
+            <input type="number" id="quantite"  class="form-control"
+                   min="1"
+                   formControlName="quantite">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Date OF</label>
+          <div class="col-sm-9">
+            <input type="date" id="date"  class="form-control"
+                   placeholder="Selectionnez Date Début" [attr.max]="today"
+                   formControlName="date">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Date Fin</label>
+          <div class="col-sm-9">
+            <input type="date" id="dateFin" class="form-control"
+                   placeholder="Selectionnez Date Fin prévu"
+                   formControlName="dateFin">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label text-white">Piéce Jointe</label>
+          <div class="col-sm-9">
+            <input type="file" class="form-control" (change)="selectFile($event)"
+                   formControlName="pieceJointe">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Détail de l'article</label>
+          <div class="col-sm-9">
+            <textarea class="form-control" aria-label="With textarea" formControlName="description"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" #closebutton data-dismiss="modal">Fermer</button>
+        <button type="submit" [disabled]="!myFormUpdate.valid" class="btn btn-primary">Valider</button>
+      </div>
+    </form>
+  </div>
+</div>

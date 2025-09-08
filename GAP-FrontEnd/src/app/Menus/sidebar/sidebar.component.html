@@ -1,0 +1,129 @@
+<div [hidden]="!globalVariableService.isLogged"
+     class="sidebar-wrapper" data-simplebar="true">
+  <div class="sidebar-header">
+    <div class="">
+      <img src="assets/images/RB-LOGO1.png" class="logo-icon-2" alt="" />
+    </div>
+    <div>
+      <img src="assets/images/RB-LOGO2.png" style="width: 150px" class="logo-text" alt="" />
+    </div>
+    <a href="javascript:;" class="toggle-btn ml-auto"> <i class="bx bx-menu"></i>
+    </a>
+  </div>
+  <!--navigation-->
+  <ul class="metismenu" id="menu">
+    <li>
+      <a routerLink="/Acceuil">
+        <div class="parent-icon icon-color-1"><i class="bx bx-home-alt"></i>
+        </div>
+        <div class="menu-title">Acceuil</div>
+      </a>
+    </li>
+    <li>
+      <a href="javascript:;" class="has-arrow">
+        <div class="parent-icon icon-color-1"><i class="bx bx-group"></i>
+        </div>
+        <div class="menu-title">Administration</div>
+      </a>
+      <ul>
+        <li> <a routerLink="/Utilisateurs"><i class="bx bx-right-arrow-alt"></i>Utilisateurs</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="javascript:;" class="has-arrow">
+        <div class="parent-icon icon-color-7"><i class="lni lni-users"></i>
+        </div>
+        <div class="menu-title">Personnels</div>
+      </a>
+      <ul>
+        <li> <a routerLink="/Personnels"><i class="bx bx-right-arrow-alt"></i>Employés</a>
+        </li>
+        <li> <a routerLink="/Fonctions"><i class="bx bx-right-arrow-alt"></i>Fonctions</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="/Affectations">
+        <div class="parent-icon icon-color-3"><i class="lni lni-network"></i>
+        </div>
+        <div class="menu-title">Affectations</div>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/Deplacements">
+        <div class="parent-icon icon-color-4"><i class="fadeIn animated bx bx-transfer"></i>
+        </div>
+        <div class="menu-title">Déplacements</div>
+      </a>
+    </li>
+    <li>
+    <li>
+      <a href="javascript:;" class="has-arrow">
+        <div class="parent-icon icon-color-7"><i class="lni lni-construction-hammer"></i>
+        </div>
+        <div class="menu-title">Production</div>
+      </a>
+      <ul>
+        <li> <a routerLink="/Articles"><i class="bx bx-right-arrow-alt"></i>Articles</a>
+        </li>
+        <li> <a routerLink="/Ordres_Fabrications"><i class="bx bx-right-arrow-alt"></i>Ordres de fabrication</a>
+        </li>
+      </ul>
+    </li>
+
+    <li>
+      <a routerLink="/Livraisons">
+        <div class="parent-icon icon-color-6"><i class="fadeIn animated bx bx-package"></i>
+        </div>
+        <div class="menu-title">Livraisons</div>
+      </a>
+    </li>
+    <li>
+      <a href="javascript:;" class="has-arrow">
+        <div class="parent-icon icon-color-7"><i class="lni lni-delivery"></i>
+        </div>
+        <div class="menu-title">Logistique</div>
+      </a>
+      <ul>
+        <li> <a routerLink="/AffectationLivraison"><i class="bx bx-right-arrow-alt"></i>Livraisons</a>
+        </li>
+        <li> <a routerLink="/Chauffeurs"><i class="bx bx-right-arrow-alt"></i>Chauffeurs</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="/Utilisateurs">
+        <div class="parent-icon icon-color-8"><i class="lni lni-calculator"></i>
+        </div>
+        <div class="menu-title">Calculs</div>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/Projets">
+        <div class="parent-icon icon-color-9"><i class="lni lni-construction"></i>
+        </div>
+        <div class="menu-title">Projets</div>
+      </a>
+    </li>
+
+
+
+    <li class="menu-label">Autres</li>
+    <li>
+      <a href="#" target="_blank">
+        <div class="parent-icon icon-color-12"><i class="bx bx-folder"></i>
+        </div>
+        <div class="menu-title">Documentation</div>
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_blank">
+        <div class="parent-icon"><i class="bx bx-support"></i>
+        </div>
+        <div class="menu-title">Support</div>
+      </a>
+    </li>
+  </ul>
+  <!--end navigation-->
+</div>

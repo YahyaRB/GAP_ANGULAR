@@ -1,0 +1,77 @@
+<div class="modal-dialog modal-dialog-centered modal-lg-custom">
+  <div class="modal-content card radius-15">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h5 class="modal-title">Éditer une livraison</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form name="form" [formGroup]="myFormUpdate" (ngSubmit)="onUpdate()">
+      <div class="modal-body">
+        <!-- Date Livraison -->
+        <div class="row mb-3">
+          <label for="dateLivraison" class="col-sm-3 col-form-label">Date de livraison</label>
+          <div class="col-sm-9">
+            <input
+              type="date"
+              id="dateLivraison"
+              class="form-control"
+              placeholder="Sélectionnez la date de livraison"
+              [attr.max]="today"
+              formControlName="dateLivraison">
+          </div>
+        </div>
+
+        <!-- Atelier -->
+        <div class="row mb-3">
+          <label for="atelier" class="col-sm-3 col-form-label">Atelier</label>
+          <div class="col-sm-9">
+            <ng-select
+              id="atelier"
+              placeholder="Sélectionnez un atelier"
+              formControlName="atelier">
+              <ng-option *ngFor="let atelier of ateliers" [value]="atelier">
+                {{ atelier.designation }}
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+
+        <!-- Affaire -->
+        <div class="row mb-3">
+          <label for="projet" class="col-sm-3 col-form-label">Affaire</label>
+          <div class="col-sm-9">
+            <ng-select
+              id="projet"
+              placeholder="Sélectionnez une affaire"
+              formControlName="projet">
+              <ng-option *ngFor="let affaire of projets" [value]="affaire">
+                {{ affaire.code + ' - ' + affaire.designation }}
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          #closebutton
+          data-dismiss="modal">
+          Fermer
+        </button>
+        <button
+          type="submit"
+          [disabled]="!myFormUpdate.valid"
+          class="btn btn-primary">
+          Valider
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

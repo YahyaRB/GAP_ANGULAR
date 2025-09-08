@@ -1,0 +1,22 @@
+
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content card radius-15">
+    <div class="modal-header">
+      <h5 class="modal-title">Supprimer un utilisateur</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">	<span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <form name="form" (ngSubmit)="onDelete()">
+      <div class="modal-body">
+        <div class="modal-body fs-6">
+          Êtes vous sùre de vouloir supprimer
+          <strong *ngIf="chauffeur!=null">{{chauffeur.nom + ' '+chauffeur.prenom}}</strong> ?
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" #closebutton data-dismiss="modal">Fermer</button>
+        <button type="submit" *ngIf="hasRole(ROLES_ADMIN_LOGISTIQUE)" class="btn btn-primary">Supprimer</button>
+      </div>
+    </form>
+  </div>
+</div>

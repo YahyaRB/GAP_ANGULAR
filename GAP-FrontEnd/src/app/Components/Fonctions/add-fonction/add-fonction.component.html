@@ -1,0 +1,50 @@
+
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content card radius-15">
+    <div class="modal-header">
+      <h5 class="modal-title">Ajouter une fonction</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">	<span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <form name="form" [formGroup]="myFormAdd" (ngSubmit)="onAdd()">
+      <div class="modal-body">
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Code Fonction</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" placeholder="Entrez le code"
+                   formControlName="codeFonction" autocomplete="off"
+                   id="codeFonction" name="codeFonction" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Prénom</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" placeholder="Entrez lea désignation"
+                   formControlName="designation" autocomplete="off"
+                   id="designation" name="designation" required>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Type Calcul</label>
+          <div class="col-sm-9">
+            <ng-select
+              placeholder="Selectionnez un type"
+              formControlName="typeCalcul"
+              name="typeCalcul"
+              [clearable]="false">
+              <ng-option [value]="'DIRECT'" selected>Direct</ng-option>
+              <ng-option [value]="'PRORATA'">Prorata</ng-option>
+            </ng-select>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" #closebutton data-dismiss="modal">Fermer</button>
+        <button type="submit" [disabled]="!myFormAdd.valid" class="btn btn-primary">Valider</button>
+      </div>
+    </form>
+  </div>
+</div>

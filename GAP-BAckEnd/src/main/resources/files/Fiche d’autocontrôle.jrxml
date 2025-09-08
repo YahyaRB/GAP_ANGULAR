@@ -1,0 +1,1491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.5.final using JasperReports Library version 6.20.5-3efcf2e67f959db3888d79f73dde2dbd7acb4f8e  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Fiche d’autocontrôle " pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f9a4fad2-af98-48a3-a741-60a3cdf42779">
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer"/>
+	<field name="date" class="java.sql.Timestamp"/>
+	<field name="projet" class="ma.gap.entity.Projet"/>
+	<field name="article" class="ma.gap.entity.Article"/>
+	<field name="compteur" class="java.lang.Integer"/>
+	<field name="tempsPrevu" class="java.lang.Double"/>
+	<field name="atelier" class="ma.gap.entity.Ateliers"/>
+	<field name="numOF" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="50" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="0" width="141" height="50" uuid="66273aea-5c8d-4029-bb88-26de5c3b6a4d"/>
+				<imageExpression><![CDATA[this.getClass().getResourceAsStream("/static/images/RB-LOGO-1.png")]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="170" y="10" width="250" height="40" uuid="821fe3fd-c412-450c-bfb2-a99fa225e988"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fiche d'autocontrôle " +$F{atelier}.getDesignation()]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="19" width="81" height="21" forecolor="#030303" backcolor="#DBDBDB" uuid="dda64e79-291b-4193-b736-960996a21581"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="81" y="19" width="189" height="21" uuid="14bc48e3-3647-40c7-9141-c51db6175b49"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/yyyy").format($F{date})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="40" width="81" height="21" forecolor="#030303" backcolor="#DBDBDB" uuid="f0f99588-0621-47be-9007-536a32e7664c"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Projet :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="81" y="40" width="189" height="21" uuid="5a7d2cae-b645-4393-9b41-2577ccbb8286"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[($F{projet} == null
+ ? ""
+ : (
+     java.util.Objects.toString($F{projet}.getCode(), "") + " " +
+     java.util.Objects.toString($F{projet}.getDesignation(), "")
+   ).trim().toUpperCase(java.util.Locale.ROOT)
+)]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="279" y="19" width="81" height="21" forecolor="#030303" backcolor="#DBDBDB" uuid="08843a7d-df5b-447e-8c8f-1d0151d3350b"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[N° OF :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="360" y="19" width="189" height="21" uuid="fd9d8ea6-92ca-42d2-bc05-dcdf3783d5fe"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{numOF}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="279" y="40" width="81" height="21" forecolor="#030303" backcolor="#DBDBDB" uuid="330932e4-181d-4c80-b025-abd7d5a7076a"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Article :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="360" y="40" width="189" height="21" uuid="bcdcf3c7-d033-4793-9cae-8977091689bd"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[($F{article} == null || $F{article}.getDesignation() == null
+ ? ""
+ : $F{article}.getDesignation().trim().toUpperCase(java.util.Locale.ROOT))]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="429" y="0" width="129" height="20" uuid="377c467d-2bba-469c-bab0-6ddd1b0ed24f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[N° de la Fiche : ………]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="632" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="35" width="20" height="80" backcolor="#DBDBDB" uuid="7f78b353-b919-4daa-b5a4-a97cb72fb0ce"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="Left">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Dimensions]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="35" width="211" height="16" uuid="66999908-397a-46e1-8e0b-c368effcb4dd"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Longueur]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="51" width="211" height="16" uuid="dd3fd7d1-fedb-4631-871a-91fda030747a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Largeur]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="67" width="211" height="16" uuid="3f2aae32-2755-4017-b8f0-62e6b3454559"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Epaisseur]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="83" width="211" height="16" uuid="448f5862-74d2-449e-8be8-33da0506d7ec"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Equerrage (diagonale)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="99" width="211" height="16" uuid="f021562e-5e06-4854-92c3-adb0fff0accb"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Planéité ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="35" width="80" height="16" uuid="61b34f66-b5f9-4ee2-9555-fe16edb02711"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="67" width="80" height="16" uuid="e01d5a68-f9ca-4f0b-a6dc-365e349faf3a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="83" width="80" height="16" uuid="7df6e23f-97c3-48b8-807b-a916dfd5da39"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="99" width="80" height="16" uuid="213ce4ed-0d72-4aff-9db9-3160009660ca"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="51" width="80" height="16" uuid="41a21209-a792-4fbd-a6f0-43993254e983"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="35" width="41" height="16" uuid="46cb83ee-73fb-4161-af34-d10541204399"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="51" width="41" height="16" uuid="7c7013a4-9343-4b66-8e12-43e7ec3ee1f0"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="67" width="41" height="16" uuid="2744db1f-c0ca-405b-84f3-a1bbad0507e4"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="83" width="41" height="16" uuid="73fd9dcf-6b18-45de-904e-688f3006ac09"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="99" width="41" height="16" uuid="c24994f4-09e6-4e67-b0f2-e97c7d4d01eb"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="35" width="41" height="16" uuid="d2e252af-90c6-4546-8987-773ce27d0569"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="51" width="41" height="16" uuid="a349d4ba-9e9b-4598-bfe2-f8931afe5c31"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="67" width="41" height="16" uuid="74a2f191-c036-4020-96eb-2c4d12be22d3"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="83" width="41" height="16" uuid="f2426b82-05dd-42b3-8e1b-ae0c8cbc04c1"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="99" width="41" height="16" uuid="6b7f2ea3-97d6-4ae8-880b-8f2fee2dc930"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="35" width="47" height="16" uuid="13897fe2-6019-4f94-9505-ff632b2be6be"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="51" width="47" height="16" uuid="9dede5cc-48b9-4f30-a54d-a973870ecb9d"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="67" width="47" height="16" uuid="cf952bb7-0b88-49e7-af2d-60438ebc4958"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="83" width="47" height="16" uuid="d3e07a9a-9754-43cc-b78f-df70cd15efd4"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="99" width="47" height="16" uuid="a0ad65ff-7052-49b9-ba45-2e1aa4448094"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="35" width="109" height="16" uuid="339e8c0d-ac29-43dd-aa97-d5cd5fab514d"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="51" width="109" height="16" uuid="1bc0052f-6ba5-4f80-a11c-b3180811e5b7"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="67" width="109" height="16" uuid="46113e2f-60dc-4db7-90f1-51e533df627d"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="83" width="109" height="16" uuid="dbd3b8c7-13a9-44c9-974b-5e0b8050c579"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="99" width="109" height="16" uuid="2740e115-a507-497d-b54a-30b9428d4487"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="115" width="20" height="192" backcolor="#DBDBDB" uuid="00f5d7de-2387-4caf-927b-eb31511d12a1"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="Left">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Etat de surface]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="115" width="211" height="16" uuid="6f687bdc-6eec-4b1c-9c81-858fd91dd21c"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Nœud pourrie  ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="131" width="211" height="16" uuid="d4adc7c9-ddb5-4ac5-94c0-5ccc41e7a7e8"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Rugosité ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="147" width="211" height="16" uuid="00d4950d-4296-41ce-b36b-d94745e58286"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Rayure.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="163" width="211" height="16" uuid="c5536d1e-4a4e-4f01-a9ca-734e594b68e1"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Fissure]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="179" width="211" height="16" uuid="21d1baeb-f82e-41c8-a8fd-e0944d03acd9"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Ecaillage  ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="115" width="80" height="16" uuid="09b0106f-5260-4bf8-963a-bf57d640d56e"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="147" width="80" height="16" uuid="396eb345-2ed9-47ac-a858-883dbd623a75"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="163" width="80" height="16" uuid="a8cf0582-0ede-45b6-9cb6-27bf810168d2"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="179" width="80" height="16" uuid="22c34cd5-6bbb-4afc-9b31-4a96c962b2ea"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="131" width="80" height="16" uuid="176dbc02-0061-4cf5-9c6c-cea3ccbfe7c1"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="115" width="41" height="16" uuid="8f4053bd-eb49-4440-8aa1-7b242135a16f"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="131" width="41" height="16" uuid="4fb0b56c-cdca-48e9-a93d-b2975bbe47bd"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="147" width="41" height="16" uuid="ae4dfd27-ccb7-4210-a7ab-b28cd5aa26d1"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="163" width="41" height="16" uuid="f647b1e5-00bb-4bac-bd68-1c1c13493f0b"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="179" width="41" height="16" uuid="82ffc804-7b83-4d50-9cec-bc89ff7c64a7"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="115" width="41" height="16" uuid="74067ebc-8c75-4bac-b360-e8e9cf8db34d"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="131" width="41" height="16" uuid="2143050d-70ed-4dc9-a78d-33b06a16b111"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="147" width="41" height="16" uuid="57522b77-0dc0-485b-ad2d-c014a45da881"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="163" width="41" height="16" uuid="e0aa2fef-3c4b-4f23-a372-3a99c46dc9ae"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="179" width="41" height="16" uuid="4d31c1a3-848d-4fb7-94ec-fc9527d425fc"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="115" width="47" height="16" uuid="05f6dcae-805f-44e7-b9a1-1ba0938b02b3"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="131" width="47" height="16" uuid="56984357-1087-4aa7-b09d-e9a1d8d23119"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="147" width="47" height="16" uuid="cbea05bb-18f0-438d-9271-8df25beb7944"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="163" width="47" height="16" uuid="da9d8740-3523-41e7-8e74-ee9e797c98df"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="179" width="47" height="16" uuid="97b34f99-1d34-4ec1-9b38-829c8c37c8c0"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="115" width="109" height="16" uuid="1a34b734-8ae5-4802-bb54-901b3325c788"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="131" width="109" height="16" uuid="376dcacd-0ce0-48dc-9450-eb4aaec1dc5c"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="147" width="109" height="16" uuid="3dfb489b-b131-48c7-b0ff-465cc83683a7"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="163" width="109" height="16" uuid="92552d1c-acfe-466e-8527-2ab5c830f280"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="179" width="109" height="16" uuid="660bcfb6-422a-4aac-8fda-465bf2905047"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="195" width="211" height="16" uuid="d3c12d8d-9d9d-4268-a376-21b613cae8bc"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Empreinte ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="211" width="211" height="16" uuid="63e827a6-10ba-4189-9742-7e72ef82d65e"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Traversé de colles]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="227" width="211" height="16" uuid="e0ced2ef-4155-418d-8f6b-d6cc667e750c"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Les couleurs (Référence) ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="243" width="211" height="16" uuid="aa112ce4-92e7-4361-bc3d-6b0e018022b9"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Peau d’orange]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="259" width="211" height="16" uuid="6fed7bc3-6ff8-499e-94df-a0214ae7a76f"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Bulle d’air]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="195" width="80" height="16" uuid="6635ae51-e212-4dc6-ad8c-a9300036645a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="227" width="80" height="16" uuid="3a9f1cb5-ba4a-4944-ab70-7ac1a2ff3b27"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="243" width="80" height="16" uuid="23ef586a-1eff-4cb1-a901-0178393326a3"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="259" width="80" height="16" uuid="206b1fde-39d8-4513-804c-dd68b0844a4c"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="211" width="80" height="16" uuid="6b2c9480-5d37-428e-9b15-78ab0a159bef"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="195" width="41" height="16" uuid="a060454a-3aa1-4f0e-8414-53b91e0833fe"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="211" width="41" height="16" uuid="28582b37-53f0-4313-83dd-1dfbc96e9703"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="227" width="41" height="16" uuid="9e27f7b5-fb13-4807-8383-2f65b3680ce5"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="243" width="41" height="16" uuid="1d461b6d-92a5-4b31-845f-ab2a8029dfb7"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="259" width="41" height="16" uuid="0ef4f6f0-2318-462e-92af-ae9abdb19f1a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="195" width="41" height="16" uuid="2d76db3f-fa55-439f-b4d7-5313ab9beff6"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="211" width="41" height="16" uuid="140f16f5-dbb0-4e3b-af06-df3e4274b637"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="227" width="41" height="16" uuid="a963340a-b3e5-4a76-a97f-7b514b9c01e2"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="243" width="41" height="16" uuid="0f55c219-3dc8-4b55-8689-c99d4b0f14c0"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="259" width="41" height="16" uuid="e24c7d30-1a18-4fc2-bf55-256e3b76b2b6"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="195" width="47" height="16" uuid="430a5816-fe95-4ec0-a591-2a9055177f78"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="211" width="47" height="16" uuid="b381331f-dd38-46d0-a8c7-ccffbfb973e7"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="227" width="47" height="16" uuid="ace0aadd-65ed-4e7d-9886-47ec62b80e1c"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="243" width="47" height="16" uuid="05c7e55a-5ed8-40a2-9366-7e8086355072"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="259" width="47" height="16" uuid="3a428576-de5b-4c1a-9cc7-279c40e923d2"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="195" width="109" height="16" uuid="bbc04a99-d9a3-4198-9a8c-e4a9ddc95105"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="211" width="109" height="16" uuid="99905d7a-9293-489b-bd0a-e228d996f1d7"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="227" width="109" height="16" uuid="3b5bb169-4431-4b3f-9afd-c32a21de2788"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="243" width="109" height="16" uuid="52ecbd97-b345-4dfa-8ce7-0dfb0730046e"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="259" width="109" height="16" uuid="e0cf9539-7066-4ac9-87b5-4b8a8ecaa140"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="275" width="211" height="16" uuid="ee4cc2c6-8a5f-49fa-bb20-4226c5aa4196"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Qualité de bande de chant ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="291" width="211" height="16" uuid="28cccaf3-9a55-4341-aecf-11c1d6cd3ead"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Bosses ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="275" width="80" height="16" uuid="a1f45c0d-239d-4c02-ac57-6abd88a3a7c6"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="291" width="80" height="16" uuid="60fdb2a7-f576-4551-8077-d09c429c0ee0"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="275" width="41" height="16" uuid="f5397e1d-f2d8-417a-9e75-30a3361e600c"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="291" width="41" height="16" uuid="eae758c7-fcaa-4696-8693-40d7d84fefad"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="275" width="41" height="16" uuid="ab67e1de-32e5-4fc4-bcad-b1257b608082"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="291" width="41" height="16" uuid="e35dea03-069e-4660-a348-44f858f69d52"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="275" width="47" height="16" uuid="4cb601b2-33d4-450b-becf-efe45771dd1a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="291" width="47" height="16" uuid="0bf05f47-3252-44b5-9432-b397ba4cdfbe"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="275" width="109" height="16" uuid="7cb0aafb-641a-41b9-ae81-a1f9b1cc4433"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="291" width="109" height="16" uuid="4e71215b-71da-4d44-8553-399908472672"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="307" width="20" height="80" backcolor="#DBDBDB" uuid="f0c974d3-59ab-415b-82d9-73b6a142ee11"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="Left">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Assemblage]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="307" width="211" height="16" uuid="d0bd2897-6c2f-436d-966f-b88f9e7f579c"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Qualité de collage (Contrôle visuel) ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="323" width="211" height="16" uuid="eb0da2e6-bf31-4830-982f-32167f5d0f37"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Feuillure (Cadre de porte)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="339" width="211" height="16" uuid="9b5a4e47-8f44-4dbc-bb80-3b63a6d3f023"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Perçage (Alignement  des axes) ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="355" width="211" height="16" uuid="38394c15-d431-4e67-9428-de2c5b8a8239"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Vérification des assemblages / joints]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="371" width="211" height="16" uuid="2cc92d2a-d40c-4e5d-9ea6-45b3b30f2ca5"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Plat joint (Appareillage Bois Massif)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="307" width="80" height="16" uuid="66e9b69a-cf7c-4576-b8d9-e7828efbfefe"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="339" width="80" height="16" uuid="711e631f-b60b-4e46-9ae2-7da99150fda2"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="355" width="80" height="16" uuid="cb4e9815-4f3f-4f2a-9567-01a21fb730d5"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="371" width="80" height="16" uuid="0e5ef52a-12d3-42bd-b64d-2bc297844d42"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="323" width="80" height="16" uuid="027fd246-aee5-4d05-aed0-1b3a7546193b"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="307" width="41" height="16" uuid="0b6f2b5e-f5ce-40ec-bd2a-34a51e51c48d"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="323" width="41" height="16" uuid="df8039a0-c074-49a0-ae2b-40c67a31ab87"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="339" width="41" height="16" uuid="a98e3325-b629-497f-8679-e338ce251245"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="355" width="41" height="16" uuid="0d398c59-50ce-4e13-ac20-25ce07bea758"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="371" width="41" height="16" uuid="8072e86e-894d-4700-9028-fff7198412d4"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="307" width="41" height="16" uuid="b14a36d4-4985-401e-99c6-db17e9b02d8e"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="323" width="41" height="16" uuid="e942c238-9db0-4f54-8081-7985790224a7"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="339" width="41" height="16" uuid="fbc4fa34-e9a6-4cbf-b731-be7a75d253c7"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="355" width="41" height="16" uuid="f123669b-7ad7-4470-b6bf-3dc51a37d12a"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="371" width="41" height="16" uuid="d8de97b1-ab43-424f-8e14-92092e5359c0"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="307" width="47" height="16" uuid="a51ca6fe-2ad2-4170-ba67-f6fb7cb45d72"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="323" width="47" height="16" uuid="6455fdee-6a3c-4183-bc86-6eeaffce9bd6"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="339" width="47" height="16" uuid="01da2a6f-d4f5-4b4a-8048-de7559ed0716"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="355" width="47" height="16" uuid="7f793f46-6cb0-4d49-a678-825c1e592053"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="371" width="47" height="16" uuid="9f986a02-2968-44cd-bdf8-01926fa2ee0f"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="307" width="109" height="16" uuid="d846666a-5441-4fc9-9941-77c9d059b2a3"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="323" width="109" height="16" uuid="68fba0c8-2ba8-4ca1-9a7c-ea812b9c50bb"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="339" width="109" height="16" uuid="f512f8d4-3fee-4ec8-bef8-4269db6cb4b5"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="355" width="109" height="16" uuid="04ce5b7d-0ad7-4754-84d4-515a5686e765"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="371" width="109" height="16" uuid="1177e77d-ac4e-47c2-aaa2-5b29cd39dc91"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="387" width="20" height="64" backcolor="#DBDBDB" uuid="07b5ad19-f87d-41b6-8efe-41c80038cb89"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="Left">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Accessoires]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="387" width="211" height="16" uuid="6a901281-155c-443d-b000-cf4c40bd111b"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Quincaillerie]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="403" width="211" height="16" uuid="94d6e101-19d9-44ae-99e6-e381765c6824"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Boulonnerie]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="419" width="211" height="16" uuid="792ffb4d-32bf-431c-a4fa-8796a01e4b1e"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Système d’accrochage de fixation]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="435" width="211" height="16" uuid="fcfefbe7-dd4a-4c28-9ca2-ca3497a69591"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Cheville]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="387" width="80" height="16" uuid="4ae7c76b-559e-469a-8619-7c887085f285"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="419" width="80" height="16" uuid="a3fbfc33-ec96-4c77-a71e-a5234e42d16e"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="435" width="80" height="16" uuid="ac9f8bf0-d3e1-43d4-bd05-7602645ace84"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="403" width="80" height="16" uuid="c96a22cc-8642-45c3-92c1-7d4cc70d12c6"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="387" width="41" height="16" uuid="cce1f55f-6716-4412-9233-cfce80af4313"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="403" width="41" height="16" uuid="0301f3ff-dfaa-492a-aad8-4b8b3abf2db2"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="419" width="41" height="16" uuid="f9fb3bb9-8e0f-47e0-ace4-c38f0a8ae052"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="311" y="435" width="41" height="16" uuid="66b2f19d-ee10-4f97-a69a-0c503069fe16"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="387" width="41" height="16" uuid="b1d38147-43a4-434a-b1a2-e2db75745d31"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="403" width="41" height="16" uuid="35767dcf-abe9-47bd-9933-bd8ba869e167"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="419" width="41" height="16" uuid="25625196-18bf-4a50-8e3b-2a56b5b57c20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="435" width="41" height="16" uuid="9f03498e-ee16-4803-9038-3be18a872d8e"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="387" width="47" height="16" uuid="089ca456-19ff-4d9c-a548-82c89c79bc15"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="403" width="47" height="16" uuid="9d72d821-4930-411a-bceb-6a15f1bae346"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="419" width="47" height="16" uuid="6ab758fc-4bf6-4e50-81da-af0042f5685b"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="393" y="435" width="47" height="16" uuid="b73ba115-254c-42cb-85c0-4f55e59d225f"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="387" width="109" height="16" uuid="d5e63c8c-dd5f-4c82-af83-622d70ae62f2"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="403" width="109" height="16" uuid="e4b7abbf-d5b2-4812-a819-6bdf712fb178"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="419" width="109" height="16" uuid="c7189bb1-a961-4535-aae6-e0c4205ca504"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="435" width="109" height="16" uuid="7bbb29e2-2aba-4a27-9fc7-1a49b911770b"/>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="451" width="530" height="19" uuid="9d5d7b0f-9171-4a57-802a-9fc78b31522b"/>
+				<textElement textAlignment="Left">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[C : Conforme				NC : Non conforme			NA : Non applicable]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="14" width="231" height="21" backcolor="#DBDBDB" uuid="7d4f1a04-64a2-4d1d-bccd-104e3a5db621"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Points de contrôles]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="231" y="14" width="80" height="21" backcolor="#DBDBDB" uuid="f371cd16-3775-47e3-b6f6-2376f0a796ae"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valeur]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="311" y="14" width="41" height="21" backcolor="#DBDBDB" uuid="28fa8158-2575-45c0-8e84-87a9898d5e55"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[C]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="352" y="14" width="41" height="21" backcolor="#DBDBDB" uuid="7f392713-eca2-4e43-95dd-b689d81bfc7f"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NC]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="393" y="14" width="47" height="21" backcolor="#DBDBDB" uuid="ca3d3f67-e47e-48de-882b-76d804dca49d"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="440" y="14" width="109" height="21" backcolor="#DBDBDB" uuid="15f8c982-32da-4fe6-bf91-76e24cc1a91f"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Observation]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="470" width="101" height="20" uuid="fbc7f81a-2529-412f-9330-345264394e21"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Tolérances :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="490" width="150" height="21" backcolor="#DBDBDB" uuid="22afe277-93ae-4580-8137-4957118acba6"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Tolérances Dimensionnel :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="150" y="490" width="140" height="21" backcolor="#DBDBDB" uuid="f15503a9-c8f3-49be-9c97-f6425cb2941c"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Tolérances Equerrage :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="490" width="139" height="21" backcolor="#DBDBDB" uuid="936c4735-28f2-404a-b1df-81614508c9cb"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Tolérances Assemblage :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="429" y="490" width="125" height="21" backcolor="#DBDBDB" uuid="613c7fcd-ba2d-41ab-b477-cf04c19087fc"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Tolérances Planéité :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="511" width="150" height="40" uuid="d12d11aa-06b7-44ba-a84f-74692cc3167d"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[o	Longueur :  ± 1 mm
+o	Largeur :  ± 1 mm
+o	L’épaisseur :  ± 1 mm 
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="150" y="511" width="140" height="40" uuid="f5bc4198-0ad1-4ccb-98a7-55afa699ec09"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[o	Equerrage : 0mm/m
+o	Diagonale :  ± 2 mm
+o	Déformations ± 1 mm
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="290" y="511" width="139" height="40" uuid="c79b237f-ac9c-4464-be2a-52f09715cf7d"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[o	Perçage : ± 0.3 mm]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="429" y="511" width="125" height="40" uuid="7240e815-d426-4cc9-a36f-d7d997f5ef9b"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[o    Planéité :  ± 0.5 mm/m]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="561" width="300" height="20" backcolor="#DBDBDB" uuid="4893c28f-83e9-4691-b4f1-e77da387b509"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Contrôleur ( Nom) ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="300" y="561" width="252" height="20" backcolor="#DBDBDB" uuid="b2809323-9a61-4e01-b3b9-df413524cf7a"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Signature]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="581" width="300" height="51" uuid="f9bbdec8-8494-48b1-b865-278069f056b9"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="300" y="581" width="252" height="51" uuid="43881fe2-bf97-4616-add8-39e72997f95f"/>
+				<box>
+					<pen lineWidth="1.0"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="51" splitType="Stretch">
+			<staticText>
+				<reportElement x="20" y="6" width="529" height="24" forecolor="#7A7979" uuid="3258c4e9-9b90-46c6-9c00-e9de4e61e3e8"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[  Toute communication de ce document est strictement interdite sans autorisation de la direction RICHE BOIS Veiller à la vérification de l’édition de ce document avant son utilisation]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="412" y="30" width="140" height="21" forecolor="#7A7979" uuid="3ba479aa-40a6-4309-a6c7-cdaccffe37a1"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11"/>
+				</textElement>
+				<text><![CDATA[Code : FL-PRO-12 V00]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+</jasperReport>

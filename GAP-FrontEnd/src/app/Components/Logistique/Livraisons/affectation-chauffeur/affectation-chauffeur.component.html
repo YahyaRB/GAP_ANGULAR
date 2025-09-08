@@ -1,0 +1,155 @@
+<div class="modal-dialog modal-dialog-centered modal-lg-custom">
+  <div class="modal-content card radius-15">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h5 class="modal-title">Éditer une livraison</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form name="form" [formGroup]="myFormUpdate" (ngSubmit)="onUpdate()">
+      <div class="modal-body">
+
+
+        <!-- Date Livraison -->
+        <div class="row mb-3">
+          <label for="dateLivraison" class="col-sm-3 col-form-label">Date de livraison</label>
+          <div class="col-sm-9">
+            <input
+              type="date"
+              id="dateLivraison"
+              class="form-control"
+              placeholder="Sélectionnez la date de livraison"
+              readonly
+              [attr.max]="today"
+              formControlName="dateLivraison">
+          </div>
+        </div>
+
+        <!-- Atelier -->
+        <div class="row mb-3">
+          <label for="atelier" class="col-sm-3 col-form-label">Atelier</label>
+          <div class="col-sm-9">
+            <ng-select
+              id="atelier"
+              placeholder="Sélectionnez un atelier"
+              formControlName="atelier">
+              <ng-option *ngFor="let atelier of ateliers" [value]="atelier">
+                {{ atelier.designation }}
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+
+        <!-- Affaire -->
+        <div class="row mb-3">
+          <label for="projet" class="col-sm-3 col-form-label">Affaire</label>
+          <div class="col-sm-9">
+            <ng-select
+              id="projet"
+              placeholder="Sélectionnez une affaire"
+              formControlName="projet">
+              <ng-option *ngFor="let affaire of projets" [value]="affaire">
+                {{ affaire.code + ' - ' + affaire.designation }}
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+        .  <!-- Chauffeur -->
+        <div class="row mb-3">
+          <label for="projet" class="col-sm-3 col-form-label">Affaire</label>
+          <div class="col-sm-9">
+            <ng-select
+              id="chauffeur"
+              placeholder="Sélectionnez un chauffeur"
+              formControlName="chauffeur">
+              <ng-option *ngFor="let chauffeur of chauffeurs" [value]="chauffeur.id">
+                {{chauffeur.nom + ' ' + chauffeur.prenom }}
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+        <!-- Entête + bouton jQuery -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0">Détails de la livraison</h6>
+
+          <!-- Ouvrir/Fermer via jQuery -->
+          <button class="btn btn-sm btn-outline-primary"
+                  type="button"
+                  data-toggle="collapse"
+                  data-target="#detailsLivraison"
+                  aria-expanded="false"
+                  aria-controls="detailsLivraison"
+                  (click)="isDetailsOpen = !isDetailsOpen">
+            {{ isDetailsOpen ? 'Masquer détail' : 'Afficher détail' }}
+          </button>
+
+        </div>
+
+        <!-- (Option) Ouvrir/fermer en pur Bootstrap data-attributes -->
+
+
+        <!-- Bloc repliable -->
+        <div id="detailsLivraison" class="collapse">
+          <div class="card mb-3">
+            <div class="card-body p-2">
+              <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                  <thead class="thead-light">
+                  <tr>
+                    <th>N°OF</th>
+                    <th>Désignation</th>
+                    <th>Quantité</th>
+
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <!-- Liste rendue par Angular -->
+                  <tr *ngFor="let detail of details; trackBy: trackByIndex">
+                    <td>{{ detail.ordreFabrication.numOF }}</td>
+                    <td>{{ detail.ordreFabrication.article.designation }}</td>
+                    <td>{{ detail.quantite }}</td>
+
+                  </tr>
+
+                  <!-- État vide -->
+                  <tr *ngIf="!details?.length">
+                    <td colspan="6" class="text-center text-muted py-3">
+                      Aucune ligne à afficher.
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- (Option) Pagination/infos -->
+              <div class="d-flex justify-content-between align-items-center mt-2" *ngIf="details?.length">
+                <small class="text-muted">Total: {{ details.length }} ligne(s)</small>
+                <!-- place pour une pagination si besoin -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          #closebutton
+          data-dismiss="modal">
+          Fermer
+        </button>
+        <button
+          type="submit"
+          [disabled]="!myFormUpdate.valid"
+          class="btn btn-primary">
+          Valider
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
