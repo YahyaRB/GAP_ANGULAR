@@ -252,14 +252,7 @@ export class AddDetailLivraisonComponent implements OnInit, OnChanges {
     if (type === 'OF_COMPLET' && detail.ordreFabrication) {
       return detail.ordreFabrication.numOF || 'N/A';
     } else if (type === 'NOMENCLATURE' && detail.nomenclature) {
-      // Utiliser d'abord l'objet ordreFabrication si disponible
-      if (detail.nomenclature.ordreFabrication) {
-        return detail.nomenclature.ordreFabrication.numOF || 'N/A';
-      }
-      // Sinon utiliser la propriété numOF si elle existe
-      if (detail.nomenclature.numOF) {
-        return detail.nomenclature.numOF;
-      }
+      // CORRECTION : Utiliser ordreFabricationId au lieu de ordreFabrication
       // Fallback: chercher dans la liste des OF par ID
       if (detail.nomenclature.ordreFabricationId && this.ordreFabrications) {
         const of = this.ordreFabrications.find(o => o.id === detail.nomenclature!.ordreFabricationId);
@@ -344,11 +337,16 @@ export class AddDetailLivraisonComponent implements OnInit, OnChanges {
     return this.tempQuantities.get(globalIndex) || detail.quantite;
   }
   loadOFForNomenclature(nomenclature: INomenclature): void {
-    if (nomenclature.ordreFabrication && this.ordreFabrications) {
-      const of = this.ordreFabrications.find(o => o.id === nomenclature.ordreFabrication.id);
+    // CORRECTION : Utiliser ordreFabricationId au lieu de ordreFabrication
+    if (nomenclature.ordreFabricationId && this.ordreFabrications) {
+      const of = this.ordreFabrications.find(o => o.id === nomenclature.ordreFabricationId);
       if (of) {
+        // REMARQUE : Si vous voulez ajouter numOF à l'interface INomenclature,
+        // vous devez d'abord modifier l'interface, sinon cette ligne ne fonctionnera pas
+        // nomenclature.numOF = of.numOF; // Cette ligne cause l'erreur
 
-        nomenclature.numOF = of.numOF;
+        // Alternative : créer une propriété temporaire ou utiliser une autre approche
+        console.log('OF trouvé pour nomenclature:', of.numOF);
       }
     }
   }

@@ -230,6 +230,7 @@ export class ListeOFComponent implements OnInit {
       next: (nomenclatures: INomenclature[]) => {
         this.nomenclaturesCache.set(ofId, nomenclatures);
         this.loadingStatesCache.set(ofId, false);
+        console.log( 'xxxxxxxx',this.nomenclaturesCache)
       },
       error: (error) => {
         console.error(`Erreur lors du chargement des nomenclatures pour l'OF ${ofId}:`, error);
@@ -247,12 +248,26 @@ export class ListeOFComponent implements OnInit {
   }
 
   // Rafraîchit les nomenclatures après modification
+  // Remplacez votre méthode refreshNomenclatures (ligne 181-187)
   refreshNomenclatures(): void {
+    console.log('🔄 Rafraîchissement des nomenclatures...');
+
+    // Solution 1 : Utiliser selectedOFForNomenclature si disponible
     if (this.selectedOFForNomenclature) {
       const ofId = this.selectedOFForNomenclature.id;
+      console.log(`📝 Rafraîchissement de l'OF ${ofId}`);
       this.nomenclaturesCache.delete(ofId);
       this.loadNomenclatures(ofId);
+      return;
     }
+
+    // Solution 2 : Rafraîchir tous les OF étendus en fallback
+    console.log('📝 Rafraîchissement de tous les OF étendus');
+    this.expandedOFs.forEach(ofId => {
+      console.log(`🔄 Rechargement OF ${ofId}`);
+      this.nomenclaturesCache.delete(ofId);
+      this.loadNomenclatures(ofId);
+    });
   }
 
   // ================= GETTERS POUR LES NOMENCLATURES =================
@@ -463,4 +478,6 @@ export class ListeOFComponent implements OnInit {
   trackByOF(index: number, of: IordreFabrication): number {
     return of.id;
   }
+
+
 }

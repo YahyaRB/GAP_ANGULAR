@@ -1,9 +1,9 @@
-export interface INomenclature {
+export interface INomenclatureEntity {
   id?: number;
   type: string;
   designation: string;
   unite: string;
-  quantite: number;           // ← Utiliser "quantite" comme dans le DTO Java
+  quantiteTot: number;        // ← Nom de l'entité Java
   quantiteRest: number;
   quantiteLivre: number;
   ordreFabricationId?: number;

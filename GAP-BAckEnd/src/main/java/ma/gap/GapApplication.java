@@ -38,9 +38,8 @@ public class GapApplication extends SpringBootServletInitializer implements Comm
 
 	@Bean
 	public AuditorAware<String> auditorAware() {
-		return new SecurityAuditorAware(globalVariableConfig);
+		return new SecurityAuditorAware(); // ← Sans paramètre
 	}
-
 
 
 
