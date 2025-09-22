@@ -16,6 +16,8 @@ import {Iuser} from "../../../services/Interfaces/iuser";
 import {DetailLivraisonService} from "../../../services/detail-livraison.service";
 import {AtelierService} from "../../../services/atelier.service";  // Service pour les projets
 declare var $: any;  // Déclaration de jQuery pour l'utilisation des plugins JS
+import * as XLSX from 'xlsx';
+import {IdetailLivraison} from "../../../services/Interfaces/idetail-livraison";
 
 @Component({
   selector: 'app-liste-livraisons',  // Définition du sélecteur pour ce composant
@@ -212,12 +214,313 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
     );
   }
 
-  exportExel() {
+  async exportExcel(): Promise<void> {
+    try {
+      // Commencer avec toutes les données des livraisons
+      let filteredData = [...this.POSTS];
 
+      // Appliquer le filtre de recherche textuel si présent
+      if (this.pfiltre && this.pfiltre.trim() !== '') {
+        const searchTerm = this.pfiltre.toLowerCase().trim();
+        filteredData = filteredData.filter(livraison =>
+          (livraison.id?.toString() || '').includes(searchTerm) ||
+          (livraison.projet?.code?.toLowerCase() || '').includes(searchTerm) ||
+          (livraison.projet?.designation?.toLowerCase() || '').includes(searchTerm) ||
+          (livraison.atelier?.designation?.toLowerCase() || '').includes(searchTerm) ||
+          (livraison.chauffeur?.nom?.toLowerCase() || '').includes(searchTerm) ||
+          (livraison.chauffeur?.prenom?.toLowerCase() || '').includes(searchTerm)
+        );
+      }
+
+      // Appliquer les filtres du formulaire de recherche si présents
+      if (this.myFormSearch && this.myFormSearch.value) {
+        const formValues = this.myFormSearch.value;
+
+        if (formValues.idprojet) {
+          filteredData = filteredData.filter(livraison => livraison.projet?.id === formValues.idprojet);
+        }
+
+        if (formValues.idatelier) {
+          filteredData = filteredData.filter(livraison => livraison.atelier?.id === formValues.idatelier);
+        }
+
+        if (formValues.idchauffeur) {
+          filteredData = filteredData.filter(livraison => livraison.chauffeur?.id === formValues.idchauffeur);
+        }
+
+        if (formValues.dateDebut) {
+          const dateDebut = new Date(formValues.dateDebut);
+          filteredData = filteredData.filter(livraison =>
+            new Date(livraison.dateLivraison) >= dateDebut
+          );
+        }
+
+        if (formValues.dateFin) {
+          const dateFin = new Date(formValues.dateFin);
+          filteredData = filteredData.filter(livraison =>
+            new Date(livraison.dateLivraison) <= dateFin
+          );
+        }
+      }
+
+      if (filteredData.length === 0) {
+        alert('Aucune donnée correspondant aux filtres à exporter');
+        return;
+      }
+
+      // CHARGER LES DETAILS DE LIVRAISON POUR CHAQUE LIVRAISON
+      console.log('Chargement des détails pour', filteredData.length, 'livraisons...');
+
+      const livraisonsAvecDetails: any[] = [];
+
+      for (const livraison of filteredData) {
+        try {
+          // Remplace 'livraisonService.getDetailsLivraison' par ton vrai service
+
+          const details = await this.detailService.getListeDetailByLivraison(livraison.id).toPromise();
+          livraisonsAvecDetails.push({
+            ...livraison,
+            detailLivraison: details
+          });
+        } catch (error) {
+          console.error(`Erreur lors du chargement des détails pour la livraison ${livraison.id}:`, error);
+          // Ajouter la livraison sans détails
+          livraisonsAvecDetails.push({
+            ...livraison,
+            detailLivraison: []
+          });
+        }
+      }
+
+      // Préparer les données pour l'export - PARCOURIR LES DETAILS DE LIVRAISON
+      const exportData: any[] = [];
+
+      livraisonsAvecDetails.forEach(livraison => {
+        console.log('Livraison :', livraison.id);
+        console.log('Detail livraison :', livraison.detailLivraison?.length || 0, 'détails');
+
+        if (livraison.detailLivraison && livraison.detailLivraison.length > 0) {
+          // Pour chaque détail de cette livraison, créer une ligne
+          livraison.detailLivraison.forEach(detail => {
+            exportData.push({
+              'BL': `BL-${livraison.id}`,
+              'Date Livraison': livraison.dateLivraison,
+              'Ordre de Fabrication': detail.ordreFabrication?.numOF || '',
+              'Description OF': detail.ordreFabrication?.description || '',
+              'Designation Article': detail.ordreFabrication?.article?.designation || '',
+              'Date OF': detail.ordreFabrication?.date || '',
+              'Quantité OF': detail.ordreFabrication?.quantite || 0,
+              'Quantité Livré': detail.quantite || 0,
+              'Chauffeur': `${livraison.chauffeur?.nom || ''} ${livraison.chauffeur?.prenom || ''}`.trim(),
+              'Atelier': livraison.atelier?.designation || '',
+              'Affaire': `${livraison.projet?.code || ''}-${livraison.projet?.designation || ''}`.replace(/^-|-$/g, '')
+            });
+          });
+        } else {
+          // Si pas de détails, créer une ligne pour la livraison sans détails
+          exportData.push({
+            'BL': `BL-${livraison.id}`,
+            'Date Livraison': livraison.dateLivraison,
+            'Ordre de Fabrication': 'Aucun détail',
+            'Description OF': '',
+            'Designation Article': '',
+            'Date OF': '',
+            'Quantité OF': 0,
+            'Quantité Livré': 0,
+            'Chauffeur': `${livraison.chauffeur?.nom || ''} ${livraison.chauffeur?.prenom || ''}`.trim(),
+            'Atelier': livraison.atelier?.designation || '',
+            'Affaire': `${livraison.projet?.code || ''}-${livraison.projet?.designation || ''}`.replace(/^-|-$/g, '')
+          });
+        }
+      });
+
+      // Créer le workbook et la worksheet
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+
+      // Définir la largeur des colonnes
+      const colWidths = [
+        { wch: 12 },  // BL
+        { wch: 15 },  // Date Livraison
+        { wch: 20 },  // Ordre de Fabrication
+        { wch: 50 },  // Description OF
+        { wch: 40 },  // Designation Article
+        { wch: 12 },  // Date OF
+        { wch: 12 },  // Quantité OF
+        { wch: 15 },  // Quantité Livré
+        { wch: 25 },  // Chauffeur
+        { wch: 15 },  // Atelier
+        { wch: 60 }   // Affaire
+      ];
+      ws['!cols'] = colWidths;
+
+      // Styliser les en-têtes
+      const headerStyle = {
+        font: { bold: true, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "4472C4" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+
+      // Appliquer le style aux en-têtes
+      const headerCells = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'I1', 'J1', 'K1'];
+      headerCells.forEach(cell => {
+        if (ws[cell]) {
+          ws[cell].s = headerStyle;
+        }
+      });
+
+      // Styles pour les données
+      const dataStyle = {
+        alignment: { vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "CCCCCC" } },
+          bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+          left: { style: "thin", color: { rgb: "CCCCCC" } },
+          right: { style: "thin", color: { rgb: "CCCCCC" } }
+        }
+      };
+
+      // Appliquer le style aux données
+      for (let row = 2; row <= exportData.length + 1; row++) {
+        headerCells.forEach((_, colIndex) => {
+          const cellAddress = XLSX.utils.encode_cell({ r: row - 1, c: colIndex });
+          if (ws[cellAddress]) {
+            // Formatage spécial pour les dates
+            if (colIndex === 1 || colIndex === 5) {
+              ws[cellAddress].s = {
+                ...dataStyle,
+                numFmt: "dd/mm/yyyy",
+                fill: row % 2 === 0 ?
+                  { fgColor: { rgb: "F8F9FA" } } :
+                  { fgColor: { rgb: "FFFFFF" } }
+              };
+            } else {
+              ws[cellAddress].s = {
+                ...dataStyle,
+                fill: row % 2 === 0 ?
+                  { fgColor: { rgb: "F8F9FA" } } :
+                  { fgColor: { rgb: "FFFFFF" } }
+              };
+            }
+          }
+        });
+      }
+
+      // Ajouter la worksheet au workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Liste Livraisons');
+
+      // Ajouter une feuille de résumé
+      const totalDetails = exportData.filter(row => row['Ordre de Fabrication'] !== 'Aucun détail').length;
+      const summaryData = [
+        { 'Information': 'Nombre total de lignes', 'Valeur': exportData.length },
+        { 'Information': 'Lignes avec détails', 'Valeur': totalDetails },
+        { 'Information': 'Livraisons sans détails', 'Valeur': exportData.length - totalDetails },
+        { 'Information': 'Livraisons différentes', 'Valeur': livraisonsAvecDetails.length },
+        { 'Information': 'Chauffeurs différents', 'Valeur': new Set(filteredData.map(l => l.chauffeur?.id).filter(id => id)).size },
+        { 'Information': 'Ateliers différents', 'Valeur': new Set(filteredData.map(l => l.atelier?.id).filter(id => id)).size },
+        { 'Information': 'Affaires différentes', 'Valeur': new Set(filteredData.map(l => l.projet?.id).filter(id => id)).size },
+        { 'Information': 'Date d\'export', 'Valeur': new Date().toLocaleString('fr-FR') },
+        { 'Information': 'Filtre de recherche', 'Valeur': this.pfiltre?.trim() || 'Aucun filtre' }
+      ];
+
+      const summaryWs: XLSX.WorkSheet = XLSX.utils.json_to_sheet(summaryData);
+      summaryWs['!cols'] = [{ wch: 50 }, { wch: 30 }];
+
+      // Styliser la feuille de résumé
+      const summaryHeaderCells = ['A1', 'B1'];
+      summaryHeaderCells.forEach(cell => {
+        if (summaryWs[cell]) {
+          summaryWs[cell].s = headerStyle;
+        }
+      });
+
+      XLSX.utils.book_append_sheet(wb, summaryWs, 'Résumé');
+
+      // Générer le nom du fichier
+      const currentDate = new Date();
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const timeStr = currentDate.toTimeString().split(' ')[0].replace(/:/g, '-');
+      const fileName = `Livraisons_Details_${dateStr}_${timeStr}.xlsx`;
+
+      // Télécharger le fichier
+      XLSX.writeFile(wb, fileName);
+
+      console.log(`Export réussi: ${exportData.length} lignes exportées avec ${totalDetails} détails`);
+
+    } catch (error) {
+      console.error('Erreur lors de l\'export Excel:', error);
+      alert('Erreur lors de l\'export Excel. Veuillez réessayer.');
+    }
   }
 
+// Fonction utilitaire pour les statistiques par atelier depuis les détails
+  private getAtelierStatisticsFromDetails(details: IdetailLivraison[]): { atelier: string, count: number }[] {
+    const atelierCount = new Map<string, number>();
+
+    details.forEach(detail => {
+      const atelierName = detail.livraison?.atelier?.designation || 'Non défini';
+      atelierCount.set(atelierName, (atelierCount.get(atelierName) || 0) + 1);
+    });
+
+    return Array.from(atelierCount.entries())
+      .map(([atelier, count]) => ({ atelier, count }))
+      .sort((a, b) => b.count - a.count);
+  }
+// Fonction utilitaire pour les statistiques par atelier
+
+
+// **MÉTHODES AUXILIAIRES pour reproduire le formatage SQL**
+
+  private formatOrdreFabrication(of: any): string {
+    if (!of) return '';
+    // Reproduction de : 'OF ' + CAST(ofs.compteur AS VARCHAR(10)) + ' -' +RIGHT('0' + CAST(MONTH(ofs.date) AS VARCHAR(2)), 2) + ' ' + REPLACE(SUBSTRING(ofs.creer_par, 2, 2), '.', '')
+    const compteur = of.compteur || '';
+    const mois = of.date ? String(new Date(of.date).getMonth() + 1).padStart(2, '0') : '00';
+    const creerPar = of.creerPar ? of.creerPar.substring(1, 3).replace('.', '') : '';
+    return `OF ${compteur} -${mois} ${creerPar}`;
+  }
+
+  private formatChauffeur(chauffeur: any): string {
+    if (!chauffeur) return '';
+    return `${chauffeur.nom || ''} ${chauffeur.prenom || ''}`.trim();
+  }
+
+  private formatAffaire(projet: any): string {
+    if (!projet) return '';
+    return `${projet.code || ''}-${projet.designation || ''}`;
+  }
+
+  private formatDateForExport(date: Date): string {
+    if (!date) return '';
+    // Format YYYY-MM-DD comme dans CONVERT(VARCHAR(10), date, 120)
+    return new Date(date).toISOString().split('T')[0];
+  }
+
+  private formatDateForSearch(date: Date): string {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('fr-FR').toLowerCase();
+  }
+
+  private getDateRangeFromData(data: any[]): string {
+    if (!data.length) return 'Aucune donnée';
+
+    const dates = data.map(d => new Date(d.dateLivraison)).filter(d => !isNaN(d.getTime()));
+    if (!dates.length) return 'Dates invalides';
+
+    const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+
+    return `Du ${minDate.toLocaleDateString('fr-FR')} au ${maxDate.toLocaleDateString('fr-FR')}`;
+  }
+
+
   protected readonly ROLES_ADMIN_AGENTSAISIE = ROLES_ADMIN_AGENTSAISIE;
-  protected readonly ROLES = ROLES;
 
 
 }

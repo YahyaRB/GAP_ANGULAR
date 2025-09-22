@@ -135,24 +135,7 @@ export class ListePersonnelsComponent implements OnInit, OnChanges {
   }
 
   // Exportation Excel
-  exportExel() {
-    // Mettez à jour les données pour remplacer les IDs par les noms des fonctions et ateliers
-    const transformedPosts = this.POSTS.map((employe: Iemploye) => {
-      return {
-        ...employe,
-        ateliers: employe.ateliers ? employe.ateliers.designation : '',  // Remplacer l'ID de l'atelier par le nom
-        fonction: employe.fonction ? employe.fonction.designation : '',  // Remplacer l'ID de la fonction par le nom
-      };
-    });
 
-    // Créer la feuille Excel avec les données modifiées
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(transformedPosts);
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Liste Employés');
-
-    // Générer et télécharger le fichier Excel
-    XLSX.writeFile(wb, 'Liste_Employes.xlsx');
-  }
 
 
   // Vérifie si l'utilisateur possède l'un des rôles spécifiés
@@ -163,6 +146,206 @@ export class ListePersonnelsComponent implements OnInit, OnChanges {
   hasRole(role: string): boolean {
     return this.roleService.hasRole(role);
   }
+  exportExel(): void {
+    try {
+      // Commencer avec toutes les données
+      let filteredData = [...this.POSTS];
+
+      // Appliquer le filtre de recherche textuel si présent
+      if (this.pfiltre && this.pfiltre.trim() !== '') {
+        const searchTerm = this.pfiltre.toLowerCase().trim();
+        filteredData = filteredData.filter(employe =>
+          (employe.matricule?.toLowerCase() || '').includes(searchTerm) ||
+          (employe.nom?.toLowerCase() || '').includes(searchTerm) ||
+          (employe.prenom?.toLowerCase() || '').includes(searchTerm) ||
+          (employe.ateliers?.designation?.toLowerCase() || '').includes(searchTerm) ||
+          (employe.fonction?.designation?.toLowerCase() || '').includes(searchTerm)
+        );
+      }
+
+      // Appliquer les filtres avancés du formulaire
+      if (this.myFormSearch) {
+        const formValues = this.myFormSearch.value;
+
+        if (formValues.matricule && formValues.matricule.trim() !== '') {
+          filteredData = filteredData.filter(employe =>
+            employe.matricule?.toLowerCase().includes(formValues.matricule.toLowerCase())
+          );
+        }
+
+        if (formValues.nom && formValues.nom.trim() !== '') {
+          filteredData = filteredData.filter(employe =>
+            employe.nom?.toLowerCase().includes(formValues.nom.toLowerCase())
+          );
+        }
+
+        if (formValues.prenom && formValues.prenom.trim() !== '') {
+          filteredData = filteredData.filter(employe =>
+            employe.prenom?.toLowerCase().includes(formValues.prenom.toLowerCase())
+          );
+        }
+
+        if (formValues.idatelier && formValues.idatelier !== 0) {
+          filteredData = filteredData.filter(employe =>
+            employe.ateliers?.id === formValues.idatelier
+          );
+        }
+
+        if (formValues.idfonction && formValues.idfonction !== 0) {
+          filteredData = filteredData.filter(employe =>
+            employe.fonction?.id === formValues.idfonction
+          );
+        }
+      }
+
+      if (filteredData.length === 0) {
+        alert('Aucune donnée correspondant aux filtres à exporter');
+        return;
+      }
+
+      // Préparer les données pour l'export
+      const exportData = filteredData.map((employe, index) => ({
+        'N°': index + 1,
+        'ID': employe.id || '',
+        'Matricule': employe.matricule || '',
+        'Nom': employe.nom || '',
+        'Prénom': employe.prenom || '',
+        'Atelier': employe.ateliers?.designation || '',
+        'Fonction': employe.fonction?.designation || '',
+        'Nom Complet': `${employe.nom || ''} ${employe.prenom || ''}`.trim()
+      }));
+
+      // Créer le workbook et la worksheet
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+
+      // Définir la largeur des colonnes
+      const colWidths = [
+        { wch: 5 },   // N°
+        { wch: 8 },   // ID
+        { wch: 15 },  // Matricule
+        { wch: 20 },  // Nom
+        { wch: 20 },  // Prénom
+        { wch: 25 },  // Atelier
+        { wch: 25 },  // Fonction
+        { wch: 35 }   // Nom Complet
+      ];
+      ws['!cols'] = colWidths;
+
+      // Styliser les en-têtes
+      const headerStyle = {
+        font: { bold: true, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "4472C4" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+
+      // Appliquer le style aux en-têtes (ligne 1)
+      const headerCells = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1'];
+      headerCells.forEach(cell => {
+        if (ws[cell]) {
+          ws[cell].s = headerStyle;
+        }
+      });
+
+      // Ajouter des styles alternés pour les lignes de données
+      const dataStyle = {
+        alignment: { vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "CCCCCC" } },
+          bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+          left: { style: "thin", color: { rgb: "CCCCCC" } },
+          right: { style: "thin", color: { rgb: "CCCCCC" } }
+        }
+      };
+
+      // Appliquer le style aux données (à partir de la ligne 2)
+      for (let row = 2; row <= exportData.length + 1; row++) {
+        headerCells.forEach((_, colIndex) => {
+          const cellAddress = XLSX.utils.encode_cell({ r: row - 1, c: colIndex });
+          if (ws[cellAddress]) {
+            ws[cellAddress].s = {
+              ...dataStyle,
+              fill: row % 2 === 0 ?
+                { fgColor: { rgb: "F8F9FA" } } :
+                { fgColor: { rgb: "FFFFFF" } }
+            };
+          }
+        });
+      }
+
+      // Ajouter la worksheet au workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Liste Employés');
+
+      // Ajouter une feuille de résumé
+      const summaryData = [
+        { 'Information': 'Nombre total d\'employés', 'Valeur': filteredData.length },
+        { 'Information': 'Nombre d\'ateliers représentés', 'Valeur': new Set(filteredData.map(emp => emp.ateliers?.id).filter(id => id)).size },
+        { 'Information': 'Nombre de fonctions différentes', 'Valeur': new Set(filteredData.map(emp => emp.fonction?.id).filter(id => id)).size },
+        { 'Information': 'Employés avec matricule', 'Valeur': filteredData.filter(emp => emp.matricule && emp.matricule.trim() !== '').length },
+        { 'Information': 'Date d\'export', 'Valeur': new Date().toLocaleString('fr-FR') },
+        { 'Information': 'Filtres appliqués', 'Valeur': this.getAppliedFiltersDescription() }
+      ];
+
+      const summaryWs: XLSX.WorkSheet = XLSX.utils.json_to_sheet(summaryData);
+      summaryWs['!cols'] = [{ wch: 30 }, { wch: 25 }];
+
+      // Styliser la feuille de résumé
+      const summaryHeaderCells = ['A1', 'B1'];
+      summaryHeaderCells.forEach(cell => {
+        if (summaryWs[cell]) {
+          summaryWs[cell].s = headerStyle;
+        }
+      });
+
+      XLSX.utils.book_append_sheet(wb, summaryWs, 'Résumé');
+
+      // Générer le nom du fichier avec la date
+      const currentDate = new Date();
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const timeStr = currentDate.toTimeString().split(' ')[0].replace(/:/g, '-');
+      const fileName = `Employes_${dateStr}_${timeStr}.xlsx`;
+
+      // Télécharger le fichier
+      XLSX.writeFile(wb, fileName);
+
+      // Message de succès
+      console.log(`Export réussi: ${exportData.length} employés exportés`);
+
+    } catch (error) {
+      console.error('Erreur lors de l\'export Excel:', error);
+      alert('Erreur lors de l\'export Excel. Veuillez réessayer.');
+    }
+  }
+
+// Méthode auxiliaire pour décrire les filtres appliqués
+  private getAppliedFiltersDescription(): string {
+    if (!this.myFormSearch) return 'Aucun filtre';
+
+    const formValues = this.myFormSearch.value;
+    const filters: string[] = [];
+
+    if (formValues.matricule?.trim()) filters.push(`Matricule: ${formValues.matricule}`);
+    if (formValues.nom?.trim()) filters.push(`Nom: ${formValues.nom}`);
+    if (formValues.prenom?.trim()) filters.push(`Prénom: ${formValues.prenom}`);
+    if (formValues.idatelier && formValues.idatelier !== 0) {
+      const atelier = this.listeAteliers?.find(a => a.id === formValues.idatelier);
+      filters.push(`Atelier: ${atelier?.designation || formValues.idatelier}`);
+    }
+    if (formValues.idfonction && formValues.idfonction !== 0) {
+      const fonction = this.listeFonctions?.find(f => f.id === formValues.idfonction);
+      filters.push(`Fonction: ${fonction?.designation || formValues.idfonction}`);
+    }
+    if (this.pfiltre?.trim()) filters.push(`Recherche: ${this.pfiltre}`);
+
+    return filters.length > 0 ? filters.join(', ') : 'Aucun filtre';
+  }
+
 
   protected readonly ROLES_ADMIN_AGENTSAISIE = ROLES_ADMIN_AGENTSAISIE;
   protected readonly ROLES_ADMIN_RH = ROLES_ADMIN_RH;

@@ -13,8 +13,10 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import ma.gap.config.GlobalVariableConfig;
+import ma.gap.dtos.OfProjectQteRestDto;
 import ma.gap.entity.*;
 import ma.gap.enums.StatutEntity;
 import ma.gap.exceptions.ArticleNotFoundException;
@@ -395,6 +397,8 @@ return listeOfs;
 
 			return listeOfs;
 		}
+
+
 
 
 

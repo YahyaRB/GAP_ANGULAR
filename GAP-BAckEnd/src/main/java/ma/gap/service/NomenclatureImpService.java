@@ -1,211 +1,227 @@
 package ma.gap.service;
 
-import ma.gap.entity.*;
+import lombok.AllArgsConstructor;
+import ma.gap.dtos.NomenclatureDTO;
+import ma.gap.dtos.NomenclatureQteRestDto;
+import ma.gap.entity.Nomenclature;
+import ma.gap.entity.OrdreFabrication;
+import ma.gap.repository.NomenclatureRepository;
+import ma.gap.repository.OrdreFabricationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import ma.gap.repository.ArticleAchRepository;
-import ma.gap.repository.NomenclatureArticleAchRepository;
-import ma.gap.repository.NomenclatureRepository;
-import ma.gap.exceptions.NomenclatureNotFoundException;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-
-import ma.gap.entity.ArticleAch;
-import ma.gap.entity.Nomenclature;
-import ma.gap.enums.TypeNomenclature;
-
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-
-import javax.persistence.*;
 import javax.transaction.Transactional;
-
+import java.util.*;
+import java.util.stream.Collectors;
+@AllArgsConstructor
 @Service
 public class NomenclatureImpService implements NomenclatureService{
-	//	private static final Logger logger = LoggerFactory.getLogger(NomenclatureImpService.class);
-	@Autowired
-	private NomenclatureRepository nomenclatureRepository;
 
-	@Autowired
-	private ArticleAchRepository articleAchRepository;
-
-	@Autowired
-	private NomenclatureArticleAchRepository nomenclatureArticleAchRepository;
-
-	@Autowired
-	private NomenclatureArticleAchService nomenclatureArticleAchService;
+    private NomenclatureRepository nomenclatureRepository;
+    private OrdreFabricationRepository ordreFabricationRepository;
 
 
+    @Override
+    public List<Nomenclature> findByOrdreFabrication(OrdreFabrication ordreFabrication) {
+        return nomenclatureRepository.findByOrdreFabrication(ordreFabrication);
+    }
+    @Override
+    public List<Nomenclature> findByOrdreFabricationId(Long ordreFabricationId) {
+        return nomenclatureRepository.findByOrdreFabricationId(ordreFabricationId);
+    }
+    @Override
+    public Nomenclature save(Nomenclature nomenclature,long idof) {
+        OrdreFabrication of= ordreFabricationRepository.findById(idof).get();
+        nomenclature.setOrdreFabrication(of);
+        return nomenclatureRepository.save(nomenclature);
+    }
+    @Override
+    public Optional<Nomenclature> findById(Long id) {
+        return nomenclatureRepository.findById(id);
+    }
+    @Override
+    public void deleteById(Long id) {
+        nomenclatureRepository.deleteById(id);
+    }
+    @Override
+    public List<Nomenclature> findAll() {
+        return nomenclatureRepository.findAll();
+    }
 
-	@Override
-	public List<ArticleAch> getAllArticleAchs() {
-		return articleAchRepository.findAll();
-	}
+    // Méthode pour calculer la quantité restante d'une nomenclature
+    @Override
+    public double getQuantiteRestante(Long nomenclatureId) {
+        Optional<Nomenclature> nomenclature = findById(nomenclatureId);
+        if (nomenclature.isPresent()) {
+            Nomenclature nom = nomenclature.get();
+            return nom.getQuantiteRest();
+        }
+        return 0.0;
+    }
 
-	@Override
-	public Nomenclature createNomenclature(Nomenclature nomenclature, List<NomenclatureArticleAch> articleAchList) {
-		Nomenclature savedNomenclature = nomenclatureRepository.save(nomenclature);
-		for (NomenclatureArticleAch articleAch : articleAchList) {
-			articleAch.setNomenclature(savedNomenclature);
-			nomenclatureArticleAchRepository.save(articleAch);
-		}
-		return savedNomenclature;
-	}
+    // Méthode pour mettre à jour les quantités après livraison
+    @Override
+    public void updateQuantitiesAfterDelivery(Long nomenclatureId, double quantiteLivree) {
+        Optional<Nomenclature> nomenclatureOpt = findById(nomenclatureId);
+        if (nomenclatureOpt.isPresent()) {
+            Nomenclature nomenclature = nomenclatureOpt.get();
+            nomenclature.setQuantiteLivre(nomenclature.getQuantiteLivre() + quantiteLivree);
+            nomenclature.setQuantiteRest(nomenclature.getQuantiteTot() - nomenclature.getQuantiteLivre());
+            save(nomenclature,nomenclature.getOrdreFabrication().getId());
+        }
+    }
 
+    // Récupérer les nomenclatures par projet avec quantités
+    @Override
+    public List<NomenclatureQteRestDto> getNomenclaturesByProjetWithQuantities(Long projetId) {
+        List<Nomenclature> nomenclatures = nomenclatureRepository.findAvailableNomenclaturesByProjetId(projetId);
+        return mapToNomenclatureQteRestDto(nomenclatures);
+    }
 
+    // Récupérer les nomenclatures par OF avec quantités
+    @Override
+    public List<NomenclatureQteRestDto> getNomenclaturesByOFWithQuantities(Long ofId) {
+        List<Nomenclature> nomenclatures = nomenclatureRepository.findAvailableNomenclaturesByOfId(ofId);
+        return mapToNomenclatureQteRestDto(nomenclatures);
+    }
 
-	@Override
-	public Nomenclature createNomenclatureIdPlan(Nomenclature nomenclature, List<NomenclatureArticleAch> articleAchList) {
-		Nomenclature savedNomenclature = nomenclatureRepository.save(nomenclature);
-		for (NomenclatureArticleAch articleAch : articleAchList) {
-			articleAch.setNomenclature(savedNomenclature);
-			nomenclatureArticleAchRepository.save(articleAch);
-		}
-		return savedNomenclature;
-	}
+    // Mapper vers DTO
+    @Override
+    public List<NomenclatureQteRestDto> mapToNomenclatureQteRestDto(List<Nomenclature> nomenclatures) {
+        return nomenclatures.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+    @Override
+    public NomenclatureQteRestDto mapToDto(Nomenclature nomenclature) {
+        NomenclatureQteRestDto dto = new NomenclatureQteRestDto();
+        dto.setId(nomenclature.getId());
+        dto.setType(nomenclature.getType());
+        dto.setUnite(nomenclature.getUnite());
+        dto.setQuantiteTot(nomenclature.getQuantiteTot());
+        dto.setQuantiteLivre(nomenclature.getQuantiteLivre());
+        dto.setQuantiteRest(nomenclature.getQuantiteRest());
 
+        if (nomenclature.getOrdreFabrication() != null) {
+            dto.setOrdreFabricationId(nomenclature.getOrdreFabrication().getId());
+            dto.setNumOF(nomenclature.getOrdreFabrication().getNumOF());
 
-	@Override
-	public List<Nomenclature> getAllNomenclatures() {
-		return nomenclatureRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
-	}
+            if (nomenclature.getOrdreFabrication().getArticle() != null) {
+                dto.setArticleDesignation(nomenclature.getOrdreFabrication().getArticle().getDesignation());
+            }
+        }
 
-	@Override
-	public Nomenclature getNomenclatureById(Long id) {
-		return nomenclatureRepository.findById(id).orElse(null);
-	}
-
-
-
-
-
-	@Override
-	public void updateNomenclature(Nomenclature nomenclature,long id){
-		nomenclature.setId(id);
-		nomenclatureRepository.save(nomenclature);
-
-	}
-
-
-
-
-
-
-
-
-	@Override
-	public Optional<Nomenclature> findNomenclatureById(Long id) {
-		return nomenclatureRepository.findById(id);
-	}
-
-
-	@Transactional
-	@Override
-	public void deleteNomenclature(Long id) {
-		Optional<Nomenclature> nomenclatureOpt = nomenclatureRepository.findById(id);
-		if (nomenclatureOpt.isPresent()) {
-			Nomenclature nomenclature = nomenclatureOpt.get();
-			List<NomenclatureArticleAch> articleAchs = nomenclatureArticleAchRepository.findByNomenclature(nomenclature);
-			nomenclatureArticleAchRepository.deleteAll(articleAchs);
-			nomenclatureRepository.delete(nomenclature);
-		} else {
-			throw new EntityNotFoundException("Nomenclature not found with id: " + id);
-		}
-	}
-
-
-
-	@Override
-	public ResponseEntity<byte[]> generateReport(Long id) throws JRException, IOException, NomenclatureNotFoundException {
-		Optional<Nomenclature> nomenclatureOptional = findNomenclatureById(id);
-		List<NomenclatureArticleAch> nomenclatureArticleAch=nomenclatureArticleAchRepository.findByNomenclature(nomenclatureOptional.get());
-		if (!nomenclatureOptional.isPresent()) {
-			throw new NomenclatureNotFoundException("OrdreFabrication with id " + id + " not found");
-		}
-
-		Nomenclature nomenclature = nomenclatureOptional.get();
-
-		String jrxmlFileName;
-		Resource resource;
-		if (nomenclature.getType() == TypeNomenclature.Bois) {
-			jrxmlFileName = "files/Nomenclature_Bois.jrxml";
-			resource = new ClassPathResource("files/Nomenclature_Bois.jrxml");
-		} else if (nomenclature.getType() == TypeNomenclature.Quincaillerie) {
-			jrxmlFileName = "files/Nomenclature_Quincallerie.jrxml";
-			resource = new ClassPathResource("files/Nomenclature_Quincallerie.jrxml");
-		} else {
-			throw new IllegalArgumentException("Unknown Nomenclature type: " + nomenclature.getType());
-		}
-
-		//Resource resource = new ClassPathResource(jrxmlFileName);
-		if (!resource.exists()) {
-			throw new FileNotFoundException("File " + resource.getFilename() + " not found in classpath");
-		}
-
-
-		JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(resource.getURL().getPath()));
-
-
-		JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(nomenclatureArticleAch);
-
-		HashMap<String, Object> parameters = new HashMap<>();
-		if (nomenclature.getCreatedBy() != null) {
-			parameters.put("creer_par", nomenclature.getCreatedBy());
-		}
-		parameters.put("numeroPlan",nomenclatureOptional.get().getId());
+        return dto;
+    }
 
 
 
-		JasperPrint report = JasperFillManager.fillReport(compileReport, parameters, beanCollectionDataSource);
-
-		byte[] data = JasperExportManager.exportReportToPdf(report);
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.set(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=Ordre_Fabrication_" + nomenclature.getId() + ".pdf");
-
-		return ResponseEntity.ok()
-				.headers(headers)
-				.contentType(MediaType.APPLICATION_PDF)
-				.body(data);
-
-	}
-
-	@Override
-	public List<NomenclatureArticleAch> findArticlesByNomenclature(Nomenclature nomenclature) {
-		return nomenclatureArticleAchRepository.findByNomenclature(nomenclature);
-	}
 
 
-	@Override
-	public Optional<Nomenclature> findById(Long id) {
-
-		return nomenclatureRepository.findById(id) ;
-	}
 
 
+    @Override
+    public List<NomenclatureDTO> getNomenclaturesByOF(Long ofId) {
+        try {
+            // Vérifier que l'OF existe
+            Optional<OrdreFabrication> ofOptional = ordreFabricationRepository.findById(ofId);
+            if (!ofOptional.isPresent()) {
+                System.out.println("Ordre de fabrication non trouvé avec l'ID: " + ofId);
+                return new ArrayList<>();
+            }
+
+            OrdreFabrication of = ofOptional.get();
+
+            // Récupérer les nomenclatures liées à cet OF
+            List<Nomenclature> nomenclatures = nomenclatureRepository.findByOrdreFabricationOrderByIdDesc(of);
+
+            // Convertir en DTO
+            List<NomenclatureDTO> nomenclaturesDTO = nomenclatures.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+
+            System.out.println("Nomenclatures trouvées pour OF " + of.getNumOF() + ": " + nomenclaturesDTO.size());
+
+            return nomenclaturesDTO;
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération des nomenclatures pour OF " + ofId + ": " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Récupère une nomenclature par son ID
+     * @param id ID de la nomenclature
+     * @return NomenclatureDTO ou null si non trouvée
+     */
+    @Override
+    public NomenclatureDTO getNomenclatureById(Long id) {
+        try {
+            Optional<Nomenclature> nomenclatureOptional = nomenclatureRepository.findById(id);
+
+            if (nomenclatureOptional.isPresent()) {
+                return convertToDTO(nomenclatureOptional.get());
+            } else {
+                System.out.println("Nomenclature non trouvée avec l'ID: " + id);
+                return null;
+            }
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération de la nomenclature " + id + ": " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Convertit une entité Nomenclature en DTO
+     * @param nomenclature L'entité à convertir
+     * @return Le DTO correspondant
+     */
+    private NomenclatureDTO convertToDTO(Nomenclature nomenclature) {
+        NomenclatureDTO dto = new NomenclatureDTO();
+
+        dto.setId(nomenclature.getId());
+        dto.setType(String.valueOf(nomenclature.getType()));
+        dto.setDesignation(nomenclature.getDesignation());
+        dto.setUnite(nomenclature.getUnite());
+        dto.setQuantite(nomenclature.getQuantiteTot());
+        dto.setQuantiteRest(nomenclature.getQuantiteRest());
+        dto.setQuantiteLivre(nomenclature.getQuantiteLivre());
+
+        // Récupérer l'ID de l'OF parent
+        if (nomenclature.getOrdreFabrication() != null) {
+            dto.setOrdreFabricationId(nomenclature.getOrdreFabrication().getId());
+        }
+
+        return dto;
+    }
+
+    /**
+     * Méthode pour récupérer le résumé des nomenclatures (optionnel)
+     * @param ofId ID de l'ordre de fabrication
+     * @return Statistiques des nomenclatures
+     */
+    public Map<String, Object> getNomenclaturesSummary(Long ofId) {
+        List<NomenclatureDTO> nomenclatures = getNomenclaturesByOF(ofId);
+
+        Map<String, Object> summary = new HashMap<>();
+        summary.put("total", nomenclatures.size());
+        summary.put("disponibles", nomenclatures.stream()
+                .mapToInt(n -> n.getQuantiteRest() > 0 ? 1 : 0)
+                .sum());
+        summary.put("epuisees", nomenclatures.stream()
+                .mapToInt(n -> n.getQuantiteRest() <= 0 ? 1 : 0)
+                .sum());
+        summary.put("quantiteTotale", nomenclatures.stream()
+                .mapToDouble(n -> n.getQuantite() != null ? n.getQuantite() : 0.0)
+                .sum());
+        summary.put("quantiteRestante", nomenclatures.stream()
+                .mapToDouble(n -> n.getQuantiteRest() != null ? n.getQuantiteRest() : 0.0)
+                .sum());
+
+        return summary;
+    }
 }
-

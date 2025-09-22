@@ -1,0 +1,126 @@
+<div class="modal-dialog modal-dialog-centered modal-lg-custom">
+
+  <div class="modal-content card radius-15">
+    <div class="modal-header">
+      <h5 class="modal-title">Modifier une nomenclature</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <form name="form" [formGroup]="myFormUpdate" (ngSubmit)="onUpdate()">
+      <div class="modal-body">
+
+        <!-- Informations de l'OF -->
+        <div class="row mb-3" *ngIf="ordreFabrication">
+          <div class="col-12">
+            <div class="alert alert-info">
+              <strong>Ordre de Fabrication :</strong> {{ordreFabrication.numOF}} -
+              <strong>Quantité OF :</strong> {{ordreFabrication.quantite | number:'1.0-2'}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Informations nomenclature actuelle -->
+        <div class="row mb-3" *ngIf="nomenclature">
+          <div class="col-12">
+            <div class="alert alert-warning">
+              <strong>Quantité actuelle :</strong>
+              {{nomenclature.quantite | number:'1.0-2'}}
+              <small class="text-muted">
+                ({{getQuantiteRelativeActuelle() | number:'1.0-4'}} par unité d'OF)
+              </small>
+              <br>
+              <strong>Quantité livrée :</strong> {{nomenclature.quantiteLivre | number:'1.0-2'}} -
+              <strong>Quantité restante :</strong> {{nomenclature.quantiteRest | number:'1.0-2'}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Type de nomenclature -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Type</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Sélectionnez un type"
+                       formControlName="type" name="type">
+              <ng-option *ngFor="let type of typesNomenclature" [value]="type.value">
+                {{type.label}}
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+
+        <!-- Désignation -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Désignation</label>
+          <div class="col-sm-9">
+            <input type="text" id="designation" class="form-control"
+                   placeholder="Désignation de la nomenclature"
+                   formControlName="designation">
+          </div>
+        </div>
+
+        <!-- Unité -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Unité</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Sélectionnez une unité"
+                       formControlName="unite" name="unite">
+              <ng-option *ngFor="let unite of unites" [value]="unite.value">
+                {{unite.label}} ({{unite.value}})
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+
+        <!-- Quantité par unité d'OF -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Quantité par unité</label>
+          <div class="col-sm-9">
+            <input type="number" id="quantite" class="form-control"
+                   step="0.01" min="0.01"
+                   placeholder="Quantité nécessaire par unité d'OF"
+                   formControlName="quantite">
+            <small class="form-text text-muted">
+              Quantité nécessaire pour produire 1 unité de l'ordre de fabrication
+            </small>
+          </div>
+        </div>
+
+        <!-- Calcul de la nouvelle quantité totale -->
+        <div class="row mb-3" *ngIf="myFormUpdate.get('quantite')?.value && ordreFabrication">
+          <label class="col-sm-3 col-form-label">Nouvelle quantité totale</label>
+          <div class="col-sm-9">
+            <div class="alert alert-success">
+              <strong>{{getQuantiteTotaleCalculee() | number:'1.0-2'}}</strong>
+              <small class="text-muted ml-2">
+                ({{ordreFabrication.quantite}} × {{myFormUpdate.get('quantite')?.value}})
+              </small>
+            </div>
+            <div class="text-muted" *ngIf="nomenclature">
+              <small>
+                <strong>Différence :</strong>
+                {{(getQuantiteTotaleCalculee() - nomenclature.quantite) | number:'1.0-2'}}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avertissement si quantité livrée -->
+        <div class="row mb-3" *ngIf="nomenclature && nomenclature.quantiteLivre > 0">
+          <div class="col-12">
+            <div class="alert alert-danger">
+              <strong>⚠️ Attention :</strong>
+              Cette nomenclature a déjà une quantité livrée de {{nomenclature.quantiteLivre | number:'1.0-2'}}.
+              Assurez-vous que la nouvelle quantité totale soit cohérente.
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" #closebutton data-dismiss="modal">Fermer</button>
+        <button type="submit" [disabled]="!myFormUpdate.valid" class="btn btn-primary">Valider</button>
+      </div>
+    </form>
+  </div>
+</div>

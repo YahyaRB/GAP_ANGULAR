@@ -11,7 +11,7 @@ import {RoleService} from "../../../services/role.service";
 import {Ilivraison} from "../../../services/Interfaces/ilivraison";
 import {ROLES_ADMIN, ROLES_ADMIN_AGENTSAISIE} from "../../../Roles";
 import {SortService} from "../../../services/sort.service";
-
+import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-liste-articles',
   templateUrl: './liste-articles.component.html',
@@ -170,6 +170,118 @@ this.searchOF();
     this.listeAffairesByAtelier = Array.from(uniqueProjectsMap.values());
     this.listeAteliers = Array.from(uniqueAteliersMap.values());
   }
+  exportExcel(): void {
+    try {
+      // Appliquer le filtre sur les données (même logique que votre pipe search)
+      const filteredData = this.applyFilter(this.POSTS, this.pfiltre);
+
+      if (filteredData.length === 0) {
+        alert('Aucune donnée à exporter');
+        return;
+      }
+
+      // Préparer les données pour l'export
+      const exportData = filteredData.map((article, index) => ({
+        'N°': index + 1,
+        'N° Prix': article.numPrix || '',
+        'Désignation': article.designation || '',
+        'Code Affaire': article.projet?.code || '',
+        'Désignation Affaire': article.projet?.designation || '',
+        'Unité': article.unite || '',
+        'Quantité Totale': article.quantiteTot || 0,
+        'Quantité Produite': article.quantiteProd || 0,
+        'Quantité En Production': article.quantiteEnProd || 0,
+        'Quantité Livrée': article.quantiteLivre || 0,
+        'Quantité Posée': article.quantitePose || 0,
+        'Atelier': article.ateliers?.designation || ''
+      }));
+
+      // Créer le workbook et la worksheet
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+
+      // Définir la largeur des colonnes
+      const colWidths = [
+        { wch: 5 },   // N°
+        { wch: 15 },  // N° Prix
+        { wch: 30 },  // Désignation
+        { wch: 15 },  // Code Affaire
+        { wch: 30 },  // Désignation Affaire
+        { wch: 10 },  // Unité
+        { wch: 15 },  // Quantité Totale
+        { wch: 15 },  // Quantité Produite
+        { wch: 18 },  // Quantité En Production
+        { wch: 15 },  // Quantité Livrée
+        { wch: 15 },  // Quantité Posée
+        { wch: 20 }   // Atelier
+      ];
+      ws['!cols'] = colWidths;
+
+      // Styliser les en-têtes (optionnel)
+      const headerStyle = {
+        font: { bold: true },
+        fill: { fgColor: { rgb: "E3F2FD" } },
+        alignment: { horizontal: "center" }
+      };
+
+      // Appliquer le style aux en-têtes (ligne 1)
+      const headerCells = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'I1', 'J1', 'K1', 'L1'];
+      headerCells.forEach(cell => {
+        if (ws[cell]) {
+          ws[cell].s = headerStyle;
+        }
+      });
+
+      // Ajouter la worksheet au workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Liste Articles');
+
+      // Générer le nom du fichier avec la date
+      const currentDate = new Date();
+      const dateStr = currentDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
+      const fileName = `Liste_Articles_${dateStr}.xlsx`;
+
+      // Télécharger le fichier
+      XLSX.writeFile(wb, fileName);
+
+      // Afficher un message de succès
+      console.log(`Export réussi: ${exportData.length} articles exportés`);
+
+      // Optionnel: Afficher une notification toast si vous utilisez un service de notification
+      // this.toastr.success(`${exportData.length} articles exportés avec succès`, 'Export Excel');
+
+    } catch (error) {
+      console.error('Erreur lors de l\'export Excel:', error);
+      alert('Erreur lors de l\'export Excel. Veuillez réessayer.');
+    }
+  }
+
+
+  private applyFilter(data: Iarticle[], filter: string): Iarticle[] {
+    if (!filter || filter.trim() === '') {
+      return data;
+    }
+
+    const searchTerm = filter.toLowerCase().trim();
+
+    return data.filter(article => {
+      return (
+        article.numPrix?.toLowerCase().includes(searchTerm) ||
+        article.designation?.toLowerCase().includes(searchTerm) ||
+        article.projet?.code?.toLowerCase().includes(searchTerm) ||
+        article.projet?.designation?.toLowerCase().includes(searchTerm) ||
+        article.unite?.toLowerCase().includes(searchTerm) ||
+        article.ateliers?.designation?.toLowerCase().includes(searchTerm) ||
+        article.quantiteTot?.toString().includes(searchTerm) ||
+        article.quantiteProd?.toString().includes(searchTerm) ||
+        article.quantiteEnProd?.toString().includes(searchTerm) ||
+        article.quantiteLivre?.toString().includes(searchTerm) ||
+        article.quantitePose?.toString().includes(searchTerm)
+      );
+    });
+  }
+
+
+
 
   protected readonly Date = Date;
   protected readonly ROLES_ADMIN = ROLES_ADMIN;

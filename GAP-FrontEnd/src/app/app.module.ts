@@ -74,6 +74,9 @@ import {MatSnackBarModule} from "@angular/material/snack-bar";
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { AddDetailLivraisonComponent } from './Components/DetailLivraison/add-detail-livraison/add-detail-livraison.component';
 import { DuplicateAffectationComponent } from './Components/Affectations/duplicate-affectation/duplicate-affectation.component';
+import { AddNomenclatureComponent } from './Components/Nomenclature/add-nomenclature/add-nomenclature.component';
+import { UpdateNomenclatureComponent } from './Components/Nomenclature/update-nomenclature/update-nomenclature.component';
+import { DeleteNomenclatureComponent } from './Components/Nomenclature/delete-nomenclature/delete-nomenclature.component';
 
 
 
@@ -136,7 +139,10 @@ import { DuplicateAffectationComponent } from './Components/Affectations/duplica
     UpdateOFComponent,
     DeleteOFComponent,
     AddDetailLivraisonComponent,
-    DuplicateAffectationComponent
+    DuplicateAffectationComponent,
+    AddNomenclatureComponent,
+    UpdateNomenclatureComponent,
+    DeleteNomenclatureComponent
   ],
   imports: [
     BrowserModule,

@@ -82,7 +82,6 @@
                       </ng-select>
                     </div>
 
-
                     <div class="col-sm-4">
                       <label class="col-form-label mt-1">Article</label>
                       <ng-select placeholder="Sélectionnez un article" formControlName="idarticle">
@@ -116,7 +115,6 @@
                       <button type="submit" class="btn btn-primary d-flex align-items-center">
                         <i class="bx bx-search mr-1"></i>Rechercher
                       </button>
-
 
                     </div>
                   </div>
@@ -162,7 +160,7 @@
                     </button>
                   </th>
                   <th class="col-quantite">Quantité
-                    <button class="btn-tri-transparent" (click)="sortColumn('quantite')">
+                    <button class="btn-tri-transparent" (click)="sortColumn('quantiteTot')">
                       <i class="lni lni-sort-amount-dsc"></i>
                     </button>
                   </th>
@@ -170,60 +168,249 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let post of POSTS | search:pfiltre | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
-                  <td class="col-numero">{{ post?.numOF }}</td>
+                <!-- Template principal pour chaque OF -->
+                <ng-container *ngFor="let post of POSTS | search:pfiltre | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
+                  <!-- Ligne principale de l'OF -->
+                  <tr>
+                    <td class="col-numero">{{ post?.numOF }}</td>
 
-                  <td class="col-date-of">{{ post?.date | date: 'dd/MM/yyyy' }}</td>
+                    <td class="col-date-of">{{ post?.date | date: 'dd/MM/yyyy' }}</td>
 
-                  <td class="col-date-fin">{{ post?.dateFin | date: 'dd/MM/yyyy' }}</td>
+                    <td class="col-date-fin">{{ post?.dateFin | date: 'dd/MM/yyyy' }}</td>
 
-                  <td class="col-affaire">
-                    <div class="cell-content">{{ post?.projet?.code + ' - ' + post?.projet?.designation }}</div>
-                  </td>
+                    <td class="col-affaire">
+                      <div class="affaire-cell">
+                        <div class="affaire-code">{{ post?.projet?.code }}</div>
+                        <div class="affaire-designation">{{ post?.projet?.designation }}</div>
+                      </div>
+                    </td>
 
-                  <td class="col-atelier">
-                    <div class="cell-content">{{ post?.atelier?.designation }}</div>
-                  </td>
+                    <td class="col-atelier">
+                      <div class="cell-content">{{ post?.atelier?.designation }}</div>
+                    </td>
 
-                  <td class="col-article">
-                    <div class="cell-content">{{ (post?.article?.numPrix +'-'+post?.article?.designation || '') }}</div>
-                  </td>
+                    <td class="col-article">
+                      <div class="article-cell">
+                        <div class="article-code">{{ post?.article?.numPrix }}</div>
+                        <div class="article-designation">
+                          {{ post?.article?.designation }}
+                          <!-- Bouton pour afficher/masquer les nomenclatures -->
+                          <button class="btn btn-sm btn-link p-0 ml-2 nomenclature-toggle-btn"
+                                  (click)="toggleNomenclatures(post)"
+                                  [title]="isOFExpanded(post.id) ? 'Masquer les nomenclatures' : 'Afficher les nomenclatures'">
+                            <i [class]="isOFExpanded(post.id) ? 'bx bx-chevron-up text-primary' : 'bx bx-chevron-down text-muted'"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </td>
 
-                  <td class="col-quantite">{{ (post?.quantite) }}</td>
+                    <td class="col-quantite">{{ (post?.quantiteTot || 0) | number:'1.0-2' }}</td>
 
-                  <td class="col-actions text-center">
-                    <div class="d-flex justify-content-center flex-wrap">
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN)"
-                         [title]="post.flag === 3 ? 'Modification non autorisée' : 'Modifier une livraison'"
-                         (click)="post.flag !== 3 ? recupItem(post) : null"
-                         [attr.data-toggle]="post.flag !== 3 ? 'modal' : null"
-                         [attr.data-target]="post.flag !== 3 ? '#updateModal' : null"
-                         [class]="'action-btn' + (post.flag === 3 ? ' disabled' : '')"
-                         [style.pointer-events]="post.flag === 3 ? 'none' : 'auto'"
-                         [style.opacity]="post.flag === 3 ? '0.5' : '1'">
-                        <i class='bx bxs-edit icon-large'></i>
-                      </a>
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN)"
-                         title="Supprimer une livraison"
-                         (click)="post.flag !== 3 ? recupItem(post) : null"
-                         [attr.data-toggle]="post.flag !== 3 ? 'modal' : null"
-                         [attr.data-target]="post.flag !== 3 ? '#deleteModal' : null"
-                         [class]="'action-btn' + (post.flag === 3 ? ' disabled' : '')"
-                         [style.pointer-events]="post.flag === 3 ? 'none' : 'auto'"
-                         [style.opacity]="post.flag === 3 ? '0.5' : '1'">
-                        <i class='bx bxs-trash icon-large'></i>
-                      </a>
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)"
-                         title="Imprimer BL"
-                         (click)="ImprimeOF(post)"
-                         class="action-btn">
-                        <i class='bx bxs-file-pdf icon-large'></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
+                    <td class="col-actions text-center">
+                      <div class="d-flex justify-content-center flex-wrap">
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN)"
+                           [title]="post.flag === 3 ? 'Modification non autorisée' : 'Modifier une livraison'"
+                           (click)="post.flag !== 3 ? recupItem(post) : null"
+                           [attr.data-toggle]="post.flag !== 3 ? 'modal' : null"
+                           [attr.data-target]="post.flag !== 3 ? '#updateModal' : null"
+                           [class]="'action-btn' + (post.flag === 3 ? ' disabled' : '')"
+                           [style.pointer-events]="post.flag === 3 ? 'none' : 'auto'"
+                           [style.opacity]="post.flag === 3 ? '0.5' : '1'">
+                          <i class='bx bxs-edit icon-large'></i>
+                        </a>
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN)"
+                           title="Supprimer une livraison"
+                           (click)="post.flag !== 3 ? recupItem(post) : null"
+                           [attr.data-toggle]="post.flag !== 3 ? 'modal' : null"
+                           [attr.data-target]="post.flag !== 3 ? '#deleteModal' : null"
+                           [class]="'action-btn' + (post.flag === 3 ? ' disabled' : '')"
+                           [style.pointer-events]="post.flag === 3 ? 'none' : 'auto'"
+                           [style.opacity]="post.flag === 3 ? '0.5' : '1'">
+                          <i class='bx bxs-trash icon-large'></i>
+                        </a>
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)"
+                           title="Imprimer BL"
+                           (click)="ImprimeOF(post)"
+                           class="action-btn">
+                          <i class='bx bxs-file-pdf icon-large'></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Ligne étendue pour afficher les nomenclatures (conditionnelle) -->
+                  <tr *ngIf="isOFExpanded(post.id)" class="nomenclatures-row">
+                    <td colspan="8" class="p-0">
+                      <div class="nomenclatures-container bg-light border-top">
+                        <!-- En-tête des nomenclatures -->
+                        <div class="nomenclatures-header p-3 bg-gradient-light">
+                          <div class="d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 text-primary">
+                              <i class="bx bx-list-ul mr-2"></i>
+                              Nomenclatures de l'OF {{ post.numOF }}
+                            </h6>
+                            <div class="d-flex align-items-center">
+                              <span class="badge badge-light mr-2" *ngIf="!isLoadingNomenclatures(post.id) && hasNomenclatures(post.id)">
+                                {{ getNomenclatures(post.id).length }} élément(s)
+                              </span>
+                              <!-- Bouton Ajouter nomenclature -->
+                              <button class="btn btn-success btn-sm"
+                                      *ngIf="hasRoleGroup(ROLES_ADMIN)"
+                                      data-toggle="modal"
+                                      data-target="#addNomenclatureModal"
+                                      (click)="openAddNomenclatureModal(post)"
+                                      title="Ajouter une nomenclature">
+                                <i class="bx bx-plus mr-1"></i>Ajouter
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Contenu des nomenclatures -->
+                        <div class="nomenclatures-content px-3 pb-3">
+                          <!-- Indicateur de chargement -->
+                          <div *ngIf="isLoadingNomenclatures(post.id)" class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-primary mr-2" role="status">
+                              <span class="sr-only">Chargement...</span>
+                            </div>
+                            <span class="text-muted">Chargement des nomenclatures...</span>
+                          </div>
+
+                          <!-- Liste des nomenclatures -->
+                          <div *ngIf="!isLoadingNomenclatures(post.id) && hasNomenclatures(post.id)"
+                               class="table-responsive mt-2">
+                            <table class="table table-sm table-striped table-hover mb-0 nomenclatures-table">
+                              <thead class="thead-light">
+                              <tr>
+                                <th width="10%" class="text-center">Type</th>
+                                <th width="35%">Désignation</th>
+                                <th width="8%" class="text-center">Unité</th>
+                                <th width="10%" class="text-center">Quantité</th>
+                                <th width="10%" class="text-center">Qté Restante</th>
+                                <th width="10%" class="text-center">Qté Livrée</th>
+                                <th width="7%" class="text-center">Statut</th>
+                                <th width="10%" class="text-center">Actions</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              <tr *ngFor="let nomenclature of getNomenclatures(post.id); trackBy: trackByNomenclature">
+                                <td class="text-center align-middle">
+                                    <span class="badge badge-info badge-pill">
+                                      {{ nomenclature.type || 'NOM' }}
+                                    </span>
+                                </td>
+                                <td class="align-middle">
+                                  <div class="nomenclature-designation">
+                                    <strong>{{ nomenclature.designation || 'N/A' }}</strong>
+                                  </div>
+                                </td>
+                                <td class="text-center align-middle">
+                                  <small class="text-muted font-weight-bold">
+                                    {{ nomenclature.unite || '-' }}
+                                  </small>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span class="font-weight-bold text-dark">
+                                      {{ (nomenclature.quantite || 0) | number:'1.0-2' }}
+                                    </span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span [class]="getQuantiteRestClass(nomenclature.quantiteRest)">
+                                      {{ (nomenclature.quantiteRest || 0) | number:'1.0-2' }}
+                                    </span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span class="text-info font-weight-bold">
+                                      {{ (nomenclature.quantiteLivre || 0) | number:'1.0-2' }}
+                                    </span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span [title]="getStatutTitle(nomenclature)">
+                                      <i [class]="getStatutIcon(nomenclature)"
+                                         [style.color]="getStatutColor(nomenclature)"></i>
+                                    </span>
+                                </td>
+                                <!-- Colonne Actions pour les nomenclatures -->
+                                <td class="text-center align-middle">
+                                  <div class="btn-group" role="group">
+                                    <!-- Bouton Modifier -->
+                                    <button class="btn btn-warning btn-sm"
+                                            *ngIf="hasRoleGroup(ROLES_ADMIN)"
+                                            data-toggle="modal"
+                                            data-target="#updateNomenclatureModal"
+                                            (click)="openUpdateNomenclatureModal(nomenclature, post)"
+                                            title="Modifier la nomenclature">
+                                      <i class="bx bx-edit"></i>
+                                    </button>
+                                    <!-- Bouton Supprimer -->
+                                    <button class="btn btn-danger btn-sm"
+                                            *ngIf="hasRoleGroup(ROLES_ADMIN)"
+                                            data-toggle="modal"
+                                            data-target="#deleteNomenclatureModal"
+                                            (click)="openDeleteNomenclatureModal(nomenclature)"
+                                            title="Supprimer la nomenclature">
+                                      <i class="bx bx-trash"></i>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                              </tbody>
+                            </table>
+
+                            <!-- Résumé des nomenclatures -->
+                            <div class="nomenclatures-summary mt-3 p-2 bg-white rounded border">
+                              <div class="row">
+                                <div class="col-md-3 text-center">
+                                  <small class="text-muted">Total</small>
+                                  <div class="font-weight-bold">{{ getNomenclatures(post.id).length }}</div>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                  <small class="text-muted">Disponibles</small>
+                                  <div class="font-weight-bold text-success">{{ getDisponiblesCount(post.id) }}</div>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                  <small class="text-muted">Épuisées</small>
+                                  <div class="font-weight-bold text-danger">{{ getEpuiseesCount(post.id) }}</div>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                  <small class="text-muted">% Livré</small>
+                                  <div class="font-weight-bold text-primary">{{ getPourcentageLivre(post.id) }}%</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Message si aucune nomenclature -->
+                          <div *ngIf="!isLoadingNomenclatures(post.id) && !hasNomenclatures(post.id)"
+                               class="text-center py-4">
+                            <div class="text-muted">
+                              <i class="bx bx-info-circle display-4 mb-3"></i>
+                              <h6>Aucune nomenclature trouvée</h6>
+                              <small>Cet ordre de fabrication ne contient aucune nomenclature.</small>
+                            </div>
+                          </div>
+
+                          <!-- Message d'erreur -->
+                          <div *ngIf="!isLoadingNomenclatures(post.id) && hasErrorForOF(post.id)"
+                               class="text-center py-4">
+                            <div class="text-danger">
+                              <i class="bx bx-error-circle display-4 mb-3"></i>
+                              <h6>Erreur de chargement</h6>
+                              <small>Impossible de charger les nomenclatures.</small>
+                              <button class="btn btn-sm btn-outline-primary mt-2"
+                                      (click)="retryLoadNomenclatures(post.id)">
+                                <i class="bx bx-refresh mr-1"></i>Réessayer
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
                 </tbody>
               </table>
+
               <div class="pagination justify-content-center">
                 <pagination-controls previousLabel="Précédent" nextLabel="Suivant" (pageChange)="onTableDataChange($event)"></pagination-controls>
               </div>
@@ -238,7 +425,7 @@
   <a href="javascript:;" class="back-to-top"><i class='bx bxs-up-arrow-alt'></i></a>
 </div>
 
-<!-- Modals -->
+<!-- Modals Ordres de Fabrication -->
 <div class="modal fade" id="addModal">
   <app-add-of [ordresFabrications]="POSTS"
               (refreshTable)="ngOnInit()"
@@ -248,10 +435,160 @@
 <div class="modal fade" id="updateModal">
   <app-update-of [ordreFabrication]="ofSelected"
                  (refreshTable)="ngOnInit()"
-                 [ateliers]="listeAteliers" ></app-update-of>
+                 [ateliers]="listeAteliers"></app-update-of>
 </div>
 
 <div class="modal fade" id="deleteModal">
   <app-delete-of [ordreFabrication]="ofSelected"
                  (refreshTable)="ngOnInit()"></app-delete-of>
 </div>
+
+<!-- Modals Nomenclatures -->
+<div class="modal fade" id="addNomenclatureModal" tabindex="-1" role="dialog">
+  <app-add-nomenclature
+    [ordreFabrication]="selectedOFForNomenclature"
+    (refreshTable)="refreshNomenclatures()">
+  </app-add-nomenclature>
+</div>
+
+<div class="modal fade" id="updateNomenclatureModal" tabindex="-1" role="dialog">
+  <app-update-nomenclature
+    [nomenclature]="selectedNomenclature"
+    [ordreFabrication]="selectedOFForNomenclature"
+    (refreshTable)="refreshNomenclatures()">
+  </app-update-nomenclature>
+</div>
+
+<div class="modal fade" id="deleteNomenclatureModal" tabindex="-1" role="dialog">
+  <app-delete-nomenclature
+    [nomenclature]="selectedNomenclature"
+    (refreshTable)="refreshNomenclatures()">
+  </app-delete-nomenclature>
+</div>
+
+<!-- CSS personnalisé pour les nomenclatures -->
+<style>
+  .nomenclatures-row {
+    background-color: #f8f9fa;
+  }
+
+  .nomenclatures-container {
+    border-left: 4px solid #007bff;
+    margin: 0;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .nomenclatures-header {
+    border-bottom: 1px solid #dee2e6;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f5f5f5 100%);
+  }
+
+  .nomenclatures-content .nomenclatures-table {
+    font-size: 0.875rem;
+    margin-bottom: 0;
+  }
+
+  .nomenclatures-content .nomenclatures-table th {
+    background-color: #f1f3f4;
+    border-color: #dee2e6;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .nomenclatures-content .nomenclatures-table td {
+    vertical-align: middle;
+    border-color: #e9ecef;
+  }
+
+  .nomenclatures-content .badge-pill {
+    font-size: 0.75rem;
+    padding: 0.4em 0.8em;
+  }
+
+  .nomenclature-toggle-btn {
+    color: #6c757d;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+  }
+
+  .nomenclature-toggle-btn:hover {
+    color: #007bff;
+    transform: scale(1.1);
+  }
+
+  .nomenclature-designation {
+    line-height: 1.3;
+  }
+
+  .nomenclatures-summary {
+    background: linear-gradient(45deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+  }
+
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .nomenclatures-table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+  }
+
+  .bg-gradient-light {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f5f5f5 100%);
+  }
+
+  /* Styles pour les boutons d'action des nomenclatures */
+  .nomenclatures-table .btn-group .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    border-radius: 0.2rem;
+  }
+
+  .nomenclatures-table .btn-group .btn:first-child {
+    margin-right: 2px;
+  }
+
+  .nomenclatures-table .btn-group .btn i {
+    font-size: 0.875rem;
+  }
+
+  /* Animation pour l'expansion */
+  .nomenclatures-row {
+    animation: slideDown 0.3s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .nomenclatures-content .nomenclatures-table {
+      font-size: 0.8rem;
+    }
+
+    .nomenclatures-summary .row > div {
+      margin-bottom: 0.5rem;
+    }
+
+    .nomenclatures-table .btn-group {
+      flex-direction: column;
+    }
+
+    .nomenclatures-table .btn-group .btn {
+      margin-bottom: 2px;
+      margin-right: 0;
+    }
+  }
+</style>

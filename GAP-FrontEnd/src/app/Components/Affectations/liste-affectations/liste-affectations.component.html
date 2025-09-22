@@ -183,14 +183,27 @@
                   <tr *cdkVirtualFor="let post of POSTS | search:pfiltre | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
                     <td class="col-numero">{{ post?.id }}</td>
                     <td class="col-affaire">
-                      <div class="cell-content">{{ post?.projets?.code + ' - ' + post?.projets?.designation }}</div>
+                      <div class="affaire-cell">
+                      <div class="cell-content">
+
+                        <div class="affaire-code">{{ post?.projets?.code}}</div>
+                        <div class="affaire-designation">{{ post?.projets?.designation}}</div>
+                      </div>
+                      </div>
                     </td>
+
+
                     <td class="col-atelier">
                       <div class="cell-content">{{ post?.ateliers.designation }}</div>
                     </td>
+
                     <td class="col-article">
-                      <div class="cell-content">{{ post?.article?.numPrix +' - ' + post?.article?.designation }}</div>
+                      <div class="article-cell">
+                        <div class="article-code">{{ post?.article?.numPrix }}</div>
+                        <div class="article-designation">{{ post?.article?.designation }}</div>
+                      </div>
                     </td>
+
                     <td class="col-date">{{ post?.date | date: 'dd/MM/yyyy' }}</td>
                     <td class="col-periode">{{ post?.periode }}</td>
                     <td class="col-duree">{{ post?.nombreHeures }}</td>

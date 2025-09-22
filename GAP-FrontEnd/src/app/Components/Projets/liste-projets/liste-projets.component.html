@@ -25,7 +25,6 @@
                   </button>
                   <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left">
                     <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addModal">Ajouter un projet</a>
-                    <a type="button" class="dropdown-item" href="javascript:;">Export Exel</a>
                   </div>
                 </div>
               </div>
@@ -94,7 +93,14 @@
                      currentPage: page,
                      totalItems: count}; let i = index ">
                   <td>{{ post?.id }}</td>
-                  <td class="align-middle">{{ post?.code +' - '+ post?.designation }}</td> <!-- Utiliser optional chaining pour `projet` -->
+
+                  <td class="col-affaire">
+                    <div class="affaire-cell">
+                      <div class="affaire-code">{{ post?.code }}</div>
+                      <div class="affaire-designation">{{ post?.designation }}</div>
+                    </div>
+                  </td>
+
                   <td class="align-middle text-center">
   <span
     class="badge rounded-pill w-100 text-dark"

@@ -61,7 +61,7 @@ public class OfController {
 	private FilesStorageService storageService;
 
 
-	@GetMapping(value = "/getAll/{idUser}")
+/*	@GetMapping(value = "/getAll/{idUser}")
 	public ResponseEntity<?> findAllLivraisons(@PathVariable("idUser") long idUser) {
 
 		try {
@@ -70,8 +70,16 @@ public class OfController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la récupération des ordres de fabrication.");
 		}
+	}*/
+@GetMapping("/getAll/{idUser}")
+public ResponseEntity<List<OrdreFabrication>> getAll(@PathVariable Long idUser) {
+	try {
+		List<OrdreFabrication> ordres = ordreFabricationService.findAllByAtelier(idUser);
+		return ResponseEntity.ok(ordres);
+	} catch (Exception e) {
+		return ResponseEntity.internalServerError().build();
 	}
-
+}
 	@PostMapping(value = "/add")
 	public ResponseEntity<?> save(@RequestBody OrdreFabrication ordreFabricationn) {
 		try {
@@ -165,24 +173,20 @@ public class OfController {
 	}
 
 	@GetMapping("/Search")
-	public List<OrdreFabrication> SearchOF(@RequestParam(value = "idUser") long idUser, @RequestParam("idof") String idOf, @RequestParam("idprojet") long idProjet, @RequestParam("idatelier") long idAtelier, @RequestParam("idarticle") long idArticle, @RequestParam("dateDebut") String dateDebut,@RequestParam("dateFin") String dateFin ) throws ParseException, OrdreFabricationNotFoundException, IOException {
-	/*	List<OrdreFabrication> listeO=ordreFabricationService.findAll();
-		for (OrdreFabrication ordreFabrication : listeO) {
-			String charAt2 = Optional.ofNullable(ordreFabrication.getCreatedBy()).map(s -> s.length() > 2 ? String.valueOf(s.charAt(2)) : "").orElse("");
-			String month = "";
-			if (ordreFabrication.getCreatedDate() != null) {
+	public List<OrdreFabrication> SearchOF(
+			@RequestParam(value = "idUser") long idUser,
+			@RequestParam(value = "idof", required = false, defaultValue = "") String idOf,
+			@RequestParam(value = "idprojet", required = false, defaultValue = "0") long idProjet,
+			@RequestParam(value = "idatelier", required = false, defaultValue = "0") long idAtelier,
+			@RequestParam(value = "idarticle", required = false, defaultValue = "0") long idArticle,
+			@RequestParam(value = "dateDebut", required = false, defaultValue = "") String dateDebut,
+			@RequestParam(value = "dateFin", required = false, defaultValue = "") String dateFin
+	) throws ParseException, OrdreFabricationNotFoundException, IOException {
 
-				month = formatDate(ordreFabrication.getCreatedDate());
-			}
-			ordreFabrication.setNumOF("OF" + ordreFabrication.getCompteur() + "-" + month + " " + charAt2);
-			ordreFabricationService.updateOf(ordreFabrication,ordreFabrication.getId());
-			System.out.println(ordreFabrication);
-		}*/
-		List<OrdreFabrication> listeOfSearch = ofSearchDao.searchOF(idUser,idOf, idProjet, idAtelier, idArticle, dateDebut, dateFin);
+		List<OrdreFabrication> listeOfSearch = ofSearchDao.searchOF(idUser, idOf, idProjet, idAtelier, idArticle, dateDebut, dateFin);
 		Collections.reverse(listeOfSearch);
 		return listeOfSearch;
 	}
-
 	@GetMapping("/Projet/{idUser}/{id}")
 	public List<OrdreFabrication> SearchOF(@PathVariable long idUser,@PathVariable String id) throws ParseException, OrdreFabricationNotFoundException, IOException {
 		Ateliers at = null;

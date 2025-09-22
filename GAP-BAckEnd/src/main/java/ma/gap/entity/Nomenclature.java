@@ -105,15 +105,28 @@ public class Nomenclature extends Auditable<String> implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private String designation;
+    private double quantiteTot;
+    private double quantiteLivre;
+    private double quantiteRest;
     private String unite;
     
     @Enumerated(EnumType.STRING)
     private TypeNomenclature type ;
 
     @ManyToOne
+    @JoinColumn(name = "id_of")
+    private OrdreFabrication ordreFabrication;
+
+    public void setNomenclature(Nomenclature savedNomenclature) {
+    }
+
+    public String getNumOF() {
+        return ordreFabrication != null ? ordreFabrication.getNumOF() : null;
+    }
+ /*   @ManyToOne
     @JoinColumn(name = "numero_plan_id")
-    private Plan numeroPlan;
+    private Plan numeroPlan;*/
 }
 //@ManyToOne
 //@JoinColumn(name = "article_ach")

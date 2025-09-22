@@ -1,12 +1,10 @@
 package ma.gap.service;
 
-import javafx.beans.property.ListProperty;
+
 import ma.gap.entity.Article;
 import ma.gap.entity.OrdreFabrication;
 import ma.gap.entity.Projet;
 import ma.gap.entity.User;
-import ma.gap.exceptions.ArticleNotFoundException;
-import ma.gap.exceptions.ProjetNotFoundException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

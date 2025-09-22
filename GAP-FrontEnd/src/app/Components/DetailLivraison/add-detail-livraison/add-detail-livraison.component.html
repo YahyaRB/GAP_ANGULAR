@@ -8,8 +8,52 @@
     </div>
     <div class="modal-body">
       <form name="form" [formGroup]="myFormAdd" (ngSubmit)="onAdd()">
-        <!-- Article Selection -->
+
+        <!-- Choix du type de détail -->
         <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Type de livraison :</label>
+          <div class="col-sm-9">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="typeDetail"
+                     id="ofComplet" value="OF_COMPLET"
+                     [checked]="typeDetail === 'OF_COMPLET'"
+                     (change)="onTypeDetailChange('OF_COMPLET')">
+              <label class="form-check-label" for="ofComplet">
+                Ordre de Fabrication complet
+              </label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="typeDetail"
+                     id="nomenclature" value="NOMENCLATURE"
+                     [checked]="typeDetail === 'NOMENCLATURE'"
+                     (change)="onTypeDetailChange('NOMENCLATURE')">
+              <label class="form-check-label" for="nomenclature">
+                Article de nomenclature
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sélection OF pour nomenclature -->
+        <div class="row mb-3" *ngIf="typeDetail === 'NOMENCLATURE'">
+          <label class="col-sm-3 col-form-label">Ordre de Fabrication :</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Sélectionnez un OF pour voir sa nomenclature"
+                       (change)="onOFSelectionForNomenclature($event)"
+                       name="ofForNomenclature"
+                       [loading]="loading">
+              <ng-option *ngFor="let orf of ordreFabrications" [value]="orf">
+                {{orf.numOF + ' | ' + orf.designation}}
+              </ng-option>
+              <ng-option *ngIf="ordreFabrications.length === 0" value="" disabled>
+                Aucun ordre de fabrication disponible
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+
+        <!-- Sélection OF complet -->
+        <div class="row mb-3" *ngIf="typeDetail === 'OF_COMPLET'">
           <label class="col-sm-3 col-form-label">Article :</label>
           <div class="col-sm-9">
             <ng-select placeholder="Sélectionnez un article"
@@ -20,11 +64,32 @@
               <ng-option *ngFor="let orf of ordreFabrications" [value]="orf">
                 {{orf.numOF + ' | ' + orf.designation + ' | Qte:' + orf.qteRest}}
               </ng-option>
-              <!-- Message si aucun OF disponible -->
               <ng-option *ngIf="ordreFabrications.length === 0" value="" disabled>
                 Aucun ordre de fabrication disponible
               </ng-option>
             </ng-select>
+          </div>
+        </div>
+
+        <!-- Sélection nomenclature -->
+        <div class="row mb-3" *ngIf="typeDetail === 'NOMENCLATURE'">
+          <label class="col-sm-3 col-form-label">Article de nomenclature :</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Sélectionnez un article de nomenclature"
+                       formControlName="nomenclature"
+                       (change)="onValueChangeQteMax($event)"
+                       name="nomenclature"
+                       [readonly]="!selectedOF">
+              <ng-option *ngFor="let nom of nomenclatures" [value]="nom">
+                {{nom.type + ' | ' + nom.unite + ' | Qte restante:' + nom.quantiteRest}}
+              </ng-option>
+              <ng-option *ngIf="nomenclatures.length === 0 && selectedOF" value="" disabled>
+                Aucune nomenclature disponible pour cet OF
+              </ng-option>
+            </ng-select>
+            <small class="form-text text-muted" *ngIf="!selectedOF">
+              Veuillez d'abord sélectionner un ordre de fabrication
+            </small>
           </div>
         </div>
 
@@ -109,35 +174,56 @@
               <table class="table table-striped table-bordered table-hover">
                 <thead class="thead-dark sticky-top">
                 <tr>
+                  <th style="width: 8%;">Type</th>
                   <th style="width: 12%;">N° OF</th>
                   <th style="width: 25%;">Article</th>
                   <th style="width: 15%;">Quantité</th>
                   <th style="width: 20%;">Emplacement</th>
-                  <th style="width: 20%;">Observation</th>
+                  <th style="width: 12%;">Observation</th>
                   <th style="width: 8%;">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr *ngFor="let detail of paginatedDetails; let i = index"
                     [class.table-warning]="isEditing(i)">
-                  <!-- N° OF -->
-                  <td class="align-middle">
-                    <strong>{{detail.ordreFabrication?.numOF}}</strong>
+
+                  <!-- Type - Utilisation de la méthode utilitaire -->
+                  <td class="align-middle text-center">
+            <span class="badge"
+                  [class.badge-primary]="getDetailType(detail) === 'OF_COMPLET'"
+                  [class.badge-info]="getDetailType(detail) === 'NOMENCLATURE'"
+                  [class.badge-warning]="getDetailType(detail) === 'UNKNOWN'">
+              {{ getDetailType(detail) === 'OF_COMPLET' ? 'OF' :
+              getDetailType(detail) === 'NOMENCLATURE' ? 'NOM' : '?' }}
+            </span>
                   </td>
 
-                  <!-- Article -->
+                  <!-- N° OF - Utilisation de la méthode utilitaire -->
                   <td class="align-middle">
-                    <div class="text-wrap">{{detail.ordreFabrication?.article?.designation}}</div>
+                    <strong>{{ getDetailNumOF(detail) }}</strong>
+                  </td>
+
+                  <!-- Article - Utilisation de la méthode utilitaire -->
+                  <td class="align-middle">
+                    <div class="text-wrap">
+                      {{ getDetailDesignation(detail) }}
+                      <!-- Affichage supplémentaire pour les nomenclatures -->
+                      <ng-container *ngIf="getDetailType(detail) === 'NOMENCLATURE' && detail.nomenclature">
+                        <small class="text-muted d-block" *ngIf="detail.nomenclature?.unite" style="font-size: 10px">
+                          Unité : {{ detail.nomenclature.unite }}
+                        </small>
+                      </ng-container>
+                    </div>
                   </td>
 
                   <!-- Quantité (éditable) -->
                   <td class="align-middle">
-                    <!-- Mode affichage normal - SANS Max -->
+                    <!-- Mode affichage normal -->
                     <div *ngIf="!isEditing(i)" class="text-center">
-                      <strong>{{detail.quantite}}</strong>
+                      <strong>{{ detail.quantite }}</strong>
                     </div>
 
-                    <!-- Mode édition - AVEC Max -->
+                    <!-- Mode édition -->
                     <div *ngIf="isEditing(i)" class="quantity-edit-container">
                       <input type="number"
                              class="form-control form-control-sm text-center"
@@ -145,13 +231,13 @@
                              (input)="onQuantiteInputChange($event, detail, i)"
                              [max]="getMaxQuantiteForDetail(detail)"
                              min="1">
-                      <small class="text-muted">Max: {{getMaxQuantiteForDetail(detail)}}</small>
+                      <small class="text-muted">Max: {{ getMaxQuantiteForDetail(detail) }}</small>
                     </div>
                   </td>
 
                   <!-- Emplacement (éditable) -->
                   <td class="align-middle">
-                    <span *ngIf="!isEditing(i)" class="text-wrap">{{detail.emplacement}}</span>
+                    <span *ngIf="!isEditing(i)" class="text-wrap">{{ detail.emplacement }}</span>
                     <input *ngIf="isEditing(i)"
                            type="text"
                            class="form-control form-control-sm"
@@ -161,8 +247,8 @@
 
                   <!-- Observation (éditable) -->
                   <td class="align-middle">
-                      <span *ngIf="!isEditing(i)" class="text-wrap text-truncate"
-                            [title]="detail.observation">{{detail.observation}}</span>
+            <span *ngIf="!isEditing(i)" class="text-wrap text-truncate"
+                  [title]="detail.observation">{{ detail.observation }}</span>
                     <textarea *ngIf="isEditing(i)"
                               class="form-control form-control-sm"
                               [(ngModel)]="detail.observation"
@@ -173,50 +259,57 @@
                   <!-- Actions -->
                   <td class="col-actions text-center">
                     <div class="d-flex justify-content-center flex-wrap">
-
                       <div *ngIf="!isEditing(i)" class="btn-group-sm">
-                        <a
-                          title="Modifier détail"
-                          (click)="startEdit(detail, i)"
-                          class="action-btn">
+                        <a title="Modifier détail"
+                           (click)="startEdit(detail, i)"
+                           class="action-btn">
                           <i class='bx bxs-edit icon-large'></i>
                         </a>
-                        <a
-                          title="Supprimer détail"
-                          (click)="deleteDetail(detail)"
-                          class="action-btn">
+                        <a title="Supprimer détail"
+                           (click)="deleteDetail(detail)"
+                           class="action-btn">
                           <i class='bx bxs-trash icon-large'></i>
                         </a>
-                        <a
-                          title="Imprimer détail"
-                          class="action-btn">
+                        <a title="Imprimer détail"
+                           (click)="imprimDetail(detail)"
+                           class="action-btn">
                           <i class='bx bxs-file-pdf icon-large'></i>
                         </a>
-
                       </div>
 
                       <!-- Mode édition -->
                       <div *ngIf="isEditing(i)">
-                        <a
-                          title="Sauvegarder"
-                          (click)="saveEdit(detail, i)"
-                          class="action-btn">
+                        <a title="Sauvegarder"
+                           (click)="saveEdit(detail, i)"
+                           class="action-btn">
                           <i class='fadeIn animated bx bx-comment-check'></i>
                         </a>
-                        <a
-                          title="Annuler"
-                          (click)="cancelEdit(detail, i)"
-                          class="action-btn">
+                        <a title="Annuler"
+                           (click)="cancelEdit(detail, i)"
+                           class="action-btn">
                           <i class='fadeIn animated bx bx-comment-x'></i>
-
                         </a>
                       </div>
                     </div>
                   </td>
-
                 </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+          <div class="mt-3" *ngIf="detailsLivraison && detailsLivraison.length > 0">
+            <div class="alert alert-info">
+              <h6>Debug Information:</h6>
+              <div *ngFor="let detail of detailsLivraison.slice(0, 3); let i = index" class="small">
+                <strong>Detail {{ i + 1 }}:</strong>
+                Type: {{ getDetailType(detail) }} |
+                N°OF: {{ getDetailNumOF(detail) }} |
+                Article: {{ getDetailDesignation(detail) }} |
+                Qté: {{ detail.quantite }}
+              </div>
+              <small *ngIf="detailsLivraison.length > 3" class="text-muted">
+                ... et {{ detailsLivraison.length - 3 }} autres détails
+              </small>
             </div>
           </div>
 
@@ -305,3 +398,71 @@
     </div>
   </div>
 </div>
+
+<style>
+  .form-check-inline {
+    margin-right: 2rem;
+  }
+
+  .badge {
+    font-size: 0.75em;
+    font-weight: bold;
+  }
+
+  .badge-primary {
+    background-color: #007bff;
+  }
+
+  .badge-info {
+    background-color: #17a2b8;
+  }
+
+  .quantity-edit-container {
+    min-width: 120px;
+  }
+
+  .quantity-edit-container input {
+    margin-bottom: 2px;
+  }
+
+  .quantity-edit-container small {
+    font-size: 0.7em;
+    display: block;
+    text-align: center;
+  }
+</style>
+<style>
+  .badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+  }
+
+  .text-wrap {
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .quantity-edit-container {
+    min-width: 120px;
+  }
+
+  .quantity-edit-container input {
+    margin-bottom: 2px;
+  }
+
+  .quantity-edit-container small {
+    font-size: 0.7em;
+    display: block;
+    text-align: center;
+  }
+
+  .action-btn {
+    cursor: pointer;
+    margin: 0 2px;
+    color: #007bff;
+  }
+
+  .action-btn:hover {
+    color: #0056b3;
+  }
+</style>

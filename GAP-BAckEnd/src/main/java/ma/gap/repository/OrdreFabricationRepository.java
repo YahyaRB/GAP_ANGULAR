@@ -1,6 +1,8 @@
 package ma.gap.repository;
 
 import java.util.List;
+
+import ma.gap.dtos.OfProjectQteRestDto;
 import ma.gap.entity.Ateliers;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ma.gap.entity.OrdreFabrication;
@@ -24,7 +26,9 @@ public interface OrdreFabricationRepository extends JpaRepository<OrdreFabricati
 	@Query(value = "select o.* from ordre_fabrication o, projet p where p.id=o.projet_id and o.atelier_id=:idAtelier and o.projet_id=:idProjet and p.status=2 and o.qte_rest>0", nativeQuery = true)
 	public List<OrdreFabrication> findOFByAtelierAndProjet(@Param("idAtelier") long idAtelier, @Param("idProjet") long idProjet);
 
-
+	@Query("SELECT o.id as id, o.numOF as numOF, o.article.designation as designation, o.qteRest as qteRest " +
+			"FROM OrdreFabrication o WHERE o.projet.id = :projetId AND o.qteRest > 0")
+	List<OfProjectQteRestDto> findOfProjectQteRestByProjetId(@Param("projetId") Long projetId);
 
 
 	/*@Query(value = "SELECT * FROM ordre_fabrication where avancement<100 and projet_id= :idProjet and atelier_id= :idAtelier", nativeQuery = true)

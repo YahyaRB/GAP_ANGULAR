@@ -51,6 +51,7 @@ public class LivraisonController {
     private UserImpService userImpService;
     private DetailLivraisonRepository detailLivraisonRepository;
     private DetailLivraisonService detailLivraisonService;
+
     @GetMapping(value = "/getAll/{idUser}")
     public ResponseEntity<?> findAllLivraisons(@PathVariable("idUser") long idUser) {
         try {
@@ -192,15 +193,7 @@ public class LivraisonController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
-    @GetMapping("/ArticleOf/Imprimer/{id}")
-    @PreAuthorize("hasAnyAuthority('admin','agentSaisie')")
-    public ResponseEntity<byte[]> impressionArticle(Model model,@PathVariable("id") Long id) throws JRException, IOException, OrdreFabricationNotFoundException, ArticleNotFoundException {
-        DetailLivraison dl=detailLivraisonService.detailLivraisonById(id).get();
-        dl.setImprime(true);
-        dl.setId(id);
-        detailLivraisonService.editDetailLivraison(dl);
-        return detailLivraisonService.impArticle(id);
-    }
+
     /*    @GetMapping("/AffectationLivraison/export")
     @PreAuthorize("hasAnyAuthority('admin')")
     public void exportAffectationToExcel(HttpServletResponse response, @RequestParam(value = "idprojet",defaultValue = "0") long idprojet,

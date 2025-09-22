@@ -17,7 +17,6 @@
 	<field name="emplacement" class="java.lang.String"/>
 	<field name="observation" class="java.lang.String"/>
 	<field name="ordreFabrication" class="ma.gap.entity.OrdreFabrication"/>
-	<field name="NumOF" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -106,10 +105,6 @@
 				<textElement textAlignment="Left" verticalAlignment="Top"/>
 				<textFieldExpression><![CDATA["Le : " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date())]]></textFieldExpression>
 			</textField>
-			<image>
-				<reportElement x="-3" y="-1" width="79" height="28" uuid="c94bba60-2cfa-4bf2-aeec-1cea18105472"/>
-				<imageExpression><![CDATA[this.getClass().getResourceAsStream("/static/images/RB-LOGO-1.png")]]></imageExpression>
-			</image>
 			<textField>
 				<reportElement x="180" y="200" width="100" height="20" uuid="c446cbae-add8-45f5-a937-1957524db2f5"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -130,6 +125,10 @@
 					<jr:codeExpression><![CDATA[new SimpleDateFormat("ddMMyyyy").format($F{ordreFabrication}.getDate())+$F{ordreFabrication}.getCompteur()]]></jr:codeExpression>
 				</jr:Codabar>
 			</componentElement>
+			<image>
+				<reportElement x="1" y="0" width="89" height="30" uuid="4eadd035-86da-482b-bc43-c6e8389f405b"/>
+				<imageExpression><![CDATA[this.getClass().getResourceAsStream("/static/assets/images/RB-LOGO.png")]]></imageExpression>
+			</image>
 		</band>
 	</detail>
 </jasperReport>

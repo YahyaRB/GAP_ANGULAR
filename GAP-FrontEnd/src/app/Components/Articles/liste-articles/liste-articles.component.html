@@ -25,7 +25,7 @@
               </button>
               <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left">
                 <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addModal">Ajouter un article</a>
-                <a type="button" class="dropdown-item" (click)="exportExel()">Export Excel</a>
+                <a type="button" class="dropdown-item" (click)="exportExcel()">Export Exce</a>
               </div>
             </div>
           </div>
@@ -167,8 +167,12 @@
                   </td>
 
                   <td class="col-affaire">
-                    <div class="cell-content">{{ post?.projet?.code + ' - ' + post?.projet?.designation }}</div>
+                    <div class="affaire-cell">
+                      <div class="affaire-code">{{ post?.projet?.code }}</div>
+                      <div class="affaire-designation">{{ post?.projet?.designation }}</div>
+                    </div>
                   </td>
+
 
                   <td class="col-unite">{{ post?.unite }}</td>
 

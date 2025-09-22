@@ -1,0 +1,24 @@
+/* 1) autoriser le retour à la ligne dans la cellule Affaire */
+#example2 td.col-affaire,
+#example2 td.col-affaire * {
+  white-space: normal !important;     /* casse tout nowrap hérité */
+}
+
+/* 2) césure propre des mots/longs codes */
+.affaire-cell {
+  overflow-wrap: anywhere;            /* ou word-break: break-word; si tu préfères */
+  word-break: break-word;
+  max-width: 420px;                   /* ajuste selon ta mise en page */
+}
+
+/* 3) mise en forme des 2 lignes */
+.affaire-code {
+  font-weight: 600;
+  line-height: 1.2;
+}
+.affaire-designation {
+  display: block;
+  margin-top: 2px;
+  line-height: 1.2;
+  color: #555;                        /* optionnel */
+}

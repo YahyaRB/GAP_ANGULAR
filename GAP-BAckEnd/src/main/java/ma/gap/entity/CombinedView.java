@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class CombinedView {
 	private Nomenclature nomenclature;
-	private NomenclatureArticleAch nomenclatureArticleAch;
+
 	private ArticleAch articleAch;
 	private Plan plan;
 }

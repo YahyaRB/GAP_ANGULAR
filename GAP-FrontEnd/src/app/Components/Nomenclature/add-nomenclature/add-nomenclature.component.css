@@ -1,0 +1,19 @@
+.modal-lg-custom {
+  max-width: 800px;
+}
+
+.card.radius-15 {
+  border-radius: 15px;
+}
+
+.alert {
+  border-radius: 10px;
+}
+
+.form-control {
+  border-radius: 8px;
+}
+
+.btn {
+  border-radius: 8px;
+}

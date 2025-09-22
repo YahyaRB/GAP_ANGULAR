@@ -130,3 +130,32 @@ input[readonly] {
   white-space: normal;
   word-break: break-word;
 }
+/* Article : autoriser le retour à la ligne */
+#example2 td.col-article,
+#example2 td.col-article * ,
+#example2 td.col-affaire,
+#example2 td.col-affaire * {
+  white-space: normal !important;
+}
+
+/* Gestion du contenu article */
+.article-cell , .affaire-cell {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 420px; /* adapte si besoin */
+}
+
+.article-code , .affaire-code {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.article-designation , .affaire-designation {
+  display: block;
+  margin-top: 2px;
+  line-height: 1.2;
+
+}
+
+
+

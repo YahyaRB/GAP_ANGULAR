@@ -1,0 +1,93 @@
+<div class="modal-dialog modal-dialog-centered modal-lg-custom">
+
+  <div class="modal-content card radius-15">
+    <div class="modal-header">
+      <h5 class="modal-title">Ajouter une nomenclature</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <form name="form" [formGroup]="myFormAdd" (ngSubmit)="onAdd()">
+      <div class="modal-body">
+
+        <!-- Informations de l'OF -->
+        <div class="row mb-3" *ngIf="ordreFabrication">
+          <div class="col-12">
+            <div class="alert alert-info">
+              <strong>Ordre de Fabrication :</strong> {{ordreFabrication.numOF}} -
+              <strong>Quantité OF :</strong> {{ordreFabrication.quantite | number:'1.0-2'}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Type de nomenclature -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Type</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Sélectionnez un type"
+                       formControlName="type" name="type">
+              <ng-option *ngFor="let type of typesNomenclature" [value]="type.value">
+                {{type.label}}
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+
+        <!-- Désignation -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Désignation</label>
+          <div class="col-sm-9">
+            <input type="text" id="designation" class="form-control"
+                   placeholder="Désignation de la nomenclature"
+                   formControlName="designation">
+          </div>
+        </div>
+
+        <!-- Unité -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Unité</label>
+          <div class="col-sm-9">
+            <ng-select placeholder="Sélectionnez une unité"
+                       formControlName="unite" name="unite">
+              <ng-option *ngFor="let unite of unites" [value]="unite.value">
+                {{unite.label}} ({{unite.value}})
+              </ng-option>
+            </ng-select>
+          </div>
+        </div>
+
+        <!-- Quantité par unité d'OF -->
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Quantité par unité</label>
+          <div class="col-sm-9">
+            <input type="number" id="quantite" class="form-control"
+                   step="0.01" min="0.01"
+                   placeholder="Quantité nécessaire par unité d'OF"
+                   formControlName="quantite">
+            <small class="form-text text-muted">
+              Quantité nécessaire pour produire 1 unité de l'ordre de fabrication
+            </small>
+          </div>
+        </div>
+
+        <!-- Calcul de la quantité totale -->
+        <div class="row mb-3" *ngIf="myFormAdd.get('quantite')?.value && ordreFabrication">
+          <label class="col-sm-3 col-form-label">Quantité totale calculée</label>
+          <div class="col-sm-9">
+            <div class="alert alert-success">
+              <strong>{{getQuantiteTotaleCalculee() | number:'1.0-2'}}</strong>
+              <small class="text-muted ml-2">
+                ({{ordreFabrication.quantite}} × {{myFormAdd.get('quantite')?.value}})
+              </small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" #closebutton data-dismiss="modal">Fermer</button>
+        <button type="submit" [disabled]="!myFormAdd.valid" class="btn btn-primary">Valider</button>
+      </div>
+    </form>
+  </div>
+</div>

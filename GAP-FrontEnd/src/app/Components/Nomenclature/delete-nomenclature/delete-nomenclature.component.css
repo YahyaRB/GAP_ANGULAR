@@ -1,0 +1,11 @@
+.card.radius-15 {
+  border-radius: 15px;
+}
+
+.alert {
+  border-radius: 10px;
+}
+
+.btn {
+  border-radius: 8px;
+}

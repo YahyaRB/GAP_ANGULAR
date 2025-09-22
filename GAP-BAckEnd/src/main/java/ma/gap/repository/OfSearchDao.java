@@ -68,20 +68,43 @@ public class OfSearchDao {
             Predicate articlePredicate = criteriaBuilder.equal(root.get("article"), articleRepository.findById(idArticle).get());
             predicates.add(articlePredicate);
         }
-        if(dateDebut!= "" || dateFin!= "")
+        if(dateDebut != null && !dateDebut.trim().isEmpty() && dateFin != null && !dateFin.trim().isEmpty())
         {
             Predicate datePredicate;
             Date date1;
             Date date2;
-            if(dateDebut== "")
-                dateDebut=dateFin;
-            else if(dateFin== "")
-                dateFin=dateDebut;
 
-            date1=new SimpleDateFormat("yyyy-MM-dd").parse(dateDebut);
-            date2=new SimpleDateFormat("yyyy-MM-dd").parse(dateFin);
-            datePredicate = criteriaBuilder.between(root.get("date"), date1, date2);
-            predicates.add(datePredicate);
+            try {
+                date1 = new SimpleDateFormat("yyyy-MM-dd").parse(dateDebut.trim());
+                date2 = new SimpleDateFormat("yyyy-MM-dd").parse(dateFin.trim());
+                datePredicate = criteriaBuilder.between(root.get("date"), date1, date2);
+                predicates.add(datePredicate);
+            } catch (ParseException e) {
+                // Log l'erreur mais ne pas interrompre la recherche
+                System.err.println("Erreur de parsing des dates: " + e.getMessage());
+            }
+        }
+        else if(dateDebut != null && !dateDebut.trim().isEmpty())
+        {
+            // Seulement date de début fournie
+            try {
+                Date date1 = new SimpleDateFormat("yyyy-MM-dd").parse(dateDebut.trim());
+                Predicate datePredicate = criteriaBuilder.greaterThanOrEqualTo(root.get("date"), date1);
+                predicates.add(datePredicate);
+            } catch (ParseException e) {
+                System.err.println("Erreur de parsing de dateDebut: " + e.getMessage());
+            }
+        }
+        else if(dateFin != null && !dateFin.trim().isEmpty())
+        {
+            // Seulement date de fin fournie
+            try {
+                Date date2 = new SimpleDateFormat("yyyy-MM-dd").parse(dateFin.trim());
+                Predicate datePredicate = criteriaBuilder.lessThanOrEqualTo(root.get("date"), date2);
+                predicates.add(datePredicate);
+            } catch (ParseException e) {
+                System.err.println("Erreur de parsing de dateFin: " + e.getMessage());
+            }
         }
 
         Predicate queryPredicate = criteriaBuilder.and(predicates.toArray(new Predicate[0]));

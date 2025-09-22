@@ -6,6 +6,8 @@ import { Observable } from 'rxjs';
 import {IdetailLivraison} from "./Interfaces/idetail-livraison";
 import {environment} from "../../environments/environment";
 import {OfProjectQteRest} from "./Interfaces/of-project-qte-rest";
+import {INomenclature} from "./Interfaces/inomenclature";
+import {DetailLivraisonRequest} from "./Interfaces/detail-livraison-request";
 
 
 @Injectable({
@@ -77,7 +79,27 @@ export class DetailLivraisonService {
     const url = `${this.baseUrl}/getAllOFByLivraison/${idLivraison}`;
     return this.http.get<OfProjectQteRest[]>(url);
   }
-  // Méthode pour l'impression de livraison (corrige l'erreur mentionnée)
+
+  impressionDetail(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/ArticleOf/Imprimer/${id}`, {
+      responseType: 'blob'
+    });
+  }
+  getNomenclaturesByLivraison(idLivraison: number): Observable<INomenclature[]> {
+    return this.http.get<INomenclature[]>(`${this.baseUrl}/getNomenclaturesByLivraison/${idLivraison}`);
+  }
+
+  getNomenclaturesByOF(idOF: number): Observable<INomenclature[]> {
+    return this.http.get<INomenclature[]>(`${this.baseUrl}/getNomenclaturesByOF/${idOF}`);
+  }
+
+  addDetailWithType(request: DetailLivraisonRequest): Observable<string> {
+    return this.http.post<string>(
+      `${this.baseUrl}/AjouterAvecType/${request.livraisonId}`,
+      request,
+      { responseType: 'text' as 'json' }
+    );
+  }
 
 }
 

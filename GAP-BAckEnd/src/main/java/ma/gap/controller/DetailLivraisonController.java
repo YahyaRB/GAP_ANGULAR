@@ -1,7 +1,10 @@
 package ma.gap.controller;
 
 import lombok.AllArgsConstructor;
+import ma.gap.dtos.DetailLivraisonRequest;
+import ma.gap.dtos.NomenclatureQteRestDto;
 import ma.gap.entity.*;
+import ma.gap.enums.TypeDetail;
 import ma.gap.exceptions.ArticleNotFoundException;
 import ma.gap.repository.DetailLivraisonRepository;
 import ma.gap.repository.OrdreFabricationRepository;
@@ -9,6 +12,8 @@ import ma.gap.dtos.OfProjectQteRestDto;
 import ma.gap.exceptions.OrdreFabricationNotFoundException;
 import ma.gap.service.DetailLivraisonService;
 import ma.gap.service.LivraisonService;
+import ma.gap.service.NomenclatureService;
+import ma.gap.service.OrdreFabricationService;
 import net.sf.jasperreports.engine.JRException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -35,14 +40,14 @@ import java.util.Optional;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/DetailLivraison")
-public class DetailLivraisonController{
-        private DetailLivraisonService detailLivraisonService;
-        private LivraisonService livraisonService;
-        private OrdreFabricationRepository ordreFabricationRepository;
-
+public class DetailLivraisonController {
+    private DetailLivraisonService detailLivraisonService;
+    private LivraisonService livraisonService;
+    private OrdreFabricationRepository ordreFabricationRepository;
+    private NomenclatureService nomenclatureService;
+    private OrdreFabricationService ofService;
 
     @PostMapping("/Ajouter/{idLivraison}")
-
     public ResponseEntity<String> ajouterDetail(
             @PathVariable Long idLivraison,
             @RequestBody DetailLivraison detail) {
@@ -58,44 +63,17 @@ public class DetailLivraisonController{
         }
     }
 
-    /*    @GetMapping(value = "/DetailLivraisons/Tous")
-        @PreAuthorize("hasAnyAuthority('admin','agentSaisie','consulteur')")
-        public String findAllLivraisons(Model model, @RequestParam(value = "page") Optional<Integer> page,
-                                        @RequestParam(value = "size" ) Optional<Integer> size,@PathVariable Long id){
-
-           model.addAttribute("detail",detailLivraisonService.allDetailsLivraisons(id));
-            return "Livraisons/ListeLivraisons";
-        }*/
-   /*     @GetMapping(value = "/DetailLivraisons/Tous/{id}")
-        @PreAuthorize("hasAnyAuthority('admin','agentSaisie','consulteur')")
-        public String findLivraison(Model model,@RequestParam(value = "page") Optional<Integer> page,
-                                    @RequestParam(value = "size" ) Optional<Integer> size){
-
-            // A developper
-            return "redirect:/DetailLivraisons/Tous";
-        }*/
-
-
-
 
     @GetMapping("Livraison/ListeDetailByBL/{idLivraison}")
     // @PreAuthorize("hasAnyAuthority('admin','agentSaisie','consulteur')")
-    public List<DetailLivraison> listeDetailsByBL(@PathVariable Long idLivraison){
+    public List<DetailLivraison> listeDetailsByBL(@PathVariable Long idLivraison) {
 
 
-Livraisons livraisons=livraisonService.livraisonById(idLivraison).get();
+        Livraisons livraisons = livraisonService.livraisonById(idLivraison).get();
 
         return detailLivraisonService.findAllBylivraison(livraisons);
     }
-/*       @PostMapping(value = "DetailLivraisons/Editer/{id}")
-        @PreAuthorize("hasAnyAuthority('admin','agentSaisie')")
-        public String editLivraison(Model model,@PathVariable("id") long id, DetailLivraison detailLivraison) throws OrdreFabricationNotFoundException, IOException, ArticleNotFoundException {
-	       DetailLivraison dl=detailLivraisonService.detailLivraisonById(id).get();
-           detailLivraison.setImprime(dl.getImprime());
-	        detailLivraison.setId(id);
-	        detailLivraisonService.editDetailLivraison(detailLivraison);
-	        return addDetailLivraison(model,detailLivraison.getLivraison().getId());
-        }*/
+
 
     @PutMapping(value = "/Editer/{id}")
     public ResponseEntity<?> updateDetail(@PathVariable Long id, @Valid @RequestBody DetailLivraison detail) {
@@ -105,7 +83,7 @@ Livraisons livraisons=livraisonService.livraisonById(idLivraison).get();
                 return ResponseEntity.badRequest().body("L'ID dans l'URL ne correspond pas à l'ID du détail");
             }
 
-            DetailLivraison updatedDetail = detailLivraisonService.editDetailLivraison( detail);
+            DetailLivraison updatedDetail = detailLivraisonService.editDetailLivraison(detail);
             return ResponseEntity.ok(updatedDetail);
 
         } catch (RuntimeException e) {
@@ -130,52 +108,188 @@ Livraisons livraisons=livraisonService.livraisonById(idLivraison).get();
         }
     }
 
+    @GetMapping("/ArticleOf/Imprimer/{id}")
+//@PreAuthorize("hasAnyAuthority('admin','agentSaisie')")
+    public ResponseEntity<byte[]> impressionArticle(Model model, @PathVariable("id") Long id) throws JRException, IOException, OrdreFabricationNotFoundException, ArticleNotFoundException {
 
+        DetailLivraison dl = detailLivraisonService.detailLivraisonById(id).get();
+        dl.setImprime(true);
+        dl.setId(id);
+        detailLivraisonService.editDetailLivraison(dl);
+        return detailLivraisonService.impArticle(id);
+    }
 
+    /**
+     * Récupère les nomenclatures disponibles pour une livraison donnée
+     */
+    @GetMapping("/getNomenclaturesByLivraison/{idLivraison}")
+    public ResponseEntity<List<NomenclatureQteRestDto>> getNomenclaturesByLivraison(@PathVariable Long idLivraison) {
+        try {
+            // Récupérer la livraison pour obtenir le projet
+            Livraisons livraison = livraisonService.livraisonById(idLivraison)
+                    .orElseThrow(() -> new EntityNotFoundException("Livraison non trouvée avec l'ID: " + idLivraison));
 
+            Long projetId = livraison.getProjet().getId();
 
+            // Récupérer toutes les nomenclatures disponibles pour ce projet
+            List<NomenclatureQteRestDto> nomenclatures = nomenclatureService.getNomenclaturesByProjetWithQuantities(projetId);
 
-/* @PostMapping(value = "/of/miseajour/")
-    public String miseajourof(@RequestParam("idof") String idof ) throws OrdreFabricationNotFoundException, IOException {
-    List<String> columnData = new ArrayList<>();
+            return ResponseEntity.ok(nomenclatures);
 
-            FileInputStream fileInputStream = new FileInputStream("C:\\Users\\richebois\\Desktop\\amigosservices\\ListeOFCopie.xls");
-            Workbook workbook = new HSSFWorkbook(fileInputStream);
-            Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> rowIterator = sheet.iterator();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération des nomenclatures: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
+        }
+    }
 
-            while (rowIterator.hasNext()) {
-                Row row = rowIterator.next();
-                Cell cell = row.getCell(0);
-                String cellValue = "";
+    /**
+     * Récupère les nomenclatures disponibles pour un OF spécifique
+     */
+    @GetMapping("/getNomenclaturesByOF/{idOF}")
+    public ResponseEntity<List<NomenclatureQteRestDto>> getNomenclaturesByOF(@PathVariable Long idOF) {
+        try {
+            List<NomenclatureQteRestDto> nomenclatures = nomenclatureService.getNomenclaturesByOFWithQuantities(idOF);
+            return ResponseEntity.ok(nomenclatures);
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération des nomenclatures pour l'OF: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
+        }
+    }
 
-                if (cell != null) {
-                    switch (cell.getCellType()) {
-                        case STRING:
-                            cellValue = cell.getStringCellValue();
-                            break;
-                        default :
+    /**
+     * Ajoute un détail de livraison avec support pour OF complet ou nomenclature
+     */
+    @PostMapping("/AjouterAvecType/{idLivraison}")
+    public ResponseEntity<String> ajouterDetailAvecType(
+            @PathVariable Long idLivraison,
+            @RequestBody DetailLivraisonRequest request) {
+        try {
 
-                            break;
-                        // Ajoutez d'autres types de cellules si nécessaire (BOOLEAN, FORMULA, etc.)
-                    }
-                }
-
-                columnData.add(cellValue);
+            // Validation des données
+            if (request.getType() == null || request.getType().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Le type de détail est requis");
             }
 
-            workbook.close();
-            fileInputStream.close();
+            if (request.getQuantite() <= 0) {
+                return ResponseEntity.badRequest().body("La quantité doit être supérieure à 0");
+            }
 
+            // Récupérer la livraison
+            Livraisons livraison = livraisonService.livraisonById(idLivraison)
+                    .orElseThrow(() -> new EntityNotFoundException("Livraison non trouvée"));
 
+            // Créer le détail selon le type
+            DetailLivraison detail = new DetailLivraison();
+            detail.setQuantite(request.getQuantite());
+            detail.setEmplacement(request.getEmplacement());
+            detail.setObservation(request.getObservation());
+            detail.setLivraison(livraison);
 
-        return "redirect:/of/saisiemiseajour";
-}*/
+            if ("OF_COMPLET".equals(request.getType())) {
+                // Traitement pour OF complet
+                if (request.getOrdreFabricationId() == null) {
+                    return ResponseEntity.badRequest().body("L'ID de l'ordre de fabrication est requis pour un OF complet");
+                }
 
+                OrdreFabrication of = ordreFabricationRepository.findById(request.getOrdreFabricationId())
+                        .orElseThrow(() -> new EntityNotFoundException("Ordre de fabrication non trouvé"));
 
+                // Vérifier les quantités disponibles
+                if (request.getQuantite() > of.getQteRest()) {
+                    return ResponseEntity.badRequest().body("Quantité demandée supérieure à la quantité restante");
+                }
 
+                detail.setOrdreFabrication(of);
+                detail.setTypeDetail(TypeDetail.OF_COMPLET);
+
+                // Sauvegarder le détail
+                DetailLivraison savedDetail = detailLivraisonService.saveDetailLivraisonWithType(detail, idLivraison);
+
+                // Mettre à jour les quantités de l'OF
+                of.setQteLivre(of.getQteLivre() + request.getQuantite());
+                of.setQteRest(of.getQuantite() - of.getQteLivre());
+                ordreFabricationRepository.save(of);
+
+            } else if ("NOMENCLATURE".equals(request.getType())) {
+                // Traitement pour nomenclature
+                if (request.getNomenclatureId() == null) {
+                    return ResponseEntity.badRequest().body("L'ID de la nomenclature est requis");
+                }
+
+                Nomenclature nomenclature = nomenclatureService.findById(request.getNomenclatureId())
+                        .orElseThrow(() -> new EntityNotFoundException("Nomenclature non trouvée"));
+
+                // Vérifier les quantités disponibles
+                if (request.getQuantite() > nomenclature.getQuantiteRest()) {
+                    return ResponseEntity.badRequest().body("Quantité demandée supérieure à la quantité restante de la nomenclature");
+                }
+
+                detail.setNomenclature(nomenclature);
+                detail.setTypeDetail(TypeDetail.NOMENCLATURE);
+
+                // Sauvegarder le détail
+                DetailLivraison savedDetail = detailLivraisonService.saveDetailLivraisonWithType(detail, idLivraison);
+
+                // Mettre à jour les quantités de la nomenclature
+                nomenclatureService.updateQuantitiesAfterDelivery(request.getNomenclatureId(), request.getQuantite());
+
+            } else {
+                return ResponseEntity.badRequest().body("Type de détail non reconnu: " + request.getType());
+            }
+
+            return ResponseEntity.ok("Détail de livraison ajouté avec succès");
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Entité non trouvée: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("=== ERREUR DANS LE CONTRÔLEUR (AjouterAvecType) ===");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de l'ajout du détail: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Vérifie la disponibilité d'une nomenclature pour une quantité donnée
+     */
+    @GetMapping("/checkNomenclatureAvailability/{nomenclatureId}/{quantite}")
+    public ResponseEntity<Boolean> checkNomenclatureAvailability(
+            @PathVariable Long nomenclatureId,
+            @PathVariable Double quantite) {
+        try {
+            Optional<Nomenclature> nomenclatureOpt = nomenclatureService.findById(nomenclatureId);
+            if (nomenclatureOpt.isPresent()) {
+                Nomenclature nomenclature = nomenclatureOpt.get();
+                boolean available = nomenclature.getQuantiteRest() >= quantite;
+                return ResponseEntity.ok(available);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la vérification de disponibilité: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+        }
+    }
+
+    @GetMapping("/getAllOFByLivraison/{idLivraison}")
+    public ResponseEntity<List<OfProjectQteRestDto>> getAllOFByLivraison(@PathVariable Long idLivraison) {
+        try {
+            Livraisons livraison = livraisonService.livraisonById(idLivraison)
+                    .orElseThrow(() -> new EntityNotFoundException("Livraison non trouvée"));
+
+            // Utiliser la projection du repository
+            List<OfProjectQteRestDto> ordresFabrication = ordreFabricationRepository
+                    .findOfProjectQteRestByProjetId(livraison.getProjet().getId());
+
+            return ResponseEntity.ok(ordresFabrication);
+
+        } catch (Exception e) {
+            System.err.println("Erreur getAllOFByLivraison: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
+        }
+    }
 }
-
-
-
-

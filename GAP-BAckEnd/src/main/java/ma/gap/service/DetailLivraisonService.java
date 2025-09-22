@@ -1,5 +1,6 @@
 package ma.gap.service;
 
+import ma.gap.dtos.OfProjectQteRestDto;
 import ma.gap.entity.*;
 import ma.gap.exceptions.ArticleNotFoundException;
 import ma.gap.exceptions.OrdreFabricationNotFoundException;
@@ -13,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public interface DetailLivraisonService {
 
@@ -30,4 +32,9 @@ public interface DetailLivraisonService {
     List<DetailLivraison> findAllBylivraison(Livraisons livraisons);
     ResponseEntity<byte[]> impLivraison(Long id) throws JRException, FileNotFoundException, IOException, EmptyResultDataAccessException, OrdreFabricationNotFoundException;
     ResponseEntity<byte[]> impArticle(Long id) throws JRException, FileNotFoundException, IOException, EmptyResultDataAccessException, OrdreFabricationNotFoundException;
+    List<OfProjectQteRestDto> getAvailableOFByProjet(Long projetId);
+
+     OfProjectQteRestDto mapToOfProjectQteRestDto(OrdreFabrication of);
+     DetailLivraison saveDetailLivraisonWithType(DetailLivraison detaillivraison, Long idLivraison);
+
 }

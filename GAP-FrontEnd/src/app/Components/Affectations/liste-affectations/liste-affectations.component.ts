@@ -15,7 +15,7 @@ import {Iarticle} from "../../../services/Interfaces/iarticle";
 import {ArticleService} from "../../../services/article.service";
 import {ROLES_ADMIN_AGENTSAISIE} from "../../../Roles";
 import {Iaffectation} from "../../../services/Interfaces/iaffectation";
-
+import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-liste-affectations',
   templateUrl: './liste-affectations.component.html',
@@ -165,8 +165,277 @@ export class ListeAffectationsComponent  implements OnInit, OnChanges {
        );*/
   }
 
-  exportExel() {
+  exportExel(): void {
+    try {
+      // Appliquer le filtre de recherche textuel si présent
+      let filteredData = this.applyFilter(this.POSTS, this.pfiltre);
 
+      // Appliquer les filtres avancés du formulaire
+      if (this.myFormSearch) {
+        const formValues = this.myFormSearch.value;
+
+        if (formValues.idprojet && formValues.idprojet !== 0) {
+          filteredData = filteredData.filter(affectation =>
+            affectation.projets?.id === formValues.idprojet
+          );
+        }
+
+        if (formValues.idemploye && formValues.idemploye !== 0) {
+          filteredData = filteredData.filter(affectation =>
+            affectation.employees?.id === formValues.idemploye
+          );
+        }
+
+        if (formValues.idarticle && formValues.idarticle !== 0) {
+          filteredData = filteredData.filter(affectation =>
+            affectation.article?.id === formValues.idarticle
+          );
+        }
+
+        if (formValues.idatelier && formValues.idatelier !== 0) {
+          filteredData = filteredData.filter(affectation =>
+            affectation.ateliers?.id === formValues.idatelier
+          );
+        }
+
+        // Filtrer par dates si spécifiées
+        if (formValues.dateDebut) {
+          const dateDebut = new Date(formValues.dateDebut);
+          filteredData = filteredData.filter(affectation => {
+            const affectationDate = new Date(affectation.date);
+            return affectationDate >= dateDebut;
+          });
+        }
+
+        if (formValues.dateFin) {
+          const dateFin = new Date(formValues.dateFin);
+          filteredData = filteredData.filter(affectation => {
+            const affectationDate = new Date(affectation.date);
+            return affectationDate <= dateFin;
+          });
+        }
+      }
+
+      if (filteredData.length === 0) {
+        alert('Aucune donnée correspondant aux filtres à exporter');
+        return;
+      }
+
+      // Préparer les données pour l'export
+      const exportData = filteredData.map((affectation, index) => ({
+        'N°': index + 1,
+        'Date': this.formatDateForExport(affectation.date),
+        'Période': affectation.periode || '',
+        'Nombre d\'Heures': affectation.nombreHeures || 0,
+        'Code Projet': affectation.projets?.code || '',
+        'Désignation Projet': affectation.projets?.designation || '',
+        'Atelier': affectation.ateliers?.designation || '',
+        'Article N° Prix': affectation.article?.numPrix || '',
+        'Article Désignation': affectation.article?.designation || '',
+        'Article Quantité': affectation.article?.quantiteTot || 0,
+        'Article Unité': affectation.article?.unite || '',
+        'Employé': this.formatEmployeeForExport(affectation.employees),
+        'Matricule Employé': affectation.employees?.matricule || ''
+      }));
+
+      // Créer le workbook et la worksheet
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+
+      // Définir la largeur des colonnes
+      const colWidths = [
+        { wch: 5 },   // N°
+        { wch: 12 },  // Date
+        { wch: 15 },  // Période
+        { wch: 15 },  // Nombre d'Heures
+        { wch: 15 },  // Code Projet
+        { wch: 30 },  // Désignation Projet
+        { wch: 20 },  // Atelier
+        { wch: 15 },  // Article N° Prix
+        { wch: 35 },  // Article Désignation
+        { wch: 15 },  // Article Quantité
+        { wch: 10 },  // Article Unité
+        { wch: 40 },  // Employé
+        { wch: 15 }   // Matricule Employé
+      ];
+      ws['!cols'] = colWidths;
+
+      // Styliser les en-têtes
+      const headerStyle = {
+        font: { bold: true, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "4472C4" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+
+      // Appliquer le style aux en-têtes (ligne 1)
+      const headerCells = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'I1', 'J1', 'K1', 'L1', 'M1'];
+      headerCells.forEach(cell => {
+        if (ws[cell]) {
+          ws[cell].s = headerStyle;
+        }
+      });
+
+      // Ajouter des styles alternés pour les lignes de données
+      const dataStyle = {
+        alignment: { vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "CCCCCC" } },
+          bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+          left: { style: "thin", color: { rgb: "CCCCCC" } },
+          right: { style: "thin", color: { rgb: "CCCCCC" } }
+        }
+      };
+
+      // Appliquer le style aux données (à partir de la ligne 2)
+      for (let row = 2; row <= exportData.length + 1; row++) {
+        headerCells.forEach((_, colIndex) => {
+          const cellAddress = XLSX.utils.encode_cell({ r: row - 1, c: colIndex });
+          if (ws[cellAddress]) {
+            ws[cellAddress].s = {
+              ...dataStyle,
+              fill: row % 2 === 0 ?
+                { fgColor: { rgb: "F8F9FA" } } :
+                { fgColor: { rgb: "FFFFFF" } }
+            };
+          }
+        });
+      }
+
+      // Ajouter la worksheet au workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Liste Affectations');
+
+      // Ajouter une feuille de résumé
+      const summaryData = [
+        { 'Information': 'Nombre total d\'affectations', 'Valeur': filteredData.length },
+        { 'Information': 'Total heures affectées', 'Valeur': filteredData.reduce((sum, aff) => sum + (aff.nombreHeures || 0), 0) },
+        { 'Information': 'Nombre de projets distincts', 'Valeur': new Set(filteredData.map(aff => aff.projets?.id)).size },
+        { 'Information': 'Nombre d\'ateliers distincts', 'Valeur': new Set(filteredData.map(aff => aff.ateliers?.id)).size },
+        { 'Information': 'Nombre d\'employés distincts', 'Valeur': new Set(filteredData.map(aff => aff.employees?.id).filter(id => id)).size },
+        { 'Information': 'Date d\'export', 'Valeur': new Date().toLocaleString('fr-FR') },
+        { 'Information': 'Période couverte', 'Valeur': this.getDateRangeFromForm() }
+      ];
+
+      const summaryWs: XLSX.WorkSheet = XLSX.utils.json_to_sheet(summaryData);
+      summaryWs['!cols'] = [{ wch: 30 }, { wch: 20 }];
+
+      // Styliser la feuille de résumé
+      const summaryHeaderCells = ['A1', 'B1'];
+      summaryHeaderCells.forEach(cell => {
+        if (summaryWs[cell]) {
+          summaryWs[cell].s = headerStyle;
+        }
+      });
+
+      XLSX.utils.book_append_sheet(wb, summaryWs, 'Résumé');
+
+      // Générer le nom du fichier avec la date
+      const currentDate = new Date();
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const timeStr = currentDate.toTimeString().split(' ')[0].replace(/:/g, '-');
+      const fileName = `Affectations_${dateStr}_${timeStr}.xlsx`;
+
+      // Télécharger le fichier
+      XLSX.writeFile(wb, fileName);
+
+      // Message de succès
+      console.log(`Export réussi: ${exportData.length} affectations exportées`);
+
+      // Si vous avez un service de toast/notification
+      // this.toastr.success(`${exportData.length} affectations exportées avec succès`, 'Export Excel');
+
+    } catch (error) {
+      console.error('Erreur lors de l\'export Excel:', error);
+      alert('Erreur lors de l\'export Excel. Veuillez réessayer.');
+    }
+  }
+
+  /**
+   * Applique le filtre de recherche textuel
+   * @param data - Tableau des affectations
+   * @param filter - Terme de recherche
+   * @returns Tableau filtré
+   */
+  private applyFilter(data: Iaffectation[], filter: string): Iaffectation[] {
+    if (!filter || filter.trim() === '') {
+      return data;
+    }
+
+    const searchTerm = filter.toLowerCase().trim();
+
+    return data.filter(affectation => {
+      return (
+        affectation.periode?.toLowerCase().includes(searchTerm) ||
+        affectation.projets?.code?.toLowerCase().includes(searchTerm) ||
+        affectation.projets?.designation?.toLowerCase().includes(searchTerm) ||
+        affectation.ateliers?.designation?.toLowerCase().includes(searchTerm) ||
+        affectation.article?.numPrix?.toLowerCase().includes(searchTerm) ||
+        affectation.article?.designation?.toLowerCase().includes(searchTerm) ||
+        affectation.article?.unite?.toLowerCase().includes(searchTerm) ||
+        affectation.nombreHeures?.toString().includes(searchTerm) ||
+        this.formatDateForExport(affectation.date).includes(searchTerm) ||
+        this.formatEmployeeForExport(affectation.employees).toLowerCase().includes(searchTerm)
+      );
+    });
+  }
+
+  /**
+   * Formate la date pour l'affichage dans Excel
+   * @param date - Date à formater
+   * @returns Date formatée en string
+   */
+  private formatDateForExport(date: Date | string): string {
+    if (!date) return '';
+
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+    if (isNaN(dateObj.getTime())) return '';
+
+    return dateObj.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  /**
+   * Formate l'employé pour l'export
+   * @param employee - L'employé
+   * @returns String formatée de l'employé
+   */
+  private formatEmployeeForExport(employee: Iemploye): string {
+    if (!employee) return '';
+
+    const nom = employee.nom || '';
+    const prenom = employee.prenom || '';
+    const fullName = `${prenom} ${nom}`.trim();
+    return fullName || 'Employé inconnu';
+  }
+
+  /**
+   * Récupère la plage de dates du formulaire pour le résumé
+   * @returns String de la plage de dates
+   */
+  private getDateRangeFromForm(): string {
+    if (!this.myFormSearch) return 'Non définie';
+
+    const formValues = this.myFormSearch.value;
+    const dateDebut = formValues.dateDebut;
+    const dateFin = formValues.dateFin;
+
+    if (!dateDebut && !dateFin) return 'Non définie';
+
+    const formatDate = (date: string) => {
+      if (!date) return '';
+      return new Date(date).toLocaleDateString('fr-FR');
+    };
+
+    return `Du ${formatDate(dateDebut)} au ${formatDate(dateFin)}`;
   }
 
   extractUniqueTables() {

@@ -1,0 +1,45 @@
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content card radius-15">
+    <div class="modal-header">
+      <h5 class="modal-title">Supprimer une nomenclature</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <form name="form" (ngSubmit)="onDelete()">
+      <div class="modal-body">
+        <div class="modal-body fs-6">
+          Êtes vous sûre de vouloir supprimer la nomenclature
+          <strong *ngIf="nomenclature != null">"{{nomenclature.designation}}"</strong> ?
+
+          <div class="mt-3" *ngIf="nomenclature">
+            <div class="card">
+              <div class="card-body">
+                <h6 class="card-title">Détails de la nomenclature :</h6>
+                <p class="card-text">
+                  <strong>Type :</strong> {{nomenclature.type}}<br>
+                  <strong>Désignation :</strong> {{nomenclature.designation}}<br>
+                  <strong>Unité :</strong> {{nomenclature.unite}}<br>
+                  <strong>Quantité totale :</strong> {{nomenclature.quantite | number:'1.0-2'}}<br>
+                  <strong>Quantité livrée :</strong> {{nomenclature.quantiteLivre | number:'1.0-2'}}<br>
+                  <strong>Quantité restante :</strong> {{nomenclature.quantiteRest | number:'1.0-2'}}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Avertissement si quantité livrée -->
+          <div class="alert alert-warning mt-3" *ngIf="nomenclature && nomenclature.quantiteLivre > 0">
+            <strong>⚠️ Attention :</strong>
+            Cette nomenclature a une quantité déjà livrée de {{nomenclature.quantiteLivre | number:'1.0-2'}}.
+            Sa suppression peut affecter les statistiques de production.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" #closebutton data-dismiss="modal">Fermer</button>
+        <button type="submit" *ngIf="hasRole(ROLES_ADMIN_AGENTSAISIE)" class="btn btn-danger">Supprimer</button>
+      </div>
+    </form>
+  </div>
+</div>
