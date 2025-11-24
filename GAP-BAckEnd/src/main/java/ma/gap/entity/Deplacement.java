@@ -29,8 +29,8 @@ public class Deplacement extends Auditable<String> implements Serializable {
     private Integer nmbJours;
     private String motif;
     private String pieceJointe;
-    @Column(columnDefinition = "integer default 1")
-    private int flag;
+    @Column(name = "flag", nullable = false)
+    private int flag=1;
     @ManyToMany
     @JoinTable(name = "Deplacement_employee",
             joinColumns = @JoinColumn(name = "id_deplacement"),

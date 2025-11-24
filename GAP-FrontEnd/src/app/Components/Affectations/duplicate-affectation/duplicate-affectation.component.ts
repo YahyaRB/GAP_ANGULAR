@@ -1,7 +1,7 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {AffectationService} from "../../../services/affectation.service";
-import {Iateliers} from "../../../services/Interfaces/iateliers";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { AffectationService } from "../../../services/affectation.service";
+import { Iateliers } from "../../../services/Interfaces/iateliers";
 export interface AffectationPreview {
   tempId: string;
   employeeId: number;
@@ -27,7 +27,7 @@ export interface AffectationPreview {
   templateUrl: './duplicate-affectation.component.html',
   styleUrls: ['./duplicate-affectation.component.css']
 })
-export class DuplicateAffectationComponent  implements OnInit {
+export class DuplicateAffectationComponent implements OnInit {
   @Input() ateliers: Iateliers[] = [];
   @Output() refreshTable = new EventEmitter<void>();
 
@@ -55,7 +55,7 @@ export class DuplicateAffectationComponent  implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private affectationService: AffectationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();

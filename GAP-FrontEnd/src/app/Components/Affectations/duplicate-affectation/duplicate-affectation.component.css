@@ -1,0 +1,119 @@
+/* duplicate-affectation.component.css */
+.duplication-modal {
+  z-index: 9999 !important;
+  position: relative;
+}
+
+.duplication-modal .modal-content {
+  z-index: 10000 !important;
+  position: relative;
+}
+
+.modal-header {
+  border-bottom: none;
+}
+
+.modal-header .close {
+  font-size: 2rem;
+  font-weight: 300;
+  opacity: 0.8;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-header .close:hover {
+  opacity: 1;
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+}
+
+.step-1,
+.step-2 {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(45deg, #4e73df, #224abe);
+}
+
+.bg-gradient-success {
+  background: linear-gradient(45deg, #1cc88a, #13855c);
+}
+
+.bg-gradient-warning {
+  background: linear-gradient(45deg, #f6c23e, #dda20a);
+}
+
+.bg-gradient-info {
+  background: linear-gradient(45deg, #36b9cc, #258391);
+}
+
+.table-container {
+  border: 1px solid #e3e6f0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.duplication-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.employee-info,
+.project-info,
+.article-info {
+  line-height: 1.2;
+}
+
+.badge {
+  font-weight: 500;
+  padding: 0.5em 0.75em;
+}
+
+/* Custom scrollbar for table */
+.table-responsive::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

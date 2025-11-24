@@ -9,6 +9,5 @@ public class DuplicationRequestDTO {
     private Long atelierId;
     private Date sourceDate;
     private Date targetDate;
-    private List<String> periodes; // ["Matin", "Après-midi", "Heures", "Heures_Sup"] ou ["ALL"]
-    private Long userId;
+    private List<String> periodes;
 }

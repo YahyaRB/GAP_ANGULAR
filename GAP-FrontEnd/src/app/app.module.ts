@@ -10,25 +10,25 @@ import { AcceuilComponent } from './Components/acceuil/acceuil.component';
 import { SidebarComponent } from './Menus/sidebar/sidebar.component';
 import { UserSidebarComponent } from './Menus/user-sidebar/user-sidebar.component';
 import { NavbarComponent } from './Menus/navbar/navbar.component';
-import {HttpClientModule} from "@angular/common/http";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {NgxPaginationModule} from "ngx-pagination";
-import {NgSelectModule} from "@ng-select/ng-select";
-import {ToastrModule} from "ngx-toastr";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import { HttpClientModule } from "@angular/common/http";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { NgxPaginationModule } from "ngx-pagination";
+import { NgSelectModule } from "@ng-select/ng-select";
+import { ToastrModule } from "ngx-toastr";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { SwitcherComponent } from './Menus/switcher/switcher.component';
 import { FooterComponent } from './Menus/footer/footer.component';
 import { ListeUtilisateursComponent } from './Components/Utilisateurs/liste-utilisateurs/liste-utilisateurs.component';
 import { AddUtilisateurComponent } from './Components/Utilisateurs/add-utilisateur/add-utilisateur.component';
 import { UpdateUtilisateurComponent } from './Components/Utilisateurs/update-utilisateur/update-utilisateur.component';
 import { DeleteUtilisateurComponent } from './Components/Utilisateurs/delete-utilisateur/delete-utilisateur.component';
-import {MatSortModule} from "@angular/material/sort";
-import {MatPaginatorIntl, MatPaginatorModule} from "@angular/material/paginator";
-import {MatTableModule} from "@angular/material/table";
-import {MatFormFieldModule} from "@angular/material/form-field";
-import {MatInputModule} from "@angular/material/input";
-import {MatIconModule} from "@angular/material/icon";
-import {CustomMatPaginatorIntl} from "./paginator-intl";
+import { MatSortModule } from "@angular/material/sort";
+import { MatPaginatorIntl, MatPaginatorModule } from "@angular/material/paginator";
+import { MatTableModule } from "@angular/material/table";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatIconModule } from "@angular/material/icon";
+import { CustomMatPaginatorIntl } from "./paginator-intl";
 import { ChangePasswordComponent } from './Components/Utilisateurs/change-password/change-password.component';
 import { ListeChauffeursComponent } from './Components/Logistique/Chauffeurs/liste-chauffeurs/liste-chauffeurs.component';
 import { AddChauffeurComponent } from './Components/Logistique/Chauffeurs/add-chauffeur/add-chauffeur.component';
@@ -65,18 +65,19 @@ import { ListeFonctionsComponent } from './Components/Fonctions/liste-fonctions/
 import { AddFonctionComponent } from './Components/Fonctions/add-fonction/add-fonction.component';
 import { UpdateFonctionComponent } from './Components/Fonctions/update-fonction/update-fonction.component';
 import { DeleteFonctionComponent } from './Components/Fonctions/delete-fonction/delete-fonction.component';
-import {HashLocationStrategy,LocationStrategy} from "@angular/common";
+import { HashLocationStrategy, LocationStrategy } from "@angular/common";
 import { ListeOFComponent } from './Components/OrdreFabrication/liste-of/liste-of.component';
 import { AddOFComponent } from './Components/OrdreFabrication/add-of/add-of.component';
 import { UpdateOFComponent } from './Components/OrdreFabrication/update-of/update-of.component';
 import { DeleteOFComponent } from './Components/OrdreFabrication/delete-of/delete-of.component';
-import {MatSnackBarModule} from "@angular/material/snack-bar";
+import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { AddDetailLivraisonComponent } from './Components/DetailLivraison/add-detail-livraison/add-detail-livraison.component';
 import { DuplicateAffectationComponent } from './Components/Affectations/duplicate-affectation/duplicate-affectation.component';
 import { AddNomenclatureComponent } from './Components/Nomenclature/add-nomenclature/add-nomenclature.component';
 import { UpdateNomenclatureComponent } from './Components/Nomenclature/update-nomenclature/update-nomenclature.component';
 import { DeleteNomenclatureComponent } from './Components/Nomenclature/delete-nomenclature/delete-nomenclature.component';
+import { DashboardComponent } from './Components/dashboard/dashboard.component';
 
 
 
@@ -142,7 +143,8 @@ import { DeleteNomenclatureComponent } from './Components/Nomenclature/delete-no
     DuplicateAffectationComponent,
     AddNomenclatureComponent,
     UpdateNomenclatureComponent,
-    DeleteNomenclatureComponent
+    DeleteNomenclatureComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -154,7 +156,6 @@ import { DeleteNomenclatureComponent } from './Components/Nomenclature/delete-no
     NgSelectModule,
     ToastrModule.forRoot(),
     BrowserAnimationsModule,
-    BrowserModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -167,7 +168,7 @@ import { DeleteNomenclatureComponent } from './Components/Nomenclature/delete-no
   ],
   providers: [
     { provide: MatPaginatorIntl, useClass: CustomMatPaginatorIntl },
-    { provide:LocationStrategy,useClass:HashLocationStrategy}
+    { provide: LocationStrategy, useClass: HashLocationStrategy }
 
   ],
   bootstrap: [AppComponent]

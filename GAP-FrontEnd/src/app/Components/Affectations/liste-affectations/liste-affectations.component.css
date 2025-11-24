@@ -1,0 +1,32 @@
+/* Fix z-index for table checkboxes to prevent them from appearing above modal */
+.table-responsive {
+    position: relative;
+    z-index: 1;
+}
+
+.table {
+    position: relative;
+    z-index: 1;
+}
+
+table tbody tr {
+    position: relative;
+    z-index: 1;
+}
+
+table tbody tr td {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure checkboxes in table have lower z-index */
+.table input[type="checkbox"] {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure virtual scroll viewport has lower z-index */
+cdk-virtual-scroll-viewport {
+    position: relative;
+    z-index: 1;
+}

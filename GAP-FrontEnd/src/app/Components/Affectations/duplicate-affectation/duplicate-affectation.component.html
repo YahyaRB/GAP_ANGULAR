@@ -7,7 +7,7 @@
         <span *ngIf="currentStep === 1">Dupliquer les affectations - Configuration</span>
         <span *ngIf="currentStep === 2">Dupliquer les affectations - Prévisualisation</span>
       </h5>
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="onCancel()">
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
@@ -36,7 +36,7 @@
                   </option>
                 </select>
                 <div *ngIf="duplicateForm.get('atelierId')?.invalid && duplicateForm.get('atelierId')?.touched"
-                     class="text-danger small">
+                  class="text-danger small">
                   L'atelier est obligatoire
                 </div>
               </div>
@@ -46,13 +46,10 @@
             <div class="col-md-6">
               <div class="form-group">
                 <label for="sourceDate" class="form-label">Date source <span class="text-danger">*</span></label>
-                <input type="date"
-                       id="sourceDate"
-                       class="form-control"
-                       formControlName="sourceDate"
-                       [max]="duplicateForm.get('targetDate')?.value">
+                <input type="date" id="sourceDate" class="form-control" formControlName="sourceDate"
+                  [max]="duplicateForm.get('targetDate')?.value">
                 <div *ngIf="duplicateForm.get('sourceDate')?.invalid && duplicateForm.get('sourceDate')?.touched"
-                     class="text-danger small">
+                  class="text-danger small">
                   La date source est obligatoire
                 </div>
               </div>
@@ -64,13 +61,10 @@
             <div class="col-md-6">
               <div class="form-group">
                 <label for="targetDate" class="form-label">Date cible <span class="text-danger">*</span></label>
-                <input type="date"
-                       id="targetDate"
-                       class="form-control"
-                       formControlName="targetDate"
-                       [min]="duplicateForm.get('sourceDate')?.value">
+                <input type="date" id="targetDate" class="form-control" formControlName="targetDate"
+                  [min]="duplicateForm.get('sourceDate')?.value">
                 <div *ngIf="duplicateForm.get('targetDate')?.invalid && duplicateForm.get('targetDate')?.touched"
-                     class="text-danger small">
+                  class="text-danger small">
                   La date cible est obligatoire
                 </div>
               </div>
@@ -83,11 +77,8 @@
 
                 <!-- Option "Tout sélectionner" -->
                 <div class="form-check mb-2">
-                  <input type="checkbox"
-                         class="form-check-input"
-                         id="selectAllPeriodes"
-                         [checked]="selectAllPeriodes"
-                         (change)="onSelectAllPeriodesChange($event)">
+                  <input type="checkbox" class="form-check-input" id="selectAllPeriodes" [checked]="selectAllPeriodes"
+                    (change)="onSelectAllPeriodesChange($event)">
                   <label class="form-check-label font-weight-bold" for="selectAllPeriodes">
                     Toutes les périodes
                   </label>
@@ -97,12 +88,9 @@
 
                 <!-- Options individuelles -->
                 <div *ngFor="let periode of periodes" class="form-check">
-                  <input type="checkbox"
-                         class="form-check-input"
-                         [id]="'periode_' + periode.value"
-                         [checked]="selectedPeriodes.includes(periode.value)"
-                         [disabled]="selectAllPeriodes"
-                         (change)="onPeriodeChange(periode.value, $event)">
+                  <input type="checkbox" class="form-check-input" [id]="'periode_' + periode.value"
+                    [checked]="selectedPeriodes.includes(periode.value)" [disabled]="selectAllPeriodes"
+                    (change)="onPeriodeChange(periode.value, $event)">
                   <label class="form-check-label" [for]="'periode_' + periode.value">
                     {{ periode.label }}
                   </label>
@@ -166,52 +154,48 @@
         <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
           <table class="table table-sm table-striped">
             <thead class="thead-light sticky-top">
-            <tr>
-              <th width="40">
-                <input type="checkbox"
-                       [checked]="selectAll"
-                       [indeterminate]="getSelectedCount() > 0 && !selectAll"
-                       (change)="onSelectAllChange($event)"
-                       class="form-check-input">
-              </th>
-              <th>Employé</th>
-              <th>Projet</th>
-              <th>Article</th>
-              <th>Période</th>
-              <th width="80">Heures</th>
-              <th>Statut</th>
-              <th width="40">Action</th>
-            </tr>
+              <tr>
+                <th width="40">
+                  <input type="checkbox" [checked]="selectAll" [indeterminate]="getSelectedCount() > 0 && !selectAll"
+                    (change)="onSelectAllChange($event)" class="form-check-input">
+                </th>
+                <th>Employé</th>
+                <th>Projet</th>
+                <th>Article</th>
+                <th>Période</th>
+                <th width="80">Heures</th>
+                <th>Statut</th>
+                <th width="40">Action</th>
+              </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let item of previewData; trackBy: trackByTempId"
+              <tr *ngFor="let item of previewData; trackBy: trackByTempId"
                 [ngClass]="{'table-danger': item.hasConflict, 'table-success': selectedItems.has(item.tempId)}">
-              <td>
-                <input type="checkbox"
-                       [checked]="selectedItems.has(item.tempId)"
-                       [disabled]="item.hasConflict"
-                       (change)="onItemSelect(item.tempId, $event)"
-                       class="form-check-input">
-              </td>
-              <td>
-                <div class="text-truncate" style="max-width: 150px;" [title]="item.employeeName">
-                  <strong>{{ item.employeeName }}</strong><br>
-                  <small class="text-muted">{{ item.employeeMatricule }}</small>
-                </div>
-              </td>
-              <td>
-                <div class="text-truncate" style="max-width: 180px;" [title]="item.projetCode + ' - ' + item.projetDesignation">
-                  <strong>{{ item.projetCode }}</strong><br>
-                  <small>{{ item.projetDesignation }}</small>
-                </div>
-              </td>
-              <td>
-                <div class="text-truncate" style="max-width: 150px;" [title]="item.articleNumPrix + ' - ' + item.articleDesignation">
-                  <strong>{{ item.articleNumPrix }}</strong><br>
-                  <small>{{ item.articleDesignation }}</small>
-                </div>
-              </td>
-              <td>
+                <td>
+                  <input type="checkbox" [checked]="selectedItems.has(item.tempId)" [disabled]="item.hasConflict"
+                    (change)="onItemSelect(item.tempId, $event)" class="form-check-input">
+                </td>
+                <td>
+                  <div class="text-truncate" style="max-width: 150px;" [title]="item.employeeName">
+                    <strong>{{ item.employeeName }}</strong><br>
+                    <small class="text-muted">{{ item.employeeMatricule }}</small>
+                  </div>
+                </td>
+                <td>
+                  <div class="text-truncate" style="max-width: 180px;"
+                    [title]="item.projetCode + ' - ' + item.projetDesignation">
+                    <strong>{{ item.projetCode }}</strong><br>
+                    <small>{{ item.projetDesignation }}</small>
+                  </div>
+                </td>
+                <td>
+                  <div class="text-truncate" style="max-width: 150px;"
+                    [title]="item.articleNumPrix + ' - ' + item.articleDesignation">
+                    <strong>{{ item.articleNumPrix }}</strong><br>
+                    <small>{{ item.articleDesignation }}</small>
+                  </div>
+                </td>
+                <td>
                   <span class="badge" [ngClass]="{
                     'badge-primary': item.periode === 'Matin',
                     'badge-info': item.periode === 'Après-midi',
@@ -220,35 +204,28 @@
                   }">
                     {{ item.periode }}
                   </span>
-              </td>
-              <td>
-                <input type="number"
-                       class="form-control form-control-sm"
-                       [value]="item.nombreHeures"
-                       [readonly]="!item.canModifyHours"
-                       [min]="1"
-                       [max]="item.periode === 'Heures_Sup' ? 24 : 9"
-
-                       style="width: 70px;">
-              </td>
-              <td>
-                <div *ngIf="item.hasConflict">
-                  <i class="bx bx-error text-danger" [title]="item.conflictMessage"></i>
-                  <small class="text-danger d-block">{{ item.conflictMessage }}</small>
-                </div>
-                <div *ngIf="!item.hasConflict">
-                  <i class="bx bx-check text-success" title="Prêt à enregistrer"></i>
-                </div>
-              </td>
-              <td>
-                <button type="button"
-                        class="btn btn-sm btn-outline-danger"
-                        (click)="removeItem(item.tempId)"
-                        title="Supprimer cette ligne">
-                  <i class="bx bx-trash"></i>
-                </button>
-              </td>
-            </tr>
+                </td>
+                <td>
+                  <input type="number" class="form-control form-control-sm" [value]="item.nombreHeures"
+                    [readonly]="!item.canModifyHours" [min]="1" [max]="item.periode === 'Heures_Sup' ? 24 : 9"
+                    style="width: 70px;">
+                </td>
+                <td>
+                  <div *ngIf="item.hasConflict">
+                    <i class="bx bx-error text-danger" [title]="item.conflictMessage"></i>
+                    <small class="text-danger d-block">{{ item.conflictMessage }}</small>
+                  </div>
+                  <div *ngIf="!item.hasConflict">
+                    <i class="bx bx-check text-success" title="Prêt à enregistrer"></i>
+                  </div>
+                </td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeItem(item.tempId)"
+                    title="Supprimer cette ligne">
+                    <i class="bx bx-trash"></i>
+                  </button>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -268,7 +245,8 @@
             <span class="badge badge-secondary ml-1">Heures</span>
             <span class="badge badge-warning ml-1">Heures_Sup</span>
             <br>
-            <i class="bx bx-info-circle text-info"></i> Les heures peuvent être modifiées pour les périodes "Heures" et "Heures_Sup"
+            <i class="bx bx-info-circle text-info"></i> Les heures peuvent être modifiées pour les périodes "Heures" et
+            "Heures_Sup"
           </small>
         </div>
       </div>
@@ -279,11 +257,8 @@
       <div class="d-flex w-100 justify-content-between align-items-center">
         <!-- Boutons de navigation -->
         <div>
-          <button *ngIf="currentStep === 2"
-                  type="button"
-                  class="btn btn-outline-secondary"
-                  (click)="goBack()"
-                  [disabled]="isLoading">
+          <button *ngIf="currentStep === 2" type="button" class="btn btn-outline-secondary" (click)="goBack()"
+            [disabled]="isLoading">
             <i class="bx bx-arrow-back"></i> Retour
           </button>
         </div>
@@ -297,29 +272,20 @@
           </div>
 
           <!-- Boutons d'action -->
-          <button type="button"
-                  class="btn btn-secondary mr-2"
-                  data-dismiss="modal"
-                  (click)="onCancel()"
-                  [disabled]="isLoading">
+          <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal" (click)="onCancel()"
+            [disabled]="isLoading">
             Annuler
           </button>
 
-          <button *ngIf="currentStep === 1"
-                  type="button"
-                  class="btn btn-primary"
-                  (click)="onPreview()"
-                  [disabled]="isLoading || duplicateForm.invalid || (selectedPeriodes.length === 0 && !selectAllPeriodes)">
+          <button *ngIf="currentStep === 1" type="button" class="btn btn-primary" (click)="onPreview()"
+            [disabled]="isLoading || duplicateForm.invalid || (selectedPeriodes.length === 0 && !selectAllPeriodes)">
             <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-2"></span>
             {{ isLoading ? 'Chargement...' : 'Prévisualiser' }}
             <i class="bx bx-search-alt ml-1"></i>
           </button>
 
-          <button *ngIf="currentStep === 2"
-                  type="button"
-                  class="btn btn-success"
-                  (click)="onSave()"
-                  [disabled]="isLoading || getSelectedCount() === 0">
+          <button *ngIf="currentStep === 2" type="button" class="btn btn-success" (click)="onSave()"
+            [disabled]="isLoading || getSelectedCount() === 0">
             <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-2"></span>
             {{ isLoading ? 'Enregistrement...' : 'Enregistrer (' + getSelectedCount() + ')' }}
             <i class="bx bx-save ml-1"></i>
@@ -353,7 +319,7 @@
 
   .card {
     border-radius: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .badge {

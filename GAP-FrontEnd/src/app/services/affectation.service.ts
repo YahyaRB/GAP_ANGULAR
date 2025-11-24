@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
-import {Observable} from "rxjs";
-import {environment} from "../../environments/environment";
-import {Iaffectation} from "./Interfaces/iaffectation";
-import {Ideplacement} from "./Interfaces/ideplacement";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { environment } from "../../environments/environment";
+import { Iaffectation } from "./Interfaces/iaffectation";
+import { Ideplacement } from "./Interfaces/ideplacement";
 const AUTH_API = 'api/Affectation';
 
 const httpOptions = {
@@ -12,8 +12,8 @@ const httpOptions = {
 
 export interface DuplicationRequest {
   atelierId: number;
-  sourceDate: Date;
-  targetDate: Date;
+  sourceDate: string | Date;
+  targetDate: string | Date;
   periodes: string[];
   userId: number;
 }
@@ -79,7 +79,7 @@ export class AffectationService {
 
   searchAffectation(
     idUser: number,
-    idemploye:number,
+    idemploye: number,
     idprojet: number,
     idarticle: number,
     idatelier: number,
@@ -97,15 +97,15 @@ export class AffectationService {
       .set('dateFin', dateFin);
 
     // Envoi de la requête GET à l'API avec les paramètres
-    return this.http.get<Iaffectation[]>(environment.apiUrl + AUTH_API+"/Search", { params });
+    return this.http.get<Iaffectation[]>(environment.apiUrl + AUTH_API + "/Search", { params });
   }
-// Méthode pour prévisualiser la duplication
+  // Méthode pour prévisualiser la duplication
   previewDuplication(request: DuplicationRequest): Observable<AffectationPreview[]> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
 
-    return this.http.post<AffectationPreview[]>(environment.apiUrl + AUTH_API+"/duplicate/preview", request, { headers });
+    return this.http.post<AffectationPreview[]>(environment.apiUrl + AUTH_API + "/duplicate/preview", request, { headers });
   }
 
   // Méthode pour enregistrer les affectations sélectionnées
@@ -114,7 +114,7 @@ export class AffectationService {
       'Content-Type': 'application/json'
     });
 
-    return this.http.post<string>(environment.apiUrl + AUTH_API+"/duplicate/save", affectations, {
+    return this.http.post<string>(environment.apiUrl + AUTH_API + "/duplicate/save", affectations, {
       headers,
       responseType: 'text' as 'json'
     });

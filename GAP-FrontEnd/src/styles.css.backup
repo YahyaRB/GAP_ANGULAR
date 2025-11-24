@@ -219,7 +219,205 @@ input[readonly] {
   display: block;
   margin-top: 2px;
   line-height: 1.2;
+
 }
+
+
+
+/* Fix z-index for duplicate modal */
+#duplicateModal {
+  z-index: 10500 !important;
+}
+
+#duplicateModal .modal-dialog {
+  z-index: 10501 !important;
+}
+}
+
+input[matInput] {
+  border: 1px solid #ced4da;
+  /* Add a border */
+  border-radius: 4px;
+  /* Add rounded corners */
+  padding: 8px;
+  /* Add padding */
+}
+
+.icon-large {
+  font-size: 20px;
+  /* Remplacez par la taille souhaitée */
+  color: #673ab7;
+}
+
+.custom-modal {
+  max-width: 600px;
+}
+
+.crud-modal {
+  max-width: 600px;
+}
+
+.viewport {
+  height: 400px;
+  /* Ajustez selon vos besoins */
+  border: 1px solid #ccc;
+}
+
+.ngx-pagination .current {
+  padding: .1875rem .625rem;
+  background: #673ab7 !important;
+  /* Nouvelle couleur de fond */
+  color: #ffffff;
+  /* Nouvelle couleur de texte */
+  font-weight: bold;
+  /* Exemple de personnalisation supplémentaire */
+  border-radius: 5px;
+  /* Ajoute des coins arrondis */
+  cursor: default;
+}
+
+.btn-tri-transparent {
+  background: none;
+  /* Supprime l'arrière-plan */
+  border: none;
+  /* Supprime les bordures */
+  cursor: pointer;
+  /* Ajoute un pointeur sur le hover */
+  padding: 0;
+  /* Supprime l'espacement interne */
+  font-size: inherit;
+  /* Garde la taille de la police */
+  color: #82898e;
+}
+
+.btn-tri-transparent:focus {
+  outline: none;
+  /* Supprime le contour lors du focus */
+}
+
+.btn-tri-transparent:hover {
+  color: #673ab7;
+  /* Optionnel : Ajoute une couleur au hover */
+}
+
+.modal-lg-custom {
+  max-width: 50vw;
+  /* Largeur relative à la largeur de la fenêtre */
+  height: auto;
+  /* Ajuste la hauteur automatiquement */
+  min-height: 70vh;
+  /* Hauteur minimale */
+}
+
+.table td,
+.table th {
+  font-size: 0.78rem;
+  /* Réduit la taille de la police */
+}
+
+input[readonly] {
+  background-color: white !important;
+  pointer-events: none;
+  /* Désactive les interactions */
+}
+
+.col-sm-1-5 {
+  flex: 0 0 12.5%;
+  /* 12.5% de largeur */
+  max-width: 12.5%;
+}
+
+/* Solution 2: Largeurs avec fit-content */
+.responsive-table {
+  table-layout: auto !important;
+  width: 100% !important;
+  word-wrap: break-word;
+}
+
+/* Colonnes courtes - s'adaptent au contenu */
+.col-numprix,
+.col-unite,
+.col-quantite,
+.col-numero,
+.col-duree,
+.col-periode {
+  width: fit-content;
+  min-width: 60px;
+  max-width: 120px;
+  white-space: nowrap;
+}
+
+.col-date {
+  width: fit-content;
+  min-width: 100px;
+  max-width: 130px;
+  white-space: nowrap;
+}
+
+/* Colonnes moyennes - contenu modéré */
+.col-atelier {
+  width: fit-content;
+  min-width: 120px;
+  max-width: 200px;
+}
+
+.col-actions {
+  width: fit-content;
+  min-width: 120px;
+  max-width: 160px;
+}
+
+/* Colonnes longues - prennent l'espace restant */
+.col-designation,
+.col-affaire,
+.col-motif,
+.col-employe {
+  width: auto;
+  /* Prend l'espace restant */
+  min-width: 150px;
+}
+
+/* Forcer le white-space normal pour les longues colonnes */
+.col-designation .cell-content,
+.col-affaire .cell-content,
+.col-motif .cell-content,
+.col-employe .cell-content {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Article : autoriser le retour à la ligne */
+#example2 td.col-article,
+#example2 td.col-article *,
+#example2 td.col-affaire,
+#example2 td.col-affaire * {
+  white-space: normal !important;
+}
+
+/* Gestion du contenu article */
+.article-cell,
+.affaire-cell {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 420px;
+  /* adapte si besoin */
+}
+
+.article-code,
+.affaire-code {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.article-designation,
+.affaire-designation {
+  display: block;
+  margin-top: 2px;
+  line-height: 1.2;
+
+}
+
+
 
 /* Fix z-index for duplicate modal */
 #duplicateModal {
