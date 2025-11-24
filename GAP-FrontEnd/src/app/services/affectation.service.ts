@@ -84,8 +84,10 @@ export class AffectationService {
     idarticle: number,
     idatelier: number,
     dateDebut: string,
-    dateFin: string
-  ): Observable<Iaffectation[]> {
+    dateFin: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<any> {
     // Création des paramètres HTTP
     let params = new HttpParams()
       .set('idUser', idUser)
@@ -94,10 +96,12 @@ export class AffectationService {
       .set('idarticle', idarticle)
       .set('idatelier', idatelier)
       .set('dateDebut', dateDebut)
-      .set('dateFin', dateFin);
+      .set('dateFin', dateFin)
+      .set('page', page)
+      .set('size', size);
 
     // Envoi de la requête GET à l'API avec les paramètres
-    return this.http.get<Iaffectation[]>(environment.apiUrl + AUTH_API + "/Search", { params });
+    return this.http.get<any>(environment.apiUrl + AUTH_API + "/Search", { params });
   }
   // Méthode pour prévisualiser la duplication
   previewDuplication(request: DuplicationRequest): Observable<AffectationPreview[]> {

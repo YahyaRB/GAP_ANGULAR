@@ -1,27 +1,27 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
-import {Ideplacement} from "../../../services/Interfaces/ideplacement";
-import {Iateliers} from "../../../services/Interfaces/iateliers";
-import {Iprojet} from "../../../services/Interfaces/iprojet";
-import {Iemploye} from "../../../services/Interfaces/iemploye";
-import {FormBuilder, FormGroup} from "@angular/forms";
-import {TokenStorageService} from "../../../Auth/services/token-storage.service";
-import {DeplacementService} from "../../../services/deplacement.service";
-import {ProjetService} from "../../../services/projet.service";
-import {RoleService} from "../../../services/role.service";
-import {SortService} from "../../../services/sort.service";
-import {Ilivraison} from "../../../services/Interfaces/ilivraison";
-import {AffectationService} from "../../../services/affectation.service";
-import {Iarticle} from "../../../services/Interfaces/iarticle";
-import {ArticleService} from "../../../services/article.service";
-import {ROLES_ADMIN_AGENTSAISIE} from "../../../Roles";
-import {Iaffectation} from "../../../services/Interfaces/iaffectation";
+import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Ideplacement } from "../../../services/Interfaces/ideplacement";
+import { Iateliers } from "../../../services/Interfaces/iateliers";
+import { Iprojet } from "../../../services/Interfaces/iprojet";
+import { Iemploye } from "../../../services/Interfaces/iemploye";
+import { FormBuilder, FormGroup } from "@angular/forms";
+import { TokenStorageService } from "../../../Auth/services/token-storage.service";
+import { DeplacementService } from "../../../services/deplacement.service";
+import { ProjetService } from "../../../services/projet.service";
+import { RoleService } from "../../../services/role.service";
+import { SortService } from "../../../services/sort.service";
+import { Ilivraison } from "../../../services/Interfaces/ilivraison";
+import { AffectationService } from "../../../services/affectation.service";
+import { Iarticle } from "../../../services/Interfaces/iarticle";
+import { ArticleService } from "../../../services/article.service";
+import { ROLES_ADMIN_AGENTSAISIE } from "../../../Roles";
+import { Iaffectation } from "../../../services/Interfaces/iaffectation";
 import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-liste-affectations',
   templateUrl: './liste-affectations.component.html',
   styleUrls: ['./liste-affectations.component.css']
 })
-export class ListeAffectationsComponent  implements OnInit, OnChanges {
+export class ListeAffectationsComponent implements OnInit, OnChanges {
   @ViewChild(ListeAffectationsComponent) ListeUtilisateurs: ListeAffectationsComponent;
 
   POSTS: Iaffectation[] = [];  // Tableau pour stocker les données des livraisons
@@ -32,29 +32,29 @@ export class ListeAffectationsComponent  implements OnInit, OnChanges {
   pfiltre: string = '';  // Filtre de recherche
   sortDirection: { [key: string]: boolean } = {};  // Direction de tri pour chaque colonne
   listeAteliers: Iateliers[] = [];  // Liste des ateliers
-  listeAffairesByAtelier:Iprojet[]=[];
+  listeAffairesByAtelier: Iprojet[] = [];
   idUser: number = 1; // Assurez-vous que l'ID de l'utilisateur est récupéré correctement
   idprojet: number = 0;  // Définir l'ID du projet
   idatelier: number = 0;  // Définir l'ID de l'atelier
   idemploye: number = 0;  // Définir l'ID de l'emplye
   dateDebut: string = '';  // Date de début pour la recherche
   dateFin: string = '';    // Date de fin pour la recherche
-  affectationSelected:Iaffectation;
-  listeEmploye:Iemploye[]=[];
+  affectationSelected: Iaffectation;
+  listeEmploye: Iemploye[] = [];
   myFormSearch: FormGroup;
-  articles:Iarticle[]=[];
+  articles: Iarticle[] = [];
 
 
 
   constructor(private tokenstorage: TokenStorageService,
-              private formBuilder: FormBuilder,
-              private affectationService:AffectationService,
-              private roleService: RoleService,
-              private sortService: SortService
+    private formBuilder: FormBuilder,
+    private affectationService: AffectationService,
+    private roleService: RoleService,
+    private sortService: SortService
   ) {
     // Récupération d'id d'utilisateur connecté
     this.idUser = this.tokenstorage.getUser().id
-   this.listeAteliers = this.tokenstorage.getUser().atelier;
+    this.listeAteliers = this.tokenstorage.getUser().atelier;
     /*  this.projetService.getAffairesByAtelier(this.tokenstorage.getUser().id).subscribe(x=>this.listeAffairesByAtelier = x);
      this.articeService.getArticlesByAtelier(this.tokenstorage.getUser().id).subscribe(data=>this.articles = data);*/
   }
@@ -67,15 +67,13 @@ export class ListeAffectationsComponent  implements OnInit, OnChanges {
 
 
   private initmyForm() {
-    const currentYearDates = this.getCurrentYearDates();
-
     this.myFormSearch = this.formBuilder.group({
-      idprojet: [],       // Valeur par défaut : 0
-      idemploye: [],      // Valeur par défaut : 0
-      idarticle: [],      // Valeur par défaut : 0
-      idatelier: [],      // Valeur par défaut : 0
-      dateDebut: [currentYearDates.startDate], // Premier jour de l'année
-      dateFin: [currentYearDates.endDate],     // Dernier jour de l'année
+      idprojet: [],       // Valeur par défaut : vide
+      idemploye: [],      // Valeur par défaut : vide
+      idarticle: [],      // Valeur par défaut : vide
+      idatelier: [],      // Valeur par défaut : vide
+      dateDebut: [''],    // Pas de date par défaut
+      dateFin: [''],      // Pas de date par défaut
     });
 
   }
@@ -116,36 +114,40 @@ export class ListeAffectationsComponent  implements OnInit, OnChanges {
   }
   ClearSearch() {
     this.initmyForm();
+    this.page = 1;  // Réinitialiser à la première page
     this.searchAffectation();
   }
   searchAffectation(): void {
 
     this.affectationService.searchAffectation(
       this.idUser,
-      this.myFormSearch.value.idprojet?? 0,
-      this.myFormSearch.value.idemploye?? 0,
-      this.myFormSearch.value.idarticle?? 0,
-      this.myFormSearch.value.idatelier?? 0,
-      this.myFormSearch.value.dateDebut,
-      this.myFormSearch.value.dateFin
+      this.myFormSearch.value.idprojet ?? 0,
+      this.myFormSearch.value.idemploye ?? 0,
+      this.myFormSearch.value.idarticle ?? 0,
+      this.myFormSearch.value.idatelier ?? 0,
+      this.myFormSearch.value.dateDebut || '',
+      this.myFormSearch.value.dateFin || '',
+      this.page - 1,  // Spring Data Page commence à 0
+      this.tableSize
     ).subscribe(
-      (data) => {
-        this.POSTS = data;  // Stocke les livraisons retournées
+      (response) => {
+        this.POSTS = response.content;  // Les données paginées
+        this.count = response.totalItems;  // Total d'éléments
 
         setTimeout(() => {
-         // this.extractUniqueTables();
+          // this.extractUniqueTables();
         }, 1000);
 
       },
       (error) => {
-        console.error('Erreur lors de la recherche des livraisons:', error);
+        console.error('Erreur lors de la recherche des affectations:', error);
       }
     );
 
   }
 
   recupItem(affectation: Iaffectation) {
-    this.affectationSelected=affectation;
+    this.affectationSelected = affectation;
   }
   ImprimeLivraison(livraison: Ilivraison) {
     /*   this.detailService.impressionLivraison(livraison.id).subscribe(
@@ -465,7 +467,7 @@ export class ListeAffectationsComponent  implements OnInit, OnChanges {
 
     this.listeAffairesByAtelier = Array.from(uniqueProjectsMap.values());
     this.listeAteliers = Array.from(uniqueAtelierMap.values());
-    this.listeEmploye=Array.from(uniqueEmployeMap.values());
+    this.listeEmploye = Array.from(uniqueEmployeMap.values());
   }
   private getCurrentYearDates() {
     const currentYear = new Date().getFullYear();

@@ -9,6 +9,7 @@ import ma.gap.repository.AffectationUpdateRepository;
 import ma.gap.repository.CustomAffectationRepository;
 import ma.gap.dtos.EmployeeDTO;
 import ma.gap.service.*;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -82,10 +83,27 @@ public class AffectationController {
     }
 
     @GetMapping("/Search")
-    public List<AffectationUpdate> SearchAffec(@RequestParam("idUser") long idUser, @RequestParam("idprojet") long idprojet, @RequestParam("idemploye") long idemploye, @RequestParam("idatelier") long idatelier, @RequestParam("idarticle") long idarticle,
-                                               @RequestParam("dateDebut") String dateDebut, @RequestParam("dateFin") String dateFin) throws ParseException {
-        List<AffectationUpdate> affectationUpdates = affectationImpService.affectationFiltred(idUser, idprojet, idemploye, idarticle, idatelier, dateDebut, dateFin);
-        return affectationUpdates;
+    public ResponseEntity<Map<String, Object>> SearchAffec(
+            @RequestParam("idUser") long idUser,
+            @RequestParam("idprojet") long idprojet,
+            @RequestParam("idemploye") long idemploye,
+            @RequestParam("idatelier") long idatelier,
+            @RequestParam("idarticle") long idarticle,
+            @RequestParam("dateDebut") String dateDebut,
+            @RequestParam("dateFin") String dateFin,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws ParseException {
+
+        Page<AffectationUpdate> affectationPage = affectationImpService.affectationFiltredPaginated(
+                idUser, idprojet, idemploye, idarticle, idatelier, dateDebut, dateFin, page, size);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", affectationPage.getContent());
+        response.put("currentPage", affectationPage.getNumber());
+        response.put("totalItems", affectationPage.getTotalElements());
+        response.put("totalPages", affectationPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/duplicate")
@@ -94,7 +112,8 @@ public class AffectationController {
             String result = affectationImpService.duplicateAffectations(request);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur lors de la duplication: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Erreur lors de la duplication: " + e.getMessage());
         }
     }
 
@@ -114,7 +133,8 @@ public class AffectationController {
             String result = affectationImpService.saveDuplicatedAffectations(request);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur lors de la duplication: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Erreur lors de la duplication: " + e.getMessage());
         }
     }
 
@@ -195,8 +215,7 @@ public class AffectationController {
         try {
             String debugInfo = String.format(
                     "Atelier ID: %d%nDate: %s%nNombre d'affectations trouvées: [À implémenter]",
-                    atelierId, date
-            );
+                    atelierId, date);
 
             return ResponseEntity.ok(debugInfo);
         } catch (Exception e) {
