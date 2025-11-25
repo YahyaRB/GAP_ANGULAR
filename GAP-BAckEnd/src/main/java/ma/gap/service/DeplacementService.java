@@ -16,11 +16,23 @@ import java.util.List;
 
 public interface DeplacementService {
     public Deplacement getById(long id);
+
     public List<Deplacement> allDeplacement(long idUser);
+
     public Deplacement saveDeplacement(Deplacement deplacement);
-    public Deplacement editDeplacement(Deplacement deplacement,long id);
+
+    public Deplacement editDeplacement(Deplacement deplacement, long id);
+
     public boolean deleteDeplacement(Long id) throws IOException;
-	ResponseEntity<byte[]> generateOm(Long id)
-			throws JRException, FileNotFoundException, IOException, EmptyResultDataAccessException, OrdreMissionNotFoundException;
-    List<Deplacement> searchDeplacement( long idUser, long idemploye, long idprojet , long idatelier, String motif,String dateDebut,String dateFin) throws ParseException ;
+
+    ResponseEntity<byte[]> generateOm(Long id)
+            throws JRException, FileNotFoundException, IOException, EmptyResultDataAccessException,
+            OrdreMissionNotFoundException;
+
+    ResponseEntity<byte[]> generateOmForAllEmployees(Long id)
+            throws JRException, FileNotFoundException, IOException, EmptyResultDataAccessException,
+            OrdreMissionNotFoundException;
+
+    List<Deplacement> searchDeplacement(long idUser, long idemploye, long idprojet, long idatelier, String motif,
+            String dateDebut, String dateFin) throws ParseException;
 }

@@ -70,32 +70,39 @@
               </div>
             </div>
 
-            <!-- Sélection des périodes -->
+            <!-- Période Cible -->
             <div class="col-md-6">
               <div class="form-group">
-                <label class="form-label">Périodes à dupliquer <span class="text-danger">*</span></label>
+                <label for="targetPeriod" class="form-label">Période cible</label>
+                <select id="targetPeriod" class="form-control" formControlName="targetPeriod">
+                  <option value="SAME">Identique à la source</option>
+                  <option value="Matin">Matin (5h)</option>
+                  <option value="Après-midi">Après-midi (4h)</option>
+                  <option value="Heures">Heures (4h)</option>
+                  <option value="Heures_Sup">Heures Supplémentaires (4h)</option>
+                </select>
+                <small class="form-text text-muted">
+                  La période qui sera assignée aux affectations dupliquées.
+                </small>
+              </div>
+            </div>
+          </div>
 
-                <!-- Option "Tout sélectionner" -->
-                <div class="form-check mb-2">
-                  <input type="checkbox" class="form-check-input" id="selectAllPeriodes" [checked]="selectAllPeriodes"
+          <div class="row">
+            <!-- Sélection des périodes -->
+            <div class="col-md-12">
+              <div class="form-group">
+                <label class="form-label d-block">Périodes à dupliquer <span class="text-danger">*</span></label>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="selectAllPeriodes" [checked]="selectAllPeriodes"
                     (change)="onSelectAllPeriodesChange($event)">
-                  <label class="form-check-label font-weight-bold" for="selectAllPeriodes">
-                    Toutes les périodes
-                  </label>
+                  <label class="form-check-label font-weight-bold" for="selectAllPeriodes">Toutes</label>
                 </div>
-
-                <hr class="my-2">
-
-                <!-- Options individuelles -->
-                <div *ngFor="let periode of periodes" class="form-check">
-                  <input type="checkbox" class="form-check-input" [id]="'periode_' + periode.value"
-                    [checked]="selectedPeriodes.includes(periode.value)" [disabled]="selectAllPeriodes"
-                    (change)="onPeriodeChange(periode.value, $event)">
-                  <label class="form-check-label" [for]="'periode_' + periode.value">
-                    {{ periode.label }}
-                  </label>
+                <div class="form-check form-check-inline" *ngFor="let p of periodes">
+                  <input class="form-check-input" type="checkbox" [id]="'periode_' + p.value" [value]="p.value"
+                    [checked]="selectedPeriodes.includes(p.value)" (change)="onPeriodeChange(p.value, $event)">
+                  <label class="form-check-label" [for]="'periode_' + p.value">{{ p.label }}</label>
                 </div>
-
                 <div *ngIf="selectedPeriodes.length === 0 && !selectAllPeriodes" class="text-danger small mt-1">
                   Veuillez sélectionner au moins une période
                 </div>
@@ -103,8 +110,7 @@
             </div>
           </div>
 
-          <!-- Information -->
-          <div class="alert alert-info">
+          <div class="alert alert-info mt-3">
             <i class="bx bx-info-circle"></i>
             <strong>Information :</strong> Cette opération va afficher une prévisualisation des affectations
             à dupliquer. Vous pourrez ensuite modifier les heures et sélectionner celles à enregistrer.

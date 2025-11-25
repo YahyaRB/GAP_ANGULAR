@@ -10,4 +10,5 @@ public class DuplicationRequestDTO {
     private Date sourceDate;
     private Date targetDate;
     private List<String> periodes;
+    private String targetPeriod;
 }

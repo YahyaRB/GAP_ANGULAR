@@ -69,7 +69,8 @@ public class AffectationUpImpService implements AffectationUpService {
             }
             return affectationList;
         } catch (Exception e) {
-            logger.error("Erreur lors de la récupération des affectations pour l'utilisateur {}: {}", idUser, e.getMessage());
+            logger.error("Erreur lors de la récupération des affectations pour l'utilisateur {}: {}", idUser,
+                    e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -102,7 +103,8 @@ public class AffectationUpImpService implements AffectationUpService {
             // Vérification finale de la limite des 9h pour les périodes normales
             if (!isOvertime && totalActuel + heures > MAX_HEURES_NORMALES) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "Dépassement : il reste " + Math.max(0, MAX_HEURES_NORMALES - totalActuel) + "h possibles pour cette date.");
+                        "Dépassement : il reste " + Math.max(0, MAX_HEURES_NORMALES - totalActuel)
+                                + "h possibles pour cette date.");
             }
 
             affectationRepository.save(affectation);
@@ -137,13 +139,14 @@ public class AffectationUpImpService implements AffectationUpService {
     }
 
     private boolean isOvertimePeriod(String periode) {
-        if (periode == null) return false;
+        if (periode == null)
+            return false;
         String p = periode.replace('-', '_').replace(' ', '_');
         return p.equalsIgnoreCase("Heures_Sup") || p.equalsIgnoreCase("HeuresSup");
     }
 
     private Integer processPeriodesAndHours(AffectationUpdate affectation, Employee employee,
-                                            Date date, String periode, boolean isOvertime) {
+            Date date, String periode, boolean isOvertime) {
         Integer heures = affectation.getNombreHeures();
 
         if ("Matin".equalsIgnoreCase(periode)) {
@@ -172,9 +175,8 @@ public class AffectationUpImpService implements AffectationUpService {
 
     private void checkPeriodAvailability(Employee employee, Date date, String periode) {
         if (affectationRepository.countAllByEmployeesAndDateAndPeriode(employee, date, periode) > 0) {
-            String message = "Matin".equals(periode) ?
-                    "Déjà affecté le matin pour cette date." :
-                    "Déjà affecté l'après-midi pour cette date.";
+            String message = "Matin".equals(periode) ? "Déjà affecté le matin pour cette date."
+                    : "Déjà affecté l'après-midi pour cette date.";
             throw new ResponseStatusException(HttpStatus.CONFLICT, message);
         }
     }
@@ -193,9 +195,6 @@ public class AffectationUpImpService implements AffectationUpService {
         }
     }
 
-    /**
-     * Méthode alternative pour calculer les heures totales sans utiliser DATE()
-     */
     private int calculateTotalHeuresSafe(Employee employee, Date date) {
         try {
             return affectationRepository.totalHeures(employee, date);
@@ -300,8 +299,7 @@ public class AffectationUpImpService implements AffectationUpService {
                         affectationUpdate.getEmployees().getPrenom(),
                         affectationUpdate.getEmployees().getMatricule(),
                         sourceFormat.format(affectationUpdate.getDate()),
-                        affectationUpdate.getPeriode()
-                );
+                        affectationUpdate.getPeriode());
 
                 message.setText(emailBody);
                 emailSender.send(message);
@@ -342,8 +340,7 @@ public class AffectationUpImpService implements AffectationUpService {
                         sourceFormat.format(affectationUpdate.getDate()),
                         affectationUpdate.getPeriode(),
                         affectationUpdate.getNombreHeures(),
-                        ateliers.getDesignation()
-                );
+                        ateliers.getDesignation());
 
                 message.setText(emailBody);
                 emailSender.send(message);
@@ -357,9 +354,9 @@ public class AffectationUpImpService implements AffectationUpService {
 
     @Override
     public Page<AffectationUpdate> affectationFiltredPaginated(long idUser, long idprojet, long idemploye,
-                                                               long idarticle, long idatelier,
-                                                               String dateDebut, String dateFin,
-                                                               int page, int size) throws ParseException {
+            long idarticle, long idatelier,
+            String dateDebut, String dateFin,
+            int page, int size) throws ParseException {
         try {
             User user = userImpService.findbyusername(idUser);
             if (user == null) {
@@ -448,8 +445,8 @@ public class AffectationUpImpService implements AffectationUpService {
 
     @Override
     public List<AffectationUpdate> affectationFiltred(long idUser, long idprojet, long idemploye,
-                                                      long idarticle, long idatelier,
-                                                      String dateDebut, String dateFin) throws ParseException {
+            long idarticle, long idatelier,
+            String dateDebut, String dateFin) throws ParseException {
         try {
             User user = userImpService.findbyusername(idUser);
             if (user == null) {
@@ -529,6 +526,7 @@ public class AffectationUpImpService implements AffectationUpService {
         logger.info("   - Date source: {}", request.getSourceDate());
         logger.info("   - Date cible: {}", request.getTargetDate());
         logger.info("   - Périodes: {}", request.getPeriodes());
+        logger.info("   - Période cible: {}", request.getTargetPeriod());
 
         try {
             List<AffectationUpdate> sourceAffectations = findAffectationsWithBetween(
@@ -546,7 +544,8 @@ public class AffectationUpImpService implements AffectationUpService {
 
             for (AffectationUpdate source : sourceAffectations) {
                 try {
-                    AffectationPreviewDTO preview = createPreviewFromAffectation(source, targetDate);
+                    AffectationPreviewDTO preview = createPreviewFromAffectation(source, targetDate,
+                            request.getTargetPeriod());
                     previewList.add(preview);
                 } catch (Exception e) {
                     logger.error("Erreur lors de la création du preview pour l'affectation ID {}: {}",
@@ -564,11 +563,8 @@ public class AffectationUpImpService implements AffectationUpService {
         }
     }
 
-    /**
-     * Méthode simplifiée qui utilise uniquement les requêtes BETWEEN
-     */
     private List<AffectationUpdate> findAffectationsWithBetween(Long atelierId, Date sourceDate,
-                                                                List<String> periodes) {
+            List<String> periodes) {
         Date normalizedDate = normalizeDate(sourceDate);
         logger.info("Utilisation de la méthode BETWEEN");
 
@@ -603,10 +599,8 @@ public class AffectationUpImpService implements AffectationUpService {
         }
     }
 
-    /**
-     * Crée un DTO de preview à partir d'une affectation source
-     */
-    private AffectationPreviewDTO createPreviewFromAffectation(AffectationUpdate source, Date targetDate) {
+    private AffectationPreviewDTO createPreviewFromAffectation(AffectationUpdate source, Date targetDate,
+            String targetPeriod) {
         AffectationPreviewDTO preview = new AffectationPreviewDTO();
 
         // ID temporaire unique
@@ -633,22 +627,35 @@ public class AffectationUpImpService implements AffectationUpService {
 
         // Informations affectation
         preview.setDate(targetDate);
-        preview.setPeriode(source.getPeriode());
-        preview.setNombreHeures(source.getNombreHeures());
+
+        String finalPeriod = source.getPeriode();
+        Integer finalHeures = source.getNombreHeures();
+
+        if (targetPeriod != null && !targetPeriod.isEmpty() && !"SAME".equals(targetPeriod)) {
+            finalPeriod = targetPeriod;
+            if ("Matin".equalsIgnoreCase(targetPeriod)) {
+                finalHeures = HEURES_MATIN;
+            } else if ("Après-midi".equalsIgnoreCase(targetPeriod) || "Apres-midi".equalsIgnoreCase(targetPeriod)) {
+                finalHeures = HEURES_APRES_MIDI;
+            } else if ("Heures".equalsIgnoreCase(targetPeriod) || "Heures_Sup".equalsIgnoreCase(targetPeriod)) {
+                finalHeures = 4;
+            }
+        }
+
+        preview.setPeriode(finalPeriod);
+        preview.setNombreHeures(finalHeures);
 
         // Définir si les heures peuvent être modifiées
-        preview.setCanModifyHours("Heures".equals(source.getPeriode()) || "Heures_Sup".equals(source.getPeriode()));
+        preview.setCanModifyHours("Heures".equals(finalPeriod) || "Heures_Sup".equals(finalPeriod));
 
         // Vérifier les conflits
-        checkConflictsSafe(preview, source, targetDate);
+        checkConflictsSafe(preview, source, targetDate, finalPeriod, finalHeures);
 
         return preview;
     }
 
-    /**
-     * Vérification des conflits sans utiliser les requêtes DATE() problématiques
-     */
-    private void checkConflictsSafe(AffectationPreviewDTO preview, AffectationUpdate source, Date targetDate) {
+    private void checkConflictsSafe(AffectationPreviewDTO preview, AffectationUpdate source, Date targetDate,
+            String periode, Integer heures) {
         try {
             Calendar cal = Calendar.getInstance();
             cal.setTime(targetDate);
@@ -671,7 +678,7 @@ public class AffectationUpImpService implements AffectationUpService {
                     .setParameter("employee", source.getEmployees())
                     .setParameter("startDate", startOfDay)
                     .setParameter("endDate", endOfDay)
-                    .setParameter("periode", source.getPeriode())
+                    .setParameter("periode", periode)
                     .getSingleResult();
 
             boolean exists = count.intValue() > 0;
@@ -683,14 +690,15 @@ public class AffectationUpImpService implements AffectationUpService {
             }
 
             // Vérifier la limite des 9h pour les périodes normales
-            if (!"Heures_Sup".equals(source.getPeriode())) {
+            if (!"Heures_Sup".equals(periode)) {
                 int totalActuel = calculateTotalHeuresSafe(source.getEmployees(), targetDate);
-                int nouvellesHeures = source.getNombreHeures() != null ? source.getNombreHeures() : 0;
+                int nouvellesHeures = heures != null ? heures : 0;
 
                 if (totalActuel + nouvellesHeures > MAX_HEURES_NORMALES) {
                     preview.setHasConflict(true);
-                    preview.setConflictMessage("Dépassement de la limite de " + MAX_HEURES_NORMALES + "h journalières. Reste: " +
-                            Math.max(0, MAX_HEURES_NORMALES - totalActuel) + "h");
+                    preview.setConflictMessage(
+                            "Dépassement de la limite de " + MAX_HEURES_NORMALES + "h journalières. Reste: " +
+                                    Math.max(0, MAX_HEURES_NORMALES - totalActuel) + "h");
                     return;
                 }
             }
@@ -850,12 +858,9 @@ public class AffectationUpImpService implements AffectationUpService {
         return newAffectation;
     }
 
-    /**
-     * Méthode utilitaire pour construire les clauses WHERE des requêtes de filtrage
-     */
     private String buildWhereClauseForFilter(long idUser, User user, long idatelier, long idprojet,
-                                             long idemploye, long idarticle, Date startDate, Date endDate,
-                                             Map<String, Object> parameters) {
+            long idemploye, long idarticle, Date startDate, Date endDate,
+            Map<String, Object> parameters) {
         StringBuilder whereClause = new StringBuilder();
 
         // Filtrage par utilisateur et ses ateliers (pour agentSaisie)
@@ -908,11 +913,9 @@ public class AffectationUpImpService implements AffectationUpService {
         return whereClause.toString();
     }
 
-    /**
-     * Méthode utilitaire pour normaliser les dates
-     */
     private Date normalizeDate(Date date) {
-        if (date == null) return null;
+        if (date == null)
+            return null;
 
         try {
             LocalDate localDate = date.toInstant()
@@ -921,7 +924,6 @@ public class AffectationUpImpService implements AffectationUpService {
 
             return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
         } catch (Exception e) {
-            logger.error("Erreur normalisation date: {}", e.getMessage());
             return date;
         }
     }

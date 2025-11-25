@@ -65,7 +65,8 @@ export class DuplicateAffectationComponent implements OnInit {
     this.duplicateForm = this.formBuilder.group({
       atelierId: ['', Validators.required],
       sourceDate: ['', Validators.required],
-      targetDate: ['', Validators.required]
+      targetDate: ['', Validators.required],
+      targetPeriod: ['SAME']
     });
   }
 
@@ -107,6 +108,7 @@ export class DuplicateAffectationComponent implements OnInit {
         sourceDate: new Date(formValue.sourceDate),
         targetDate: new Date(formValue.targetDate),
         periodes: this.selectAllPeriodes ? ['ALL'] : this.selectedPeriodes,
+        targetPeriod: formValue.targetPeriod,
         userId: 1
       };
 

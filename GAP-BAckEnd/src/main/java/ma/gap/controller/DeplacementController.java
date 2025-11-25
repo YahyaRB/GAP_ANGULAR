@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/dpl")
@@ -48,26 +49,26 @@ public class DeplacementController {
             listeDeplacements.sort(Comparator.comparing(Deplacement::getId).reversed());
             return ResponseEntity.ok(listeDeplacements);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la récupération des deplacements.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la récupération des deplacements.");
         }
     }
 
     @PostMapping(value = "/add")
     public ResponseEntity<?> save(@RequestBody Deplacement deplacement) {
         try {
-            Deplacement savedDeplacement=deplacementImpService.saveDeplacement(deplacement);
+            Deplacement savedDeplacement = deplacementImpService.saveDeplacement(deplacement);
             // Récupérer l'ID du déplacement enregistré
-            Long id = savedDeplacement.getId();  // Si ton entité OrdreFabrication a un attribut 'id'
+            Long id = savedDeplacement.getId(); // Si ton entité OrdreFabrication a un attribut 'id'
 
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(id);  // Retourner l'ID dans la réponse
+            return ResponseEntity.status(HttpStatus.CREATED).body(id); // Retourner l'ID dans la réponse
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur inattendue est survenue.");
         }
     }
 
     @PutMapping(value = "/update/{id}")
-    //@PreAuthorize("hasAnyAuthority('admin','agentSaisie')")
+    // @PreAuthorize("hasAnyAuthority('admin','agentSaisie')")
     public ResponseEntity<?> edit(@PathVariable("id") long id, @RequestBody Deplacement deplacement) {
         try {
             Optional<Deplacement> optionalArticle = Optional.ofNullable(deplacementImpService.getById(id));
@@ -76,11 +77,10 @@ public class DeplacementController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Déplacement non trouvée. Édition impossible.");
             }
 
-            Deplacement updatedDeplacement=deplacementImpService.editDeplacement(deplacement, id);
-            Long idDep = updatedDeplacement.getId();  // Si ton entité OrdreFabrication a un attribut 'id'
+            Deplacement updatedDeplacement = deplacementImpService.editDeplacement(deplacement, id);
+            Long idDep = updatedDeplacement.getId(); // Si ton entité OrdreFabrication a un attribut 'id'
 
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(idDep);  // Retourner l'ID dans la réponse
+            return ResponseEntity.status(HttpStatus.CREATED).body(idDep); // Retourner l'ID dans la réponse
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur inattendue est survenue.");
@@ -99,38 +99,104 @@ public class DeplacementController {
     }
 
     @GetMapping("/search")
-    public List<Deplacement> SearchDeplacements(@RequestParam("idUser") long idUser,@RequestParam("idemploye") long idemploye,@RequestParam("idprojet") long idprojet , @RequestParam("idatelier") long idatelier,@RequestParam("motif") String motif, @RequestParam("dateDebut") String dateDebut, @RequestParam("dateFin") String dateFin) throws ParseException {
-       // @RequestParam("idUser") long idUser,@RequestParam("idemploye") long idemploye,@RequestParam("idprojet") long idprojet , @RequestParam("atelier") long idatelier,@RequestParam("motif") String motif, @RequestParam("dateDebut") String dateDebut, @RequestParam("dateFin") String dateFin) throws ParseException {
-       /* System.out.println("idUser : "+idUser+"idemploye : "+ idemploye+"idprojet : "+ idprojet +"idatelier : "+ idatelier+ "motif : "+motif+ "dateDebut : "+dateDebut+"dateFin : "+ dateFin);
-*/
-        List<Deplacement> deplacements=deplacementImpService.searchDeplacement(idUser, idemploye, idprojet , idatelier, motif, dateDebut, dateFin);
-     /*   deplacements.forEach(dpl->{
-            System.out.println(dpl);
-            dpl.setMotif(dpl.getMotifDeplacement().getMotif());
-            deplacementImpService.editDeplacement(dpl,dpl.getId());
-                }
-
-    );*/
+    public List<Deplacement> SearchDeplacements(@RequestParam("idUser") long idUser,
+                                                @RequestParam("idemploye") long idemploye, @RequestParam("idprojet") long idprojet,
+                                                @RequestParam("idatelier") long idatelier, @RequestParam("motif") String motif,
+                                                @RequestParam("dateDebut") String dateDebut, @RequestParam("dateFin") String dateFin)
+            throws ParseException {
+        List<Deplacement> deplacements = deplacementImpService.searchDeplacement(idUser, idemploye, idprojet, idatelier,
+                motif, dateDebut, dateFin);
         deplacements.sort(Comparator.comparing(Deplacement::getId).reversed());
         return deplacements;
     }
 
-    
+    // *** MÉTHODE AMÉLIORÉE POUR L'IMPRESSION ***
     @GetMapping("/Deplacement/Imprimer/{id}")
     @PreAuthorize("hasAnyAuthority('admin','agentSaisie')")
-    public ResponseEntity<byte[]> generateDemande(@PathVariable("id") Long id) throws JRException, IOException {
-        
-    	ResponseEntity<byte[]> OmEtat = null;
-    	
-    	try {
-    		OmEtat = deplacementImpService.generateOm(id);
-		} 
-    	catch (FileNotFoundException | EmptyResultDataAccessException | OrdreMissionNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        return OmEtat;
+    public ResponseEntity<?> generateDemande(@PathVariable("id") Long id) {
+        try {
+            // Vérifier que l'ID existe
+            if (id == null || id <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("ID de déplacement invalide : " + id);
+            }
+
+            // Vérifier que le déplacement existe
+            Deplacement deplacement = deplacementImpService.getById(id);
+            if (deplacement == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Déplacement non trouvé avec l'ID : " + id);
+            }
+
+            // Vérifier que le déplacement a au moins un employé
+            if (deplacement.getEmployee() == null || deplacement.getEmployee().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Aucun employé associé au déplacement ID : " + id);
+            }
+
+            ResponseEntity<byte[]> OmEtat = deplacementImpService.generateOm(id);
+            return OmEtat;
+
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Fichier template JasperReports non trouvé. Vérifiez le fichier OrdreMission.jrxml dans resources/files/");
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Déplacement non trouvé avec l'ID : " + id);
+        } catch (OrdreMissionNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Ordre de mission non trouvé : " + e.getMessage());
+        } catch (JRException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la génération du rapport JasperReports : " + e.getMessage());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur d'entrée/sortie lors de la lecture du template : " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur inattendue lors de la génération du PDF : " + e.getMessage());
+        }
     }
+
+    /**
+     * Génère un PDF pour chaque employé du déplacement
+     * Si plusieurs employés : retourne un ZIP avec un PDF par employé
+     * Si un seul employé : retourne un seul PDF
+     */
+    @GetMapping("/Deplacement/ImprimerTous/{id}")
+    @PreAuthorize("hasAnyAuthority('admin','agentSaisie')")
+    public ResponseEntity<?> generateDemandeForAllEmployees(@PathVariable("id") Long id) {
+        try {
+            // Vérifier que l'ID existe
+            if (id == null || id <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("ID de déplacement invalide : " + id);
+            }
+
+            ResponseEntity<byte[]> OmEtat = deplacementImpService.generateOmForAllEmployees(id);
+            return OmEtat;
+
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Fichier template JasperReports non trouvé : " + e.getMessage());
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Déplacement non trouvé avec l'ID : " + id);
+        } catch (OrdreMissionNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Ordre de mission non trouvé : " + e.getMessage());
+        } catch (JRException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la génération du rapport : " + e.getMessage());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur d'entrée/sortie : " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur inattendue : " + e.getMessage());
+        }
+    }
+
     @PostMapping("/upload")
     public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file) {
         System.out.println("/upload");
@@ -140,21 +206,24 @@ public class DeplacementController {
             message = "Le fichier a été téléchargé avec succès: " + file.getOriginalFilename();
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
         } catch (Exception e) {
-            message = "Impossible de télécharger le fichier: " + file.getOriginalFilename() + ". Erreur: " + e.getMessage();
+            message = "Impossible de télécharger le fichier: " + file.getOriginalFilename() + ". Erreur: "
+                    + e.getMessage();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
         }
     }
+
     @PostMapping("/savePjDeplacementById/{id}")
     ResponseEntity<ResponseMessage> savePjSuiviCaisse(@PathVariable("id") long id,
                                                       @RequestParam("file") MultipartFile file) {
 
         String message = "";
         try {
-            storageService.savePjDeplacementById(id,file);
+            storageService.savePjDeplacementById(id, file);
             message = "Le fichier a été téléchargé avec succès: " + file.getOriginalFilename();
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
         } catch (Exception e) {
-            message = "Impossible de télécharger le fichier: " + file.getOriginalFilename() + ". Erreur: " + e.getMessage();
+            message = "Impossible de télécharger le fichier: " + file.getOriginalFilename() + ". Erreur: "
+                    + e.getMessage();
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
         }
     }

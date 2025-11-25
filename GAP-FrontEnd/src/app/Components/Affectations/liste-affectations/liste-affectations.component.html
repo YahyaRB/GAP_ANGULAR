@@ -84,7 +84,7 @@
                     </div>
                     <div class="col-sm-4">
                       <label class="col-form-label mt-1">Article</label>
-                      <ng-select placeholder="Sélectionnez un employé" formControlName="idarticle">
+                      <ng-select placeholder="Sélectionnez un article" formControlName="idarticle">
                         <ng-option *ngFor="let article of articles" [value]="article.id">
                           {{ article.numPrix + ' - ' + article.designation }}
                         </ng-option>

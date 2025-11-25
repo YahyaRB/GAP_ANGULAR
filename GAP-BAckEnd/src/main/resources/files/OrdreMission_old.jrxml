@@ -610,7 +610,7 @@
 				<textElement verticalAlignment="Middle">
 					<font size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").format($F{date})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[DATEFORMAT($F{date},"YYYY-MM-dd")]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="150" y="80" width="395" height="20" uuid="3d289efd-b399-4922-ade8-cc595901de08"/>
@@ -675,7 +675,7 @@
 				<textElement verticalAlignment="Middle">
 					<font size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").format($F{date})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[DATEFORMAT($F{date},"YYYY-MM-dd")]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="150" y="290" width="140" height="20" uuid="8f8a560b-6d12-4f98-9d94-f77bc56db4f5"/>

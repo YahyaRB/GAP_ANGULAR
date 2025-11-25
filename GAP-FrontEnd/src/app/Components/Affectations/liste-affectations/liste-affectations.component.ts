@@ -16,6 +16,7 @@ import { ArticleService } from "../../../services/article.service";
 import { ROLES_ADMIN_AGENTSAISIE } from "../../../Roles";
 import { Iaffectation } from "../../../services/Interfaces/iaffectation";
 import * as XLSX from 'xlsx';
+import { EmployeService } from "../../../services/employe.service";
 @Component({
   selector: 'app-liste-affectations',
   templateUrl: './liste-affectations.component.html',
@@ -50,13 +51,17 @@ export class ListeAffectationsComponent implements OnInit, OnChanges {
     private formBuilder: FormBuilder,
     private affectationService: AffectationService,
     private roleService: RoleService,
-    private sortService: SortService
+    private sortService: SortService,
+    private projetService: ProjetService,
+    private articleService: ArticleService,
+    private employeService: EmployeService
   ) {
     // Récupération d'id d'utilisateur connecté
     this.idUser = this.tokenstorage.getUser().id
     this.listeAteliers = this.tokenstorage.getUser().atelier;
-    /*  this.projetService.getAffairesByAtelier(this.tokenstorage.getUser().id).subscribe(x=>this.listeAffairesByAtelier = x);
-     this.articeService.getArticlesByAtelier(this.tokenstorage.getUser().id).subscribe(data=>this.articles = data);*/
+    this.projetService.getAffairesByAtelier(this.tokenstorage.getUser().id).subscribe(x => this.listeAffairesByAtelier = x);
+    this.articleService.getArticlesByAtelier(this.tokenstorage.getUser().id).subscribe(data => this.articles = data);
+    this.employeService.getAll(this.tokenstorage.getUser().id).subscribe(data => this.listeEmploye = data);
   }
 
   ngOnInit(): void {
@@ -121,8 +126,8 @@ export class ListeAffectationsComponent implements OnInit, OnChanges {
 
     this.affectationService.searchAffectation(
       this.idUser,
-      this.myFormSearch.value.idprojet ?? 0,
       this.myFormSearch.value.idemploye ?? 0,
+      this.myFormSearch.value.idprojet ?? 0,
       this.myFormSearch.value.idarticle ?? 0,
       this.myFormSearch.value.idatelier ?? 0,
       this.myFormSearch.value.dateDebut || '',
