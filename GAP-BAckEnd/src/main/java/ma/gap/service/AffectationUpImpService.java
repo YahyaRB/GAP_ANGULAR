@@ -634,11 +634,11 @@ public class AffectationUpImpService implements AffectationUpService {
         if (targetPeriod != null && !targetPeriod.isEmpty() && !"SAME".equals(targetPeriod)) {
             finalPeriod = targetPeriod;
             if ("Matin".equalsIgnoreCase(targetPeriod)) {
-                finalHeures = HEURES_MATIN;
+                finalHeures = HEURES_MATIN; // 5h
             } else if ("Après-midi".equalsIgnoreCase(targetPeriod) || "Apres-midi".equalsIgnoreCase(targetPeriod)) {
-                finalHeures = HEURES_APRES_MIDI;
+                finalHeures = HEURES_APRES_MIDI; // 4h
             } else if ("Heures".equalsIgnoreCase(targetPeriod) || "Heures_Sup".equalsIgnoreCase(targetPeriod)) {
-                finalHeures = 4;
+                finalHeures = null; // L'utilisateur doit saisir le nombre d'heures
             }
         }
 
@@ -657,6 +657,14 @@ public class AffectationUpImpService implements AffectationUpService {
     private void checkConflictsSafe(AffectationPreviewDTO preview, AffectationUpdate source, Date targetDate,
             String periode, Integer heures) {
         try {
+            // Vérifier si les heures sont nulles pour les périodes qui nécessitent une
+            // saisie
+            if (("Heures".equals(periode) || "Heures_Sup".equals(periode)) && heures == null) {
+                preview.setHasConflict(true);
+                preview.setConflictMessage("Veuillez saisir le nombre d'heures");
+                return;
+            }
+
             Calendar cal = Calendar.getInstance();
             cal.setTime(targetDate);
             cal.set(Calendar.HOUR_OF_DAY, 0);

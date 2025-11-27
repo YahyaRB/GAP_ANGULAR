@@ -12,7 +12,7 @@
 	<artifactId>GAP</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
-	<name>gap</name>
+	<name>GAP V2</name>
 	<description>Application de gestion des pointages ateliers</description>
 	<url/>
 	<licenses>

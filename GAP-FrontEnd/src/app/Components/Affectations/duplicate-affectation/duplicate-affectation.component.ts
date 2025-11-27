@@ -1,7 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { AffectationService } from "../../../services/affectation.service";
+import { NotificationService } from "../../../services/notification.service";
 import { Iateliers } from "../../../services/Interfaces/iateliers";
+
+declare var $: any; // Déclaration jQuery
+
 export interface AffectationPreview {
   tempId: string;
   employeeId: number;
@@ -36,8 +40,8 @@ export class DuplicateAffectationComponent implements OnInit {
   message = '';
   messageType = '';
 
-  // États de l'interface
-  currentStep = 1; // 1: Configuration, 2: Prévisualisation
+  // États de l'interface - 3 étapes
+  currentStep = 1; // 1: Source, 2: Destination, 3: Prévisualisation
   previewData: AffectationPreview[] = [];
   selectedItems: Set<string> = new Set();
   selectAll = false;
@@ -49,12 +53,10 @@ export class DuplicateAffectationComponent implements OnInit {
     { value: 'Heures_Sup', label: 'Heures Supplémentaires' }
   ];
 
-  selectedPeriodes: string[] = [];
-  selectAllPeriodes = false;
-
   constructor(
     private formBuilder: FormBuilder,
-    private affectationService: AffectationService
+    private affectationService: AffectationService,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit(): void {
@@ -63,97 +65,115 @@ export class DuplicateAffectationComponent implements OnInit {
 
   private initForm(): void {
     this.duplicateForm = this.formBuilder.group({
+      // Étape 1: Source
       atelierId: ['', Validators.required],
       sourceDate: ['', Validators.required],
+      sourcePeriod: ['', Validators.required],
+
+      // Étape 2: Destination
       targetDate: ['', Validators.required],
-      targetPeriod: ['SAME']
+      targetPeriod: ['', Validators.required]
     });
   }
 
-  onPeriodeChange(periode: string, event: any): void {
-    if (event.target.checked) {
-      this.selectedPeriodes.push(periode);
-    } else {
-      const index = this.selectedPeriodes.indexOf(periode);
-      if (index > -1) {
-        this.selectedPeriodes.splice(index, 1);
-      }
-      this.selectAllPeriodes = false;
-    }
-    this.updateSelectAllPeriodesState();
-  }
+  // Navigation entre les étapes
+  goToStep2(): void {
+    const step1Valid = this.duplicateForm.get('atelierId')?.valid &&
+      this.duplicateForm.get('sourceDate')?.valid &&
+      this.duplicateForm.get('sourcePeriod')?.valid;
 
-  onSelectAllPeriodesChange(event: any): void {
-    this.selectAllPeriodes = event.target.checked;
-    if (this.selectAllPeriodes) {
-      this.selectedPeriodes = ['ALL'];
-    } else {
-      this.selectedPeriodes = [];
-    }
-  }
-
-  private updateSelectAllPeriodesState(): void {
-    this.selectAllPeriodes = this.selectedPeriodes.length === this.periodes.length;
-  }
-
-  // Étape 1: Prévisualisation
-  onPreview(): void {
-    if (this.duplicateForm.valid && (this.selectedPeriodes.length > 0 || this.selectAllPeriodes)) {
-      this.isLoading = true;
+    if (step1Valid) {
+      this.currentStep = 2;
       this.message = '';
-
-      const formValue = this.duplicateForm.value;
-      const request = {
-        atelierId: formValue.atelierId,
-        sourceDate: new Date(formValue.sourceDate),
-        targetDate: new Date(formValue.targetDate),
-        periodes: this.selectAllPeriodes ? ['ALL'] : this.selectedPeriodes,
-        targetPeriod: formValue.targetPeriod,
-        userId: 1
-      };
-
-      console.log('Requête envoyée:', request); // Debug
-
-      this.affectationService.previewDuplication(request).subscribe(
-        (data: AffectationPreview[]) => {
-          console.log('Données reçues:', data); // Debug
-          this.previewData = data;
-          this.selectedItems = new Set(data.filter(item => !item.hasConflict).map(item => item.tempId));
-          this.updateSelectAllState();
-          this.currentStep = 2;
-          this.isLoading = false;
-        },
-        (error) => {
-          console.error('Erreur complète:', error); // Debug détaillé
-
-          let errorMessage = 'Erreur lors de la prévisualisation';
-
-          if (error.error) {
-            if (typeof error.error === 'string') {
-              errorMessage += ': ' + error.error;
-            } else if (error.error.message) {
-              errorMessage += ': ' + error.error.message;
-            } else {
-              errorMessage += ': ' + JSON.stringify(error.error);
-            }
-          } else if (error.message) {
-            errorMessage += ': ' + error.message;
-          } else if (error.status) {
-            errorMessage += ': Erreur HTTP ' + error.status;
-            if (error.statusText) {
-              errorMessage += ' - ' + error.statusText;
-            }
-          }
-
-          this.message = errorMessage;
-          this.messageType = 'error';
-          this.isLoading = false;
-        }
-      );
     } else {
-      this.message = 'Veuillez remplir tous les champs et sélectionner au moins une période';
+      this.message = 'Veuillez remplir tous les champs de l\'étape 1';
       this.messageType = 'error';
     }
+  }
+
+  goBackToStep1(): void {
+    this.currentStep = 1;
+    this.message = '';
+  }
+
+  goBackToStep2(): void {
+    this.currentStep = 2;
+    this.message = '';
+    this.previewData = [];
+    this.selectedItems.clear();
+  }
+
+  // Étape 2 -> 3: Prévisualisation
+  onPreview(): void {
+    const step2Valid = this.duplicateForm.get('targetDate')?.valid &&
+      this.duplicateForm.get('targetPeriod')?.valid;
+
+    if (!step2Valid) {
+      this.message = 'Veuillez remplir tous les champs de l\'étape 2';
+      this.messageType = 'error';
+      return;
+    }
+
+    this.isLoading = true;
+    this.message = '';
+
+    const formValue = this.duplicateForm.value;
+    const request = {
+      atelierId: formValue.atelierId,
+      sourceDate: new Date(formValue.sourceDate),
+      targetDate: new Date(formValue.targetDate),
+      periodes: [formValue.sourcePeriod], // Utiliser la période source sélectionnée
+      targetPeriod: formValue.targetPeriod,
+      userId: 1
+    };
+
+    console.log('Requête envoyée:', request); // Debug
+
+    this.affectationService.previewDuplication(request).subscribe(
+      (data: AffectationPreview[]) => {
+        console.log('Données reçues:', data); // Debug
+
+        // Marquer les items avec heures nulles comme ayant un conflit
+        data.forEach(item => {
+          if (item.canModifyHours && (item.nombreHeures === null || item.nombreHeures === undefined)) {
+            item.hasConflict = true;
+            item.conflictMessage = 'Veuillez saisir le nombre d\'heures';
+          }
+        });
+
+        this.previewData = data;
+        this.selectedItems = new Set(data.filter(item => !item.hasConflict).map(item => item.tempId));
+        this.updateSelectAllState();
+        this.currentStep = 3;
+        this.isLoading = false;
+      },
+      (error) => {
+        console.error('Erreur complète:', error); // Debug détaillé
+
+        let errorMessage = 'Erreur lors de la prévisualisation';
+
+        if (error.error) {
+          if (typeof error.error === 'string') {
+            errorMessage += ': ' + error.error;
+          } else if (error.error.message) {
+            errorMessage += ': ' + error.error.message;
+          } else {
+            errorMessage += ': ' + JSON.stringify(error.error);
+          }
+        } else if (error.message) {
+          errorMessage += ': ' + error.message;
+        } else if (error.status) {
+          errorMessage += ': Erreur HTTP ' + error.status;
+          if (error.statusText) {
+            errorMessage += ' - ' + error.statusText;
+          }
+        }
+
+        this.message = errorMessage;
+        this.messageType = 'error';
+        this.isLoading = false;
+      }
+    );
   }
 
   // Gestion de la sélection dans la table
@@ -186,21 +206,39 @@ export class DuplicateAffectationComponent implements OnInit {
 
   // Modification des heures
   onHoursChange(item: AffectationPreview, newHours: number): void {
-    if (item.canModifyHours && newHours > 0) {
-      item.nombreHeures = newHours;
-
-      // Recalculer les conflits si nécessaire
-      if (item.periode !== 'Heures_Sup' && newHours > 9) {
+    if (item.canModifyHours) {
+      // Accepter 0 ou null pour permettre la saisie
+      if (newHours === null || newHours === undefined || newHours === 0) {
+        item.nombreHeures = null;
         item.hasConflict = true;
-        item.conflictMessage = 'Les heures ne peuvent pas dépasser 9 pour cette période';
+        item.conflictMessage = 'Veuillez saisir un nombre d\'heures valide';
         this.selectedItems.delete(item.tempId);
-      } else {
-        // Réinitialiser le conflit si les heures sont valides
-        if (item.conflictMessage === 'Les heures ne peuvent pas dépasser 9 pour cette période') {
+        return;
+      }
+
+      if (newHours > 0) {
+        item.nombreHeures = newHours;
+
+        // Recalculer les conflits si nécessaire
+        if (item.periode !== 'Heures_Sup' && newHours > 9) {
+          item.hasConflict = true;
+          item.conflictMessage = 'Les heures ne peuvent pas dépasser 9 pour cette période';
+          this.selectedItems.delete(item.tempId);
+        } else {
+          // Réinitialiser le conflit si les heures sont valides
           item.hasConflict = false;
           item.conflictMessage = undefined;
+          // Ajouter automatiquement l'item à la sélection
+          this.selectedItems.add(item.tempId);
         }
+      } else {
+        item.hasConflict = true;
+        item.conflictMessage = 'Les heures doivent être supérieures à 0';
+        this.selectedItems.delete(item.tempId);
       }
+
+      // Mettre à jour l'état du "Sélectionner tout"
+      this.updateSelectAllState();
     }
   }
 
@@ -226,23 +264,37 @@ export class DuplicateAffectationComponent implements OnInit {
 
     this.affectationService.saveDuplicatedAffectations(itemsToSave).subscribe(
       (response: string) => {
-        this.message = response;
-        this.messageType = 'success';
         this.isLoading = false;
         this.refreshTable.emit();
 
+        // Afficher un toaster de succès
+        const count = itemsToSave.length;
+        this.notificationService.showSuccess(
+          `${count} affectation(s) enregistrée(s) avec succès`,
+          'Duplication réussie'
+        );
+
+        // Réinitialiser le composant
+        this.resetComponent();
+
+        // Fermer le modal avec jQuery (Bootstrap)
         setTimeout(() => {
-          this.resetComponent();
-          const modal = document.getElementById('duplicateModal');
-          if (modal) {
-            (modal as any).modal('hide');
-          }
-        }, 2000);
+          $('#duplicateModal').modal('hide');
+          // Supprimer le backdrop si présent
+          $('.modal-backdrop').remove();
+          $('body').removeClass('modal-open');
+        }, 300);
       },
       (error) => {
         this.message = error.error || 'Erreur lors de l\'enregistrement';
         this.messageType = 'error';
         this.isLoading = false;
+
+        // Afficher aussi un toaster d'erreur
+        this.notificationService.showError(
+          error.error || 'Erreur lors de l\'enregistrement',
+          'Erreur'
+        );
       }
     );
   }
@@ -262,8 +314,6 @@ export class DuplicateAffectationComponent implements OnInit {
   private resetComponent(): void {
     this.currentStep = 1;
     this.duplicateForm.reset();
-    this.selectedPeriodes = [];
-    this.selectAllPeriodes = false;
     this.previewData = [];
     this.selectedItems.clear();
     this.selectAll = false;

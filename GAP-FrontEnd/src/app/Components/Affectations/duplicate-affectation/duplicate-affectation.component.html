@@ -4,8 +4,9 @@
     <!-- En-tête avec navigation -->
     <div class="modal-header">
       <h5 class="modal-title">
-        <span *ngIf="currentStep === 1">Dupliquer les affectations - Configuration</span>
-        <span *ngIf="currentStep === 2">Dupliquer les affectations - Prévisualisation</span>
+        <span *ngIf="currentStep === 1">Dupliquer les affectations - Étape 1: Source</span>
+        <span *ngIf="currentStep === 2">Dupliquer les affectations - Étape 2: Destination</span>
+        <span *ngIf="currentStep === 3">Dupliquer les affectations - Étape 3: Prévisualisation</span>
       </h5>
       <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="onCancel()">
         <span aria-hidden="true">&times;</span>
@@ -21,12 +22,12 @@
         <pre>{{ message }}</pre>
       </div>
 
-      <!-- ÉTAPE 1: Configuration -->
+      <!-- ÉTAPE 1: Source de duplication -->
       <div *ngIf="currentStep === 1">
         <form [formGroup]="duplicateForm">
           <div class="row">
             <!-- Sélection de l'atelier -->
-            <div class="col-md-6">
+            <div class="col-md-12">
               <div class="form-group">
                 <label for="atelierId" class="form-label">Atelier <span class="text-danger">*</span></label>
                 <select id="atelierId" class="form-control" formControlName="atelierId">
@@ -41,19 +42,57 @@
                 </div>
               </div>
             </div>
+          </div>
 
+          <div class="row">
             <!-- Date source -->
             <div class="col-md-6">
               <div class="form-group">
                 <label for="sourceDate" class="form-label">Date source <span class="text-danger">*</span></label>
-                <input type="date" id="sourceDate" class="form-control" formControlName="sourceDate"
-                  [max]="duplicateForm.get('targetDate')?.value">
+                <input type="date" id="sourceDate" class="form-control" formControlName="sourceDate">
                 <div *ngIf="duplicateForm.get('sourceDate')?.invalid && duplicateForm.get('sourceDate')?.touched"
                   class="text-danger small">
                   La date source est obligatoire
                 </div>
               </div>
             </div>
+
+            <!-- Période source -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="sourcePeriod" class="form-label">Période source <span class="text-danger">*</span></label>
+                <select id="sourcePeriod" class="form-control" formControlName="sourcePeriod">
+                  <option value="">Sélectionnez une période</option>
+                  <option *ngFor="let p of periodes" [value]="p.value">{{ p.label }}</option>
+                </select>
+                <div *ngIf="duplicateForm.get('sourcePeriod')?.invalid && duplicateForm.get('sourcePeriod')?.touched"
+                  class="text-danger small">
+                  La période source est obligatoire
+                </div>
+                <small class="form-text text-muted">
+                  Les affectations de cette période seront dupliquées.
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info mt-3">
+            <i class="bx bx-info-circle"></i>
+            <strong>Étape 1/3 :</strong> Sélectionnez l'atelier, la date et la période des affectations que vous
+            souhaitez dupliquer.
+          </div>
+        </form>
+      </div>
+
+      <!-- ÉTAPE 2: Destination de duplication -->
+      <div *ngIf="currentStep === 2">
+        <form [formGroup]="duplicateForm">
+          <!-- Résumé de l'étape 1 -->
+          <div class="alert alert-secondary">
+            <strong>Source sélectionnée :</strong><br>
+            Atelier: {{ duplicateForm.get('atelierId')?.value }}<br>
+            Date: {{ duplicateForm.get('sourceDate')?.value | date:'dd/MM/yyyy' }}<br>
+            Période: {{ duplicateForm.get('sourcePeriod')?.value }}
           </div>
 
           <div class="row">
@@ -61,26 +100,32 @@
             <div class="col-md-6">
               <div class="form-group">
                 <label for="targetDate" class="form-label">Date cible <span class="text-danger">*</span></label>
-                <input type="date" id="targetDate" class="form-control" formControlName="targetDate"
-                  [min]="duplicateForm.get('sourceDate')?.value">
+                <input type="date" id="targetDate" class="form-control" formControlName="targetDate">
                 <div *ngIf="duplicateForm.get('targetDate')?.invalid && duplicateForm.get('targetDate')?.touched"
                   class="text-danger small">
                   La date cible est obligatoire
                 </div>
+                <small class="form-text text-muted">
+                  Date vers laquelle les affectations seront dupliquées.
+                </small>
               </div>
             </div>
 
-            <!-- Période Cible -->
+            <!-- Période cible -->
             <div class="col-md-6">
               <div class="form-group">
-                <label for="targetPeriod" class="form-label">Période cible</label>
+                <label for="targetPeriod" class="form-label">Période cible <span class="text-danger">*</span></label>
                 <select id="targetPeriod" class="form-control" formControlName="targetPeriod">
-                  <option value="SAME">Identique à la source</option>
+                  <option value="">Sélectionnez une période</option>
                   <option value="Matin">Matin (5h)</option>
                   <option value="Après-midi">Après-midi (4h)</option>
-                  <option value="Heures">Heures (4h)</option>
-                  <option value="Heures_Sup">Heures Supplémentaires (4h)</option>
+                  <option value="Heures">Heures (à saisir)</option>
+                  <option value="Heures_Sup">Heures Supplémentaires (à saisir)</option>
                 </select>
+                <div *ngIf="duplicateForm.get('targetPeriod')?.invalid && duplicateForm.get('targetPeriod')?.touched"
+                  class="text-danger small">
+                  La période cible est obligatoire
+                </div>
                 <small class="form-text text-muted">
                   La période qui sera assignée aux affectations dupliquées.
                 </small>
@@ -88,38 +133,15 @@
             </div>
           </div>
 
-          <div class="row">
-            <!-- Sélection des périodes -->
-            <div class="col-md-12">
-              <div class="form-group">
-                <label class="form-label d-block">Périodes à dupliquer <span class="text-danger">*</span></label>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="checkbox" id="selectAllPeriodes" [checked]="selectAllPeriodes"
-                    (change)="onSelectAllPeriodesChange($event)">
-                  <label class="form-check-label font-weight-bold" for="selectAllPeriodes">Toutes</label>
-                </div>
-                <div class="form-check form-check-inline" *ngFor="let p of periodes">
-                  <input class="form-check-input" type="checkbox" [id]="'periode_' + p.value" [value]="p.value"
-                    [checked]="selectedPeriodes.includes(p.value)" (change)="onPeriodeChange(p.value, $event)">
-                  <label class="form-check-label" [for]="'periode_' + p.value">{{ p.label }}</label>
-                </div>
-                <div *ngIf="selectedPeriodes.length === 0 && !selectAllPeriodes" class="text-danger small mt-1">
-                  Veuillez sélectionner au moins une période
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="alert alert-info mt-3">
             <i class="bx bx-info-circle"></i>
-            <strong>Information :</strong> Cette opération va afficher une prévisualisation des affectations
-            à dupliquer. Vous pourrez ensuite modifier les heures et sélectionner celles à enregistrer.
+            <strong>Étape 2/3 :</strong> Sélectionnez la date et la période cibles pour les affectations dupliquées.
           </div>
         </form>
       </div>
 
-      <!-- ÉTAPE 2: Prévisualisation -->
-      <div *ngIf="currentStep === 2">
+      <!-- ÉTAPE 3: Prévisualisation -->
+      <div *ngIf="currentStep === 3">
         <!-- Statistiques -->
         <div class="row mb-3">
           <div class="col-md-3">
@@ -214,7 +236,8 @@
                 <td>
                   <input type="number" class="form-control form-control-sm" [value]="item.nombreHeures"
                     [readonly]="!item.canModifyHours" [min]="1" [max]="item.periode === 'Heures_Sup' ? 24 : 9"
-                    style="width: 70px;">
+                    (change)="onHoursChange(item, $any($event.target).value)"
+                    [placeholder]="item.canModifyHours ? 'Saisir heures' : ''" style="width: 70px;">
                 </td>
                 <td>
                   <div *ngIf="item.hasConflict">
@@ -263,7 +286,11 @@
       <div class="d-flex w-100 justify-content-between align-items-center">
         <!-- Boutons de navigation -->
         <div>
-          <button *ngIf="currentStep === 2" type="button" class="btn btn-outline-secondary" (click)="goBack()"
+          <button *ngIf="currentStep === 2" type="button" class="btn btn-outline-secondary" (click)="goBackToStep1()"
+            [disabled]="isLoading">
+            <i class="bx bx-arrow-back"></i> Retour
+          </button>
+          <button *ngIf="currentStep === 3" type="button" class="btn btn-outline-secondary" (click)="goBackToStep2()"
             [disabled]="isLoading">
             <i class="bx bx-arrow-back"></i> Retour
           </button>
@@ -271,7 +298,7 @@
 
         <!-- Informations et actions -->
         <div class="d-flex align-items-center">
-          <div *ngIf="currentStep === 2 && getSelectedCount() > 0" class="mr-3">
+          <div *ngIf="currentStep === 3 && getSelectedCount() > 0" class="mr-3">
             <small class="text-muted">
               {{ getSelectedCount() }} élément(s) sélectionné(s)
             </small>
@@ -283,14 +310,22 @@
             Annuler
           </button>
 
-          <button *ngIf="currentStep === 1" type="button" class="btn btn-primary" (click)="onPreview()"
-            [disabled]="isLoading || duplicateForm.invalid || (selectedPeriodes.length === 0 && !selectAllPeriodes)">
+          <!-- Bouton Suivant (Étape 1 -> 2) -->
+          <button *ngIf="currentStep === 1" type="button" class="btn btn-primary" (click)="goToStep2()"
+            [disabled]="isLoading">
+            Suivant <i class="bx bx-arrow-right ml-1"></i>
+          </button>
+
+          <!-- Bouton Prévisualiser (Étape 2 -> 3) -->
+          <button *ngIf="currentStep === 2" type="button" class="btn btn-primary" (click)="onPreview()"
+            [disabled]="isLoading">
             <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-2"></span>
             {{ isLoading ? 'Chargement...' : 'Prévisualiser' }}
             <i class="bx bx-search-alt ml-1"></i>
           </button>
 
-          <button *ngIf="currentStep === 2" type="button" class="btn btn-success" (click)="onSave()"
+          <!-- Bouton Enregistrer (Étape 3) -->
+          <button *ngIf="currentStep === 3" type="button" class="btn btn-success" (click)="onSave()"
             [disabled]="isLoading || getSelectedCount() === 0">
             <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-2"></span>
             {{ isLoading ? 'Enregistrement...' : 'Enregistrer (' + getSelectedCount() + ')' }}
