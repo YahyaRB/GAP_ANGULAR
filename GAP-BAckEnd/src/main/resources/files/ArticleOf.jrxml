@@ -17,6 +17,11 @@
 	<field name="emplacement" class="java.lang.String"/>
 	<field name="observation" class="java.lang.String"/>
 	<field name="ordreFabrication" class="ma.gap.entity.OrdreFabrication"/>
+	<field name="articleDesignationImpression" class="java.lang.String"/>
+	<field name="affaireCodeImpression" class="java.lang.String"/>
+	<field name="numOFImpression" class="java.lang.String"/>
+	<field name="dateOFImpression" class="java.util.Date"/>
+	<field name="compteurOFImpression" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -78,7 +83,7 @@
 				<textElement verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{ordreFabrication}.getArticle().getDesignation()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{articleDesignationImpression}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="76" y="100" width="326" height="40" uuid="db0abc20-24fd-4575-be61-6b2c78153e2c">
@@ -110,19 +115,19 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Affaire:"+$F{ordreFabrication}.getProjet().getCode()]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Affaire:"+$F{affaireCodeImpression}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="290" y="200" width="108" height="20" uuid="f355d46c-437e-4d15-a824-7446e9bdcdc5"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{ordreFabrication}.getNumOF()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{numOFImpression}]]></textFieldExpression>
 			</textField>
 			<componentElement>
 				<reportElement x="302" y="0" width="100" height="30" uuid="0d1156b6-201a-4545-afb3-f079daecc68b"/>
 				<jr:Codabar xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
-					<jr:codeExpression><![CDATA[new SimpleDateFormat("ddMMyyyy").format($F{ordreFabrication}.getDate())+$F{ordreFabrication}.getCompteur()]]></jr:codeExpression>
+					<jr:codeExpression><![CDATA[new SimpleDateFormat("ddMMyyyy").format($F{dateOFImpression})+$F{compteurOFImpression}]]></jr:codeExpression>
 				</jr:Codabar>
 			</componentElement>
 			<image>

@@ -106,6 +106,22 @@ public class AffectationController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/SearchAll")
+    public ResponseEntity<List<AffectationUpdate>> SearchAllAffec(
+            @RequestParam("idUser") long idUser,
+            @RequestParam("idprojet") long idprojet,
+            @RequestParam("idemploye") long idemploye,
+            @RequestParam("idatelier") long idatelier,
+            @RequestParam("idarticle") long idarticle,
+            @RequestParam("dateDebut") String dateDebut,
+            @RequestParam("dateFin") String dateFin) throws ParseException {
+
+        List<AffectationUpdate> affectations = affectationImpService.affectationFiltred(
+                idUser, idprojet, idemploye, idarticle, idatelier, dateDebut, dateFin);
+
+        return ResponseEntity.ok(affectations);
+    }
+
     @PostMapping("/duplicate")
     public ResponseEntity<String> duplicateAffectations(@RequestBody DuplicationRequestDTO request) {
         try {

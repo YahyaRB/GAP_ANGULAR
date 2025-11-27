@@ -1,23 +1,24 @@
-import {AfterViewInit, Component, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
-import {Ilivraison} from "../../../services/Interfaces/ilivraison";  // Importation de l'interface Ilivraison
-import {TokenStorageService} from "../../../Auth/services/token-storage.service";  // Service de stockage du token
-import {FormBuilder, FormGroup} from "@angular/forms";  // Importation du service FormBuilder pour gérer les formulaires
-import {UtilisateurService} from "../../../services/utilisateur.service";  // Service utilisateur
-import {LivraisonService} from "../../../services/livraison.service";  // Service pour les livraisons
-import {RoleService} from "../../../services/role.service";  // Service de gestion des rôles
-import {NotificationService} from "../../../services/notification.service";  // Service de notifications
-import {ROLES, ROLES_ADMIN, ROLES_ADMIN_AGENTSAISIE} from "../../../Roles";  // Constante des rôles d'administration
-import {Iateliers} from "../../../services/Interfaces/iateliers";  // Interface pour les ateliers
-import {Iprojet} from "../../../services/Interfaces/iprojet";  // Interface pour les projets
-import {ChauffeurService} from "../../../services/chauffeur.service";  // Service pour les chauffeurs
-import {Ichauffeur} from "../../../services/Interfaces/ichauffeur";  // Interface pour les chauffeurs
-import {ProjetService} from "../../../services/projet.service";
-import {Iuser} from "../../../services/Interfaces/iuser";
-import {DetailLivraisonService} from "../../../services/detail-livraison.service";
-import {AtelierService} from "../../../services/atelier.service";  // Service pour les projets
+import { AfterViewInit, Component, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Ilivraison } from "../../../services/Interfaces/ilivraison";  // Importation de l'interface Ilivraison
+import { TokenStorageService } from "../../../Auth/services/token-storage.service";  // Service de stockage du token
+import { FormBuilder, FormGroup } from "@angular/forms";  // Importation du service FormBuilder pour gérer les formulaires
+import { UtilisateurService } from "../../../services/utilisateur.service";  // Service utilisateur
+import { LivraisonService } from "../../../services/livraison.service";  // Service pour les livraisons
+import { RoleService } from "../../../services/role.service";  // Service de gestion des rôles
+import { NotificationService } from "../../../services/notification.service";  // Service de notifications
+import { ROLES, ROLES_ADMIN, ROLES_ADMIN_AGENTSAISIE } from "../../../Roles";  // Constante des rôles d'administration
+import { Iateliers } from "../../../services/Interfaces/iateliers";  // Interface pour les ateliers
+import { Iprojet } from "../../../services/Interfaces/iprojet";  // Interface pour les projets
+import { ChauffeurService } from "../../../services/chauffeur.service";  // Service pour les chauffeurs
+import { Ichauffeur } from "../../../services/Interfaces/ichauffeur";  // Interface pour les chauffeurs
+import { ProjetService } from "../../../services/projet.service";
+import { Iuser } from "../../../services/Interfaces/iuser";
+import { DetailLivraisonService } from "../../../services/detail-livraison.service";
+import { AtelierService } from "../../../services/atelier.service";  // Service pour les projets
 declare var $: any;  // Déclaration de jQuery pour l'utilisation des plugins JS
 import * as XLSX from 'xlsx';
-import {IdetailLivraison} from "../../../services/Interfaces/idetail-livraison";
+import { IdetailLivraison } from "../../../services/Interfaces/idetail-livraison";
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-liste-livraisons',  // Définition du sélecteur pour ce composant
@@ -36,10 +37,10 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
   livraisons: Ilivraison[] = [];  // Liste des livraisons
   listeAteliers: Iateliers[] = [];  // Liste des ateliers
   listeaffaires: Iprojet[] = [];  // Liste des projets
-  listeAffairesByAtelier:Iprojet[]=[];
+  listeAffairesByAtelier: Iprojet[] = [];
   listeChauffeurs: Ichauffeur[] = [];  // Liste des chaffeurs
-  livraisonSelected:Ilivraison; // Livraison selectionné
-  ateliersUpdate:Iateliers[]; // Pour stocker l'atelier du livraison selectionné
+  livraisonSelected: Ilivraison; // Livraison selectionné
+  ateliersUpdate: Iateliers[]; // Pour stocker l'atelier du livraison selectionné
   idUser: number = 1; // Assurez-vous que l'ID de l'utilisateur est récupéré correctement
   idprojet: number = 0;  // Définir l'ID du projet
   idchauffeur: number = 0;  // Définir l'ID du chauffeur
@@ -48,24 +49,30 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
   dateFin: string = '';    // Date de fin pour la recherche
   myFormSearch: FormGroup;
 
+  // Propriétés pour le modal de progression
+  showExportModal: boolean = false;
+  exportProgress: number = 0;
+  exportCurrentStep: string = '';
+
 
   constructor(private tokenstorage: TokenStorageService,
-              private notifyService: NotificationService,
-              private formBuilder: FormBuilder,
-              private detailService:DetailLivraisonService,
-              private chauffeurService:ChauffeurService,
-              private projetService: ProjetService,
-              private livraisonservice: LivraisonService,
-              private roleService: RoleService,
+    private notifyService: NotificationService,
+    private formBuilder: FormBuilder,
+    private detailService: DetailLivraisonService,
+    private chauffeurService: ChauffeurService,
+    private projetService: ProjetService,
+    private livraisonservice: LivraisonService,
+    private roleService: RoleService,
+    private toastr: ToastrService
   ) {
     // Récupération d'id d'utilisateur connecté
-    this.idUser=this.tokenstorage.getUser().id
+    this.idUser = this.tokenstorage.getUser().id
     // Récupération des ateliers associés à l'utilisateur connecté depuis le service TokenStorage
     this.listeAteliers = this.tokenstorage.getUser().atelier;
     // Récupération des projets via le service ProjetService et stockage dans la variable listeaffaires
     this.projetService.getAll().subscribe(data => this.listeaffaires = data);
     this.chauffeurService.getAll().subscribe(data => this.listeChauffeurs = data);
-    this.projetService.getAffairesByAtelier(this.tokenstorage.getUser().id).subscribe(x=>this.listeAffairesByAtelier = x);
+    this.projetService.getAffairesByAtelier(this.tokenstorage.getUser().id).subscribe(x => this.listeAffairesByAtelier = x);
   }
 
   ngOnInit(): void {
@@ -142,7 +149,7 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
   }
   ClearSearch() {
 
-    this.livraisonservice.getAll( this.idUser).subscribe(
+    this.livraisonservice.getAll(this.idUser).subscribe(
       (data) => {
         this.POSTS = data;  // Stocke les livraisons retournées
         this.initmyForm();
@@ -156,9 +163,9 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
 
     this.livraisonservice.searchLivraisons(
       this.idUser,
-      this.myFormSearch.value.idprojet?? 0,
-      this.myFormSearch.value.idchauffeur?? 0,
-      this.myFormSearch.value.idatelier?? 0,
+      this.myFormSearch.value.idprojet ?? 0,
+      this.myFormSearch.value.idchauffeur ?? 0,
+      this.myFormSearch.value.idatelier ?? 0,
       this.myFormSearch.value.dateDebut,
       this.myFormSearch.value.dateFin
     ).subscribe(
@@ -188,10 +195,10 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
   protected readonly ROLES_ADMIN = ROLES_ADMIN;
 
   recupItem(livraison: Ilivraison) {
-    this.livraisonSelected=livraison;
-    this.listeaffaires=[];
-    this.listeaffaires.push(livraison.projet) ;
-    this.ateliersUpdate=[];
+    this.livraisonSelected = livraison;
+    this.listeaffaires = [];
+    this.listeaffaires.push(livraison.projet);
+    this.ateliersUpdate = [];
     this.ateliersUpdate.push(livraison.atelier);
 
 
@@ -216,6 +223,12 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
 
   async exportExcel(): Promise<void> {
     try {
+      // Afficher le modal de progression
+      this.showExportModal = true;
+      this.exportProgress = 0;
+      this.exportCurrentStep = 'fetching';
+
+      // Étape 1: Récupération des données (0-10%)
       // Commencer avec toutes les données des livraisons
       let filteredData = [...this.POSTS];
 
@@ -264,19 +277,26 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
       }
 
       if (filteredData.length === 0) {
-        alert('Aucune donnée correspondant aux filtres à exporter');
+        this.showExportModal = false;
+        this.toastr.warning('Aucune donnée correspondant aux filtres à exporter', 'Export Excel');
         return;
       }
 
-      // CHARGER LES DETAILS DE LIVRAISON POUR CHAQUE LIVRAISON
+      // Étape 2: Chargement des détails (10-60%)
+      this.exportProgress = 10;
+      this.exportCurrentStep = 'processing';
+
       console.log('Chargement des détails pour', filteredData.length, 'livraisons...');
 
       const livraisonsAvecDetails: any[] = [];
+      const totalLivraisons = filteredData.length;
+      let processedCount = 0;
+
+      // Utiliser Promise.all pour paralléliser les requêtes par lots pour ne pas surcharger le navigateur/serveur
+      // Ou traiter séquentiellement pour mettre à jour la barre de progression
 
       for (const livraison of filteredData) {
         try {
-          // Remplace 'livraisonService.getDetailsLivraison' par ton vrai service
-
           const details = await this.detailService.getListeDetailByLivraison(livraison.id).toPromise();
           livraisonsAvecDetails.push({
             ...livraison,
@@ -290,15 +310,25 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
             detailLivraison: []
           });
         }
+
+        // Mettre à jour la progression
+        processedCount++;
+        // La phase de traitement va de 10% à 60% (donc 50% de la barre totale)
+        const processingPercentage = Math.round((processedCount / totalLivraisons) * 50);
+        this.exportProgress = 10 + processingPercentage;
       }
+
+      // Étape 3: Génération du fichier Excel (60-80%)
+      this.exportCurrentStep = 'generating';
+      this.exportProgress = 60;
+
+      // Simuler un petit délai pour que l'utilisateur voie l'étape
+      await new Promise(resolve => setTimeout(resolve, 300));
 
       // Préparer les données pour l'export - PARCOURIR LES DETAILS DE LIVRAISON
       const exportData: any[] = [];
 
       livraisonsAvecDetails.forEach(livraison => {
-        console.log('Livraison :', livraison.id);
-        console.log('Detail livraison :', livraison.detailLivraison?.length || 0, 'détails');
-
         if (livraison.detailLivraison && livraison.detailLivraison.length > 0) {
           // Pour chaque détail de cette livraison, créer une ligne
           livraison.detailLivraison.forEach(detail => {
@@ -333,6 +363,8 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
           });
         }
       });
+
+      this.exportProgress = 80;
 
       // Créer le workbook et la worksheet
       const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
@@ -442,6 +474,12 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
 
       XLSX.utils.book_append_sheet(wb, summaryWs, 'Résumé');
 
+      // Étape 4: Enregistrement du fichier (80-100%)
+      this.exportCurrentStep = 'saving';
+      this.exportProgress = 90;
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Générer le nom du fichier
       const currentDate = new Date();
       const dateStr = currentDate.toISOString().split('T')[0];
@@ -451,15 +489,39 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
       // Télécharger le fichier
       XLSX.writeFile(wb, fileName);
 
-      console.log(`Export réussi: ${exportData.length} lignes exportées avec ${totalDetails} détails`);
+      this.exportProgress = 100;
+
+      // Fermer le modal et afficher le succès
+      setTimeout(() => {
+        this.showExportModal = false;
+        this.toastr.success(
+          `${exportData.length} lignes exportées avec succès`,
+          'Export Excel réussi',
+          {
+            timeOut: 5000,
+            progressBar: true,
+            closeButton: true
+          }
+        );
+        console.log(`Export réussi: ${exportData.length} lignes exportées avec ${totalDetails} détails`);
+      }, 500);
 
     } catch (error) {
+      this.showExportModal = false;
       console.error('Erreur lors de l\'export Excel:', error);
-      alert('Erreur lors de l\'export Excel. Veuillez réessayer.');
+      this.toastr.error(
+        'Une erreur est survenue lors de l\'export. Veuillez réessayer.',
+        'Erreur d\'export',
+        {
+          timeOut: 5000,
+          progressBar: true,
+          closeButton: true
+        }
+      );
     }
   }
 
-// Fonction utilitaire pour les statistiques par atelier depuis les détails
+  // Fonction utilitaire pour les statistiques par atelier depuis les détails
   private getAtelierStatisticsFromDetails(details: IdetailLivraison[]): { atelier: string, count: number }[] {
     const atelierCount = new Map<string, number>();
 
@@ -472,10 +534,10 @@ export class ListeLivraisonsComponent implements OnInit, OnChanges, AfterViewIni
       .map(([atelier, count]) => ({ atelier, count }))
       .sort((a, b) => b.count - a.count);
   }
-// Fonction utilitaire pour les statistiques par atelier
+  // Fonction utilitaire pour les statistiques par atelier
 
 
-// **MÉTHODES AUXILIAIRES pour reproduire le formatage SQL**
+  // **MÉTHODES AUXILIAIRES pour reproduire le formatage SQL**
 
   private formatOrdreFabrication(of: any): string {
     if (!of) return '';

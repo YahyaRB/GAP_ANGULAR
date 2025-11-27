@@ -1,0 +1,65 @@
+<div class="modal fade" [class.show]="isVisible" [style.display]="isVisible ? 'block' : 'none'" tabindex="-1"
+    role="dialog" aria-labelledby="exportProgressModal" [attr.aria-hidden]="!isVisible">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="exportProgressModal">
+                    <i class="fas fa-file-export text-primary me-2"></i>
+                    Export en cours...
+                </h5>
+            </div>
+            <div class="modal-body">
+                <!-- Progress Bar -->
+                <div class="progress mb-4" style="height: 25px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
+                        [style.width.%]="progress" [attr.aria-valuenow]="progress" aria-valuemin="0"
+                        aria-valuemax="100">
+                        {{ progress }}%
+                    </div>
+                </div>
+
+                <!-- Steps -->
+                <div class="export-steps">
+                    <div *ngFor="let step of steps; let i = index" class="step-item d-flex align-items-center mb-3"
+                        [class.completed]="isStepCompleted(step.id)" [class.active]="isStepActive(step.id)">
+
+                        <!-- Step Icon -->
+                        <div class="step-icon me-5">
+                            <div class="icon-circle" [class.bg-success]="isStepCompleted(step.id)"
+                                [class.bg-primary]="isStepActive(step.id)"
+                                [class.bg-secondary]="!isStepCompleted(step.id) && !isStepActive(step.id)">
+                                <i *ngIf="isStepCompleted(step.id)" class="fas fa-check text-white"></i>
+                                <i *ngIf="isStepActive(step.id)" class="fas fa-spinner fa-spin text-white"></i>
+                                <i *ngIf="!isStepCompleted(step.id) && !isStepActive(step.id)"
+                                    class="fas fa-{{ step.icon }} text-white"></i>
+                            </div>
+                        </div>
+
+                        <!-- Step Label -->
+                        <div class="step-label flex-grow-1">
+                            <span [class.text-success]="isStepCompleted(step.id)"
+                                [class.text-primary]="isStepActive(step.id)"
+                                [class.text-muted]="!isStepCompleted(step.id) && !isStepActive(step.id)">
+                                {{ step.label }}
+                            </span>
+                        </div>
+
+                        <!-- Checkmark for completed steps -->
+                        <div class="step-status ms-2" *ngIf="isStepCompleted(step.id)">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Step Description -->
+                <div class="alert alert-info mt-3 mb-0" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <small>Veuillez patienter pendant le traitement de vos données...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Backdrop -->
+<div class="modal-backdrop fade" [class.show]="isVisible" *ngIf="isVisible"></div>

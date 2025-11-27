@@ -120,7 +120,8 @@ public class DetailLivraisonImpService implements DetailLivraisonService {
                     }
 
                     OrdreFabrication of = ordreFabricationRepository.findById(ofId)
-                            .orElseThrow(() -> new EntityNotFoundException("Ordre de Fabrication introuvable: " + ofId));
+                            .orElseThrow(
+                                    () -> new EntityNotFoundException("Ordre de Fabrication introuvable: " + ofId));
 
                     // Logique OF_COMPLET...
                     double ofQteRest = of.getQteRest();
@@ -170,7 +171,8 @@ public class DetailLivraisonImpService implements DetailLivraisonService {
 
                     if (qte > nomQteRest) {
                         throw new IllegalArgumentException(
-                                "Quantité demandée (" + qte + ") > quantité restante nomenclature (" + nomQteRest + ").");
+                                "Quantité demandée (" + qte + ") > quantité restante nomenclature (" + nomQteRest
+                                        + ").");
                     }
 
                     // MAJ nomenclature
@@ -218,13 +220,16 @@ public class DetailLivraisonImpService implements DetailLivraisonService {
             Article article = ordreFabrication.getArticle();
 
             if (detaillivraison.getQuantite() - detaillivraisonSaisie.getQuantite() != 0) {
-                int qteArticlesLivre = (int) (article.getQuantiteLivre() + (detaillivraisonSaisie.getQuantite() - detaillivraison.getQuantite()));
+                int qteArticlesLivre = (int) (article.getQuantiteLivre()
+                        + (detaillivraisonSaisie.getQuantite() - detaillivraison.getQuantite()));
                 article.setQuantiteLivre(qteArticlesLivre);
 
-                int qteProd = (int) (article.getQuantiteProd() + (detaillivraisonSaisie.getQuantite() - detaillivraison.getQuantite()));
+                int qteProd = (int) (article.getQuantiteProd()
+                        + (detaillivraisonSaisie.getQuantite() - detaillivraison.getQuantite()));
                 article.setQuantiteProd(qteProd);
 
-                int qteEnProd = (int) (article.getQuantiteEnProd() - (detaillivraisonSaisie.getQuantite() - detaillivraison.getQuantite()));
+                int qteEnProd = (int) (article.getQuantiteEnProd()
+                        - (detaillivraisonSaisie.getQuantite() - detaillivraison.getQuantite()));
                 article.setQuantiteEnProd(qteEnProd);
 
                 articleService.editArticle(article, article.getId());
@@ -258,7 +263,8 @@ public class DetailLivraisonImpService implements DetailLivraisonService {
 
     @Override
     @Transactional
-    public void deleteDetailLivraison(Long id) throws OrdreFabricationNotFoundException, IOException, ArticleNotFoundException {
+    public void deleteDetailLivraison(Long id)
+            throws OrdreFabricationNotFoundException, IOException, ArticleNotFoundException {
         try {
             System.out.println("Attempting to delete DetailLivraison with ID: " + id);
 
@@ -335,7 +341,8 @@ public class DetailLivraisonImpService implements DetailLivraisonService {
     }
 
     @Override
-    public ResponseEntity<byte[]> impLivraison(Long id) throws JRException, IOException, OrdreFabricationNotFoundException {
+    public ResponseEntity<byte[]> impLivraison(Long id)
+            throws JRException, IOException, OrdreFabricationNotFoundException {
         // Récupérer l'alimentation via l'ID
         Livraisons liv = livraisonsRepository.findById(id)
                 .orElseThrow(() -> new OrdreFabricationNotFoundException("Livraison not found"));
@@ -371,18 +378,29 @@ public class DetailLivraisonImpService implements DetailLivraisonService {
                 .body(data);
     }
 
+    // Cache pour le rapport compilé
+    private static JasperReport cachedArticleOfReport;
+
     @Override
-    public ResponseEntity<byte[]> impArticle(Long id) throws JRException, FileNotFoundException, IOException, EmptyResultDataAccessException, OrdreFabricationNotFoundException {
+    public ResponseEntity<byte[]> impArticle(Long id) throws JRException, FileNotFoundException, IOException,
+            EmptyResultDataAccessException, OrdreFabricationNotFoundException {
         DetailLivraison detailLivraison = detailLivraisonRepository.findById(id).get();
 
-        Resource resource = new ClassPathResource("files/ArticleOf.jrxml");
+        // Utilisation du cache pour éviter de recompiler le rapport à chaque fois
+        if (cachedArticleOfReport == null) {
+            System.out.println("Compilation du rapport ArticleOf.jrxml (première fois)...");
+            Resource resource = new ClassPathResource("files/ArticleOf.jrxml");
+            try (InputStream inputStream = resource.getInputStream()) {
+                cachedArticleOfReport = JasperCompileManager.compileReport(inputStream);
+            }
+        }
 
-        JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(Collections.singleton(detailLivraison));
-        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(resource.getURL().getPath()));
+        JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(
+                Collections.singleton(detailLivraison));
 
         HashMap<String, Object> map = new HashMap<>();
 
-        JasperPrint report = JasperFillManager.fillReport(compileReport, map, beanCollectionDataSource);
+        JasperPrint report = JasperFillManager.fillReport(cachedArticleOfReport, map, beanCollectionDataSource);
 
         byte[] data = JasperExportManager.exportReportToPdf(report);
         HttpHeaders headers = new HttpHeaders();

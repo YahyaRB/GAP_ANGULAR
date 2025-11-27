@@ -124,4 +124,28 @@ export class AffectationService {
     });
   }
 
+  // Méthode pour récupérer toutes les affectations filtrées (sans pagination) pour l'export
+  searchAllAffectations(
+    idUser: number,
+    idemploye: number,
+    idprojet: number,
+    idarticle: number,
+    idatelier: number,
+    dateDebut: string,
+    dateFin: string
+  ): Observable<Iaffectation[]> {
+    // Création des paramètres HTTP
+    let params = new HttpParams()
+      .set('idUser', idUser)
+      .set('idprojet', idprojet)
+      .set('idemploye', idemploye)
+      .set('idarticle', idarticle)
+      .set('idatelier', idatelier)
+      .set('dateDebut', dateDebut)
+      .set('dateFin', dateFin);
+
+    // Envoi de la requête GET à l'API avec les paramètres (sans pagination)
+    return this.http.get<Iaffectation[]>(environment.apiUrl + AUTH_API + "/SearchAll", { params });
+  }
+
 }

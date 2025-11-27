@@ -28,7 +28,8 @@ public class NomenclatureController {
     private OrdreFabricationService ordreFabricationService;
 
     @PostMapping("/save/{ofId}")
-    public ResponseEntity<String> ajouterNomenclature(@RequestBody Map<String, Object> requestData, @PathVariable Long ofId) {
+    public ResponseEntity<?> ajouterNomenclature(@RequestBody Map<String, Object> requestData,
+            @PathVariable Long ofId) {
         try {
             System.out.println("=== AJOUT NOMENCLATURE ===");
             System.out.println("Données reçues: " + requestData);
@@ -48,13 +49,15 @@ public class NomenclatureController {
 
             System.out.println("Nomenclature à sauvegarder - quantiteTot: " + quantite);
 
-            nomenclatureService.save(nomenclature, ofId);
-            return new ResponseEntity<>("Nomenclature ajoutée avec succès", HttpStatus.CREATED);
+            Nomenclature savedNomenclature = nomenclatureService.save(nomenclature, ofId);
+            return new ResponseEntity<>(savedNomenclature, HttpStatus.CREATED);
 
         } catch (Exception e) {
             System.err.println("=== ERREUR AJOUT ===");
             e.printStackTrace();
-            return new ResponseEntity<>("Erreur lors de l'ajout: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Erreur lors de l'ajout: " + e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -62,7 +65,8 @@ public class NomenclatureController {
      * NOUVELLE MÉTHODE PUT pour mettre à jour une nomenclature
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateNomenclature(@PathVariable Long id, @RequestBody Map<String, Object> requestData) {
+    public ResponseEntity<Map<String, Object>> updateNomenclature(@PathVariable Long id,
+            @RequestBody Map<String, Object> requestData) {
         try {
             System.out.println("=== MISE À JOUR NOMENCLATURE ===");
             System.out.println("ID: " + id);
@@ -94,7 +98,8 @@ public class NomenclatureController {
             if (nouvelleQuantiteTotale < quantiteLivree) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
-                errorResponse.put("message", String.format("La quantité totale (%.2f) ne peut pas être inférieure à la quantité déjà livrée (%.2f)",
+                errorResponse.put("message", String.format(
+                        "La quantité totale (%.2f) ne peut pas être inférieure à la quantité déjà livrée (%.2f)",
                         nouvelleQuantiteTotale, quantiteLivree));
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
             }
@@ -108,7 +113,8 @@ public class NomenclatureController {
             // Recalculer la quantité restante
             existingNomenclature.setQuantiteRest(nouvelleQuantiteTotale - quantiteLivree);
 
-            // SOLUTION TEMPORAIRE : Définir manuellement les champs d'audit pour éviter la NullPointerException
+            // SOLUTION TEMPORAIRE : Définir manuellement les champs d'audit pour éviter la
+            // NullPointerException
             try {
                 existingNomenclature.setLastModifiedBy("system");
                 existingNomenclature.setLastModifiedDate(new java.util.Date());
@@ -166,7 +172,8 @@ public class NomenclatureController {
             return ResponseEntity.ok(nomenclatures);
 
         } catch (Exception e) {
-            System.err.println("Erreur lors de la récupération des nomenclatures pour OF " + ofId + ": " + e.getMessage());
+            System.err.println(
+                    "Erreur lors de la récupération des nomenclatures pour OF " + ofId + ": " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -244,39 +251,48 @@ public class NomenclatureController {
      * Met à jour une livraison pour une nomenclature
      */
     @PatchMapping("/{id}/livrer")
-    public ResponseEntity<String> livrerNomenclature(@PathVariable Long id, @RequestBody Map<String, Double> request) {
+    public ResponseEntity<?> livrerNomenclature(@PathVariable Long id, @RequestBody Map<String, Double> request) {
         try {
             Double quantiteLivre = request.get("quantiteLivre");
 
             // Valider les paramètres
             if (quantiteLivre == null || quantiteLivre <= 0) {
-                return new ResponseEntity<>("La quantité à livrer doit être positive", HttpStatus.BAD_REQUEST);
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "La quantité à livrer doit être positive");
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
             }
 
             // Vérifier que la nomenclature existe
             Optional<Nomenclature> nomenclatureOptional = nomenclatureService.findById(id);
             if (!nomenclatureOptional.isPresent()) {
-                return new ResponseEntity<>("Nomenclature non trouvée", HttpStatus.NOT_FOUND);
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "Nomenclature non trouvée");
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
             }
 
             Nomenclature nomenclature = nomenclatureOptional.get();
 
             // Vérifier qu'il y a assez de quantité disponible
             if (quantiteLivre > nomenclature.getQuantiteRest()) {
-                return new ResponseEntity<>(
-                        String.format("Quantité insuffisante. Disponible: %.2f, Demandée: %.2f",
-                                nomenclature.getQuantiteRest(), quantiteLivre),
-                        HttpStatus.BAD_REQUEST);
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", String.format("Quantité insuffisante. Disponible: %.2f, Demandée: %.2f",
+                        nomenclature.getQuantiteRest(), quantiteLivre));
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
             }
 
             // Mettre à jour les quantités
             nomenclatureService.updateQuantitiesAfterDelivery(id, quantiteLivre);
 
-            return new ResponseEntity<>("Livraison enregistrée avec succès", HttpStatus.OK);
+            // Récupérer la nomenclature mise à jour pour la renvoyer
+            Nomenclature updatedNomenclature = nomenclatureService.findById(id).get();
+
+            return new ResponseEntity<>(updatedNomenclature, HttpStatus.OK);
 
         } catch (Exception e) {
             System.err.println("Erreur lors de la livraison de la nomenclature " + id + ": " + e.getMessage());
-            return new ResponseEntity<>("Erreur lors de la livraison: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Erreur lors de la livraison: " + e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

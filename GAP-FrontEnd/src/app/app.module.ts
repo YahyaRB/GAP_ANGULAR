@@ -78,6 +78,8 @@ import { AddNomenclatureComponent } from './Components/Nomenclature/add-nomencla
 import { UpdateNomenclatureComponent } from './Components/Nomenclature/update-nomenclature/update-nomenclature.component';
 import { DeleteNomenclatureComponent } from './Components/Nomenclature/delete-nomenclature/delete-nomenclature.component';
 import { DashboardComponent } from './Components/dashboard/dashboard.component';
+import { ExportProgressModalComponent } from './Components/Affectations/export-progress-modal/export-progress-modal.component';
+
 
 
 
@@ -144,7 +146,8 @@ import { DashboardComponent } from './Components/dashboard/dashboard.component';
     AddNomenclatureComponent,
     UpdateNomenclatureComponent,
     DeleteNomenclatureComponent,
-    DashboardComponent
+    DashboardComponent,
+    ExportProgressModalComponent
   ],
   imports: [
     BrowserModule,

@@ -20,12 +20,15 @@
             <!-- Settings Button -->
             <div class="btn-group">
               <button type="button" class="btn btn-primary">Paramètres</button>
-              <button type="button" class="btn btn-primary bg-split-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+              <button type="button" class="btn btn-primary bg-split-primary dropdown-toggle dropdown-toggle-split"
+                data-toggle="dropdown">
                 <span class="sr-only">Toggle Dropdown</span>
               </button>
               <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left">
-                <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addModal">Ajouter une affectation</a>
-                <a type="button" class="dropdown-item" data-toggle="modal" data-target="#duplicateModal">Dupliquer des affectations</a>
+                <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addModal">Ajouter une
+                  affectation</a>
+                <a type="button" class="dropdown-item" data-toggle="modal" data-target="#duplicateModal">Dupliquer des
+                  affectations</a>
                 <a type="button" class="dropdown-item" (click)="exportExel()">Export Excel</a>
               </div>
             </div>
@@ -40,9 +43,11 @@
               <!-- Search Bar -->
               <div class="form-inline my-2 my-lg-0">
                 <div class="input-group">
-                  <input type="text" class="form-control" placeholder="Rechercher affaire..." [(ngModel)]="pfiltre" aria-label="Search">
+                  <input type="text" class="form-control" placeholder="Rechercher affaire..." [(ngModel)]="pfiltre"
+                    aria-label="Search">
                   <div class="input-group-append">
-                    <button class="btn btn-white" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <button class="btn btn-white" type="button" data-toggle="collapse" data-target="#collapseExample"
+                      aria-expanded="false" aria-controls="collapseExample">
                       <i class="lni lni-funnel"></i>
                     </button>
                   </div>
@@ -51,7 +56,8 @@
               <!-- Rows per Page Selector -->
               <div class="d-flex align-items-center">
                 Afficher&nbsp;
-                <select [(ngModel)]="tableSize" class="custom-select custom-select-sm form-control form-control-sm" style="width: 100px;" (change)="onTableSizeChange()">
+                <select [(ngModel)]="tableSize" class="custom-select custom-select-sm form-control form-control-sm"
+                  style="width: 100px;" (change)="onTableSizeChange()">
                   <option [value]="10">10</option>
                   <option [value]="20">20</option>
                   <option [value]="50">50</option>
@@ -104,7 +110,8 @@
                     </div>
                     <div class="col-sm-3">
                       <label for="dateDebut" class="col-form-label">Date de début</label>
-                      <input type="date" id="dateDebut" [max]="dateFin" class="form-control" formControlName="dateDebut">
+                      <input type="date" id="dateDebut" [max]="dateFin" class="form-control"
+                        formControlName="dateDebut">
                     </div>
                     <div class="col-sm-3">
                       <label for="dateFin" class="col-form-label">Date de fin</label>
@@ -135,99 +142,101 @@
               <cdk-virtual-scroll-viewport itemSize="50" class="table-viewport" [style.height.px]="500">
                 <table id="example2" class="table table-striped table-bordered responsive-table">
                   <thead class="table-light">
-                  <tr>
-                    <th class="col-numero">Numéro
-                      <button class="btn-tri-transparent" (click)="sortColumn('id')">
-                        <i class="lni lni-sort-amount-dsc"></i>
-                      </button>
-                    </th>
-                    <th class="col-affaire">Affaire
-                      <button class="btn-tri-transparent" (click)="sortColumn('projets.code')">
-                        <i class="lni lni-sort-amount-dsc"></i>
-                      </button>
-                    </th>
-                    <th class="col-atelier">Atelier
-                      <button class="btn-tri-transparent" (click)="sortColumn('ateliers.designation')">
-                        <i class="lni lni-sort-amount-dsc"></i>
-                      </button>
-                    </th>
-                    <th class="col-article">Article
-                      <button class="btn-tri-transparent" (click)="sortColumn('article.designation')">
-                        <i class="lni lni-sort-amount-dsc"></i>
-                      </button>
-                    </th>
-                    <th class="col-date">Date Affectation
-                      <button class="btn-tri-transparent" (click)="sortColumn('date')">
-                        <i class="lni lni-sort-amount-dsc"></i>
-                      </button>
-                    </th>
-                    <th class="col-periode">Période
-                      <button class="btn-tri-transparent" (click)="sortColumn('periode')">
-                        <i class="lni lni-sort-amount-dsc"></i>
-                      </button>
-                    </th>
-                    <th class="col-duree">Durée
-                      <button class="btn-tri-transparent" (click)="sortColumn('nombreHeures')">
-                        <i class="lni lni-sort-amount-dsc"></i>
-                      </button>
-                    </th>
-                    <th class="col-employe">Employés
-                      <button class="btn-tri-transparent" (click)="sortColumn('employee.nom')">
-                        <i class="lni lni-sort-amount-dsc"></i>
-                      </button>
-                    </th>
-                    <th class="col-actions text-center">Actions</th>
-                  </tr>
+                    <tr>
+                      <th class="col-numero">Numéro
+                        <button class="btn-tri-transparent" (click)="sortColumn('id')">
+                          <i class="lni lni-sort-amount-dsc"></i>
+                        </button>
+                      </th>
+                      <th class="col-affaire">Affaire
+                        <button class="btn-tri-transparent" (click)="sortColumn('projets.code')">
+                          <i class="lni lni-sort-amount-dsc"></i>
+                        </button>
+                      </th>
+                      <th class="col-atelier">Atelier
+                        <button class="btn-tri-transparent" (click)="sortColumn('ateliers.designation')">
+                          <i class="lni lni-sort-amount-dsc"></i>
+                        </button>
+                      </th>
+                      <th class="col-article">Article
+                        <button class="btn-tri-transparent" (click)="sortColumn('article.designation')">
+                          <i class="lni lni-sort-amount-dsc"></i>
+                        </button>
+                      </th>
+                      <th class="col-date">Date Affectation
+                        <button class="btn-tri-transparent" (click)="sortColumn('date')">
+                          <i class="lni lni-sort-amount-dsc"></i>
+                        </button>
+                      </th>
+                      <th class="col-periode">Période
+                        <button class="btn-tri-transparent" (click)="sortColumn('periode')">
+                          <i class="lni lni-sort-amount-dsc"></i>
+                        </button>
+                      </th>
+                      <th class="col-duree">Durée
+                        <button class="btn-tri-transparent" (click)="sortColumn('nombreHeures')">
+                          <i class="lni lni-sort-amount-dsc"></i>
+                        </button>
+                      </th>
+                      <th class="col-employe">Employés
+                        <button class="btn-tri-transparent" (click)="sortColumn('employee.nom')">
+                          <i class="lni lni-sort-amount-dsc"></i>
+                        </button>
+                      </th>
+                      <th class="col-actions text-center">Actions</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  <tr *cdkVirtualFor="let post of POSTS | search:pfiltre | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
-                    <td class="col-numero">{{ post?.id }}</td>
-                    <td class="col-affaire">
-                      <div class="affaire-cell">
-                      <div class="cell-content">
+                    <tr
+                      *cdkVirtualFor="let post of POSTS | search:pfiltre | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
+                      <td class="col-numero">{{ post?.id }}</td>
+                      <td class="col-affaire">
+                        <div class="affaire-cell">
+                          <div class="cell-content">
 
-                        <div class="affaire-code">{{ post?.projets?.code}}</div>
-                        <div class="affaire-designation">{{ post?.projets?.designation}}</div>
-                      </div>
-                      </div>
-                    </td>
+                            <div class="affaire-code">{{ post?.projets?.code}}</div>
+                            <div class="affaire-designation">{{ post?.projets?.designation}}</div>
+                          </div>
+                        </div>
+                      </td>
 
 
-                    <td class="col-atelier">
-                      <div class="cell-content">{{ post?.ateliers.designation }}</div>
-                    </td>
+                      <td class="col-atelier">
+                        <div class="cell-content">{{ post?.ateliers.designation }}</div>
+                      </td>
 
-                    <td class="col-article">
-                      <div class="article-cell">
-                        <div class="article-code">{{ post?.article?.numPrix }}</div>
-                        <div class="article-designation">{{ post?.article?.designation }}</div>
-                      </div>
-                    </td>
+                      <td class="col-article">
+                        <div class="article-cell">
+                          <div class="article-code">{{ post?.article?.numPrix }}</div>
+                          <div class="article-designation">{{ post?.article?.designation }}</div>
+                        </div>
+                      </td>
 
-                    <td class="col-date">{{ post?.date | date: 'dd/MM/yyyy' }}</td>
-                    <td class="col-periode">{{ post?.periode }}</td>
-                    <td class="col-duree">{{ post?.nombreHeures }}</td>
-                    <td class="col-employe">
-                      <div class="cell-content">{{ post?.employees.nom +' '+ post?.employees.prenom }}</div>
-                    </td>
-                    <td class="col-actions text-center">
-                      <div class="d-flex justify-content-center">
-                    <!--    <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Modifier une affectation"
+                      <td class="col-date">{{ post?.date | date: 'dd/MM/yyyy' }}</td>
+                      <td class="col-periode">{{ post?.periode }}</td>
+                      <td class="col-duree">{{ post?.nombreHeures }}</td>
+                      <td class="col-employe">
+                        <div class="cell-content">{{ post?.employees.nom +' '+ post?.employees.prenom }}</div>
+                      </td>
+                      <td class="col-actions text-center">
+                        <div class="d-flex justify-content-center">
+                          <!--    <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Modifier une affectation"
                            (click)="recupItem(post)" data-toggle="modal" data-target="#updateModal" class="action-btn">
                           <i class='bx bxs-edit icon-large'></i>
                         </a>-->
-                        <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Supprimer une affectation"
-                           (click)="recupItem(post)" data-toggle="modal" data-target="#deleteModal" class="action-btn">
-                          <i class='bx bxs-trash icon-large'></i>
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
+                          <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Supprimer une affectation"
+                            (click)="recupItem(post)" data-toggle="modal" data-target="#deleteModal" class="action-btn">
+                            <i class='bx bxs-trash icon-large'></i>
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </cdk-virtual-scroll-viewport>
               <div class="pagination justify-content-center">
-                <pagination-controls previousLabel="Précédent" nextLabel="Suivant" (pageChange)="onTableDataChange($event)"></pagination-controls>
+                <pagination-controls previousLabel="Précédent" nextLabel="Suivant"
+                  (pageChange)="onTableDataChange($event)"></pagination-controls>
               </div>
             </div>
           </div>
@@ -242,8 +251,7 @@
 
 <!-- Modals -->
 <div class="modal fade" id="addModal">
-  <app-add-affectation [ateliers]="listeAteliers"
-                       (refreshTable)="ngOnInit()"></app-add-affectation>
+  <app-add-affectation [ateliers]="listeAteliers" (refreshTable)="ngOnInit()"></app-add-affectation>
 </div>
 
 <!--<div class="modal fade" id="updateModal">
@@ -253,13 +261,14 @@
 </div>-->
 
 <div class="modal fade" id="deleteModal">
-  <app-delete-affectation [affectation]="affectationSelected"
-  (refreshTable)="ngOnInit()"></app-delete-affectation>
+  <app-delete-affectation [affectation]="affectationSelected" (refreshTable)="ngOnInit()"></app-delete-affectation>
 </div>
 <!-- Modal de duplication avec prévisualisation -->
 <div class="modal fade" id="duplicateModal">
-  <app-duplicate-affectation
-    [ateliers]="listeAteliers"
-    (refreshTable)="ngOnInit()">
+  <app-duplicate-affectation [ateliers]="listeAteliers" (refreshTable)="ngOnInit()">
   </app-duplicate-affectation>
 </div>
+
+<!-- Modal de progression d'export -->
+<app-export-progress-modal [isVisible]="showExportModal" [currentStep]="exportCurrentStep" [progress]="exportProgress">
+</app-export-progress-modal>

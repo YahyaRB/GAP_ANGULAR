@@ -20,11 +20,13 @@
             <!-- Settings Button -->
             <div class="btn-group">
               <button type="button" class="btn btn-primary">Paramètres</button>
-              <button type="button" class="btn btn-primary bg-split-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+              <button type="button" class="btn btn-primary bg-split-primary dropdown-toggle dropdown-toggle-split"
+                data-toggle="dropdown">
                 <span class="sr-only">Toggle Dropdown</span>
               </button>
               <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left">
-                <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addModal">Ajouter une livraison</a>
+                <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addModal">Ajouter une
+                  livraison</a>
                 <a type="button" class="dropdown-item" (click)="exportExcel()">Export Excel</a>
               </div>
             </div>
@@ -39,9 +41,11 @@
               <!-- Search Bar -->
               <div class="form-inline my-2 my-lg-0">
                 <div class="input-group">
-                  <input type="text" class="form-control" placeholder="Rechercher affaire..." [(ngModel)]="pfiltre" aria-label="Search">
+                  <input type="text" class="form-control" placeholder="Rechercher affaire..." [(ngModel)]="pfiltre"
+                    aria-label="Search">
                   <div class="input-group-append">
-                    <button class="btn btn-white" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <button class="btn btn-white" type="button" data-toggle="collapse" data-target="#collapseExample"
+                      aria-expanded="false" aria-controls="collapseExample">
                       <i class="lni lni-funnel"></i>
                     </button>
                   </div>
@@ -50,7 +54,8 @@
               <!-- Rows per Page Selector -->
               <div class="d-flex align-items-center">
                 Afficher&nbsp;
-                <select [(ngModel)]="tableSize" class="custom-select custom-select-sm form-control form-control-sm" style="width: 100px;" (change)="onTableSizeChange()">
+                <select [(ngModel)]="tableSize" class="custom-select custom-select-sm form-control form-control-sm"
+                  style="width: 100px;" (change)="onTableSizeChange()">
                   <option [value]="10">10</option>
                   <option [value]="20">20</option>
                   <option [value]="50">50</option>
@@ -68,7 +73,7 @@
                     <div class="col-sm-6">
                       <label class="col-form-label mt-1">Affaire</label>
                       <ng-select placeholder="Sélectionnez une affaire" formControlName="idprojet">
-                              <ng-option *ngFor="let affaire of listeAffairesByAtelier" [value]="affaire.id">
+                        <ng-option *ngFor="let affaire of listeAffairesByAtelier" [value]="affaire.id">
                           {{ affaire.code + ' - ' + affaire.designation }}
                         </ng-option>
                       </ng-select>
@@ -93,7 +98,8 @@
                   <div class="form-group row align-items-center">
                     <div class="col-sm-4">
                       <label for="dateDebut" class="col-form-label">Date de début</label>
-                      <input type="date" id="dateDebut" [max]="dateFin" class="form-control" formControlName="dateDebut">
+                      <input type="date" id="dateDebut" [max]="dateFin" class="form-control"
+                        formControlName="dateDebut">
                     </div>
                     <div class="col-sm-4">
                       <label for="dateFin" class="col-form-label">Date de fin</label>
@@ -101,8 +107,8 @@
                     </div>
                     <div class="col-sm-2 d-flex align-items-center" style="margin-top: 2.2rem;">
 
-                        <button type="button" (click)="ClearSearch()" class="btn btn-white "><i class="bx bx-refresh"></i>
-                        </button>&nbsp;
+                      <button type="button" (click)="ClearSearch()" class="btn btn-white "><i class="bx bx-refresh"></i>
+                      </button>&nbsp;
                       <button type="submit" class="btn btn-primary d-flex align-items-center">
                         <i class="bx bx-search mr-1"></i>Rechercher
                       </button>
@@ -120,98 +126,86 @@
             <div class="table-responsive">
               <table id="example2" class="table table-striped table-bordered responsive-table">
                 <thead class="table-light">
-                <tr>
-                  <th class="col-id">Id
-                    <button class="btn-tri-transparent" (click)="sortColumn('id')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-affaire">Affaire
-                    <button class="btn-tri-transparent" (click)="sortColumn('projet.designation')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-atelier">Atelier
-                    <button class="btn-tri-transparent" (click)="sortColumn('atelier.designation')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-chauffeur">Chauffeur
-                    <button class="btn-tri-transparent" (click)="sortColumn('chauffeur.nom')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-date-livraison">Date Livraison
-                    <button class="btn-tri-transparent" (click)="sortColumn('dateLivraison')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-actions text-center">Actions</th>
-                </tr>
+                  <tr>
+                    <th class="col-id">Id
+                      <button class="btn-tri-transparent" (click)="sortColumn('id')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-affaire">Affaire
+                      <button class="btn-tri-transparent" (click)="sortColumn('projet.designation')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-atelier">Atelier
+                      <button class="btn-tri-transparent" (click)="sortColumn('atelier.designation')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-chauffeur">Chauffeur
+                      <button class="btn-tri-transparent" (click)="sortColumn('chauffeur.nom')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-date-livraison">Date Livraison
+                      <button class="btn-tri-transparent" (click)="sortColumn('dateLivraison')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-actions text-center">Actions</th>
+                  </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let post of POSTS | search:pfiltre | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
-                  <td class="col-id">{{ post?.id }}</td>
+                  <tr
+                    *ngFor="let post of POSTS | search:pfiltre | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
+                    <td class="col-id">{{ post?.id }}</td>
 
-                  <td class="col-affaire">
-                    <div class="affaire-cell">
-                      <div class="affaire-code">{{ post?.projet?.code }}</div>
-                      <div class="affaire-designation">{{ post?.projet?.designation }}</div>
-                    </div>
-                  </td>
+                    <td class="col-affaire">
+                      <div class="affaire-cell">
+                        <div class="affaire-code">{{ post?.projet?.code }}</div>
+                        <div class="affaire-designation">{{ post?.projet?.designation }}</div>
+                      </div>
+                    </td>
 
 
 
-                  <td class="col-atelier">
-                    <div class="cell-content">{{ post?.atelier?.designation }}</div>
-                  </td>
+                    <td class="col-atelier">
+                      <div class="cell-content">{{ post?.atelier?.designation }}</div>
+                    </td>
 
-                  <td class="col-chauffeur">
-                    <div class="cell-content">{{ (post?.chauffeur?.nom || '') + ' ' + (post?.chauffeur?.prenom || '') }}</div>
-                  </td>
+                    <td class="col-chauffeur">
+                      <div class="cell-content">{{ (post?.chauffeur?.nom || '') + ' ' + (post?.chauffeur?.prenom || '')
+                        }}</div>
+                    </td>
 
-                  <td class="col-date-livraison">{{ post?.dateLivraison | date: 'dd/MM/yyyy' }}</td>
+                    <td class="col-date-livraison">{{ post?.dateLivraison | date: 'dd/MM/yyyy' }}</td>
 
-                  <td class="col-actions text-center">
-                    <div class="d-flex justify-content-center flex-wrap">
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)"
-                         title="Afficher détails livraison"
-                         (click)="recupItem(post)"
-                         data-toggle="modal"
-                         data-target="#detailModal"
-                         class="action-btn">
-                        <i class="bx bxs-layer icon-large"></i>
-                      </a>
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN)"
-                         title="Modifier une livraison"
-                         (click)="recupItem(post)"
-                         data-toggle="modal"
-                         data-target="#updateModal"
-                         class="action-btn">
-                        <i class='bx bxs-edit icon-large'></i>
-                      </a>
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN)"
-                         title="Supprimer une livraison"
-                         (click)="recupItem(post)"
-                         data-toggle="modal"
-                         data-target="#deleteModal"
-                         class="action-btn">
-                        <i class='bx bxs-trash icon-large'></i>
-                      </a>
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN) && post.chauffeur!=null"
-                         title="Imprimer BL"
-                         (click)="ImprimeLivraison(post)"
-
-                         class="action-btn">
-                        <i class='bx bxs-file-pdf icon-large'></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
+                    <td class="col-actions text-center">
+                      <div class="d-flex justify-content-center flex-wrap">
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Afficher détails livraison"
+                          (click)="recupItem(post)" data-toggle="modal" data-target="#detailModal" class="action-btn">
+                          <i class="bx bxs-layer icon-large"></i>
+                        </a>
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN)" title="Modifier une livraison" (click)="recupItem(post)"
+                          data-toggle="modal" data-target="#updateModal" class="action-btn">
+                          <i class='bx bxs-edit icon-large'></i>
+                        </a>
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN)" title="Supprimer une livraison" (click)="recupItem(post)"
+                          data-toggle="modal" data-target="#deleteModal" class="action-btn">
+                          <i class='bx bxs-trash icon-large'></i>
+                        </a>
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN) && post.chauffeur!=null" title="Imprimer BL"
+                          (click)="ImprimeLivraison(post)" class="action-btn">
+                          <i class='bx bxs-file-pdf icon-large'></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
               <div class="pagination justify-content-center">
-                <pagination-controls previousLabel="Précédent" nextLabel="Suivant" (pageChange)="onTableDataChange($event)"></pagination-controls>
+                <pagination-controls previousLabel="Précédent" nextLabel="Suivant"
+                  (pageChange)="onTableDataChange($event)"></pagination-controls>
               </div>
             </div>
           </div>
@@ -230,18 +224,17 @@
 </div>
 
 <div class="modal fade" id="updateModal">
-  <app-update-livraison [livraison]="livraisonSelected"
-                        (refreshTable)="ngOnInit()"
-                        [livraisons]="livraisons"
-                        [ateliers]="ateliersUpdate"
-                        [projets]="listeaffaires"></app-update-livraison>
+  <app-update-livraison [livraison]="livraisonSelected" (refreshTable)="ngOnInit()" [livraisons]="livraisons"
+    [ateliers]="ateliersUpdate" [projets]="listeaffaires"></app-update-livraison>
 </div>
 
 <div class="modal fade" id="deleteModal">
-  <app-delete-livraison [livraison]="livraisonSelected"
-                        (refreshTable)="ngOnInit()"></app-delete-livraison>
+  <app-delete-livraison [livraison]="livraisonSelected" (refreshTable)="ngOnInit()"></app-delete-livraison>
 </div>
 <div class="modal fade" id="detailModal">
-  <app-add-detail-livraison [livraison]="livraisonSelected"
-                            (refreshTable)="ngOnInit()"></app-add-detail-livraison>
+  <app-add-detail-livraison [livraison]="livraisonSelected" (refreshTable)="ngOnInit()"></app-add-detail-livraison>
 </div>
+
+<!-- Modal de progression d'export -->
+<app-export-progress-modal [isVisible]="showExportModal" [currentStep]="exportCurrentStep" [progress]="exportProgress">
+</app-export-progress-modal>

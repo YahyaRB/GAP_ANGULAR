@@ -18,16 +18,16 @@
           <div class="ml-auto">
 
             <div class="btn-group">
-              <div class="ml-auto">
-                <div class="btn-group">
-                  <button type="button" class="btn btn-primary">Paramètres</button>
-                  <button type="button" class="btn btn-primary bg-split-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">	<span class="sr-only">Toggle Dropdown</span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left">
-                    <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addModal">Ajouter un projet</a>
-                  </div>
-                </div>
-              </div>
+              <!--                  <div class="ml-auto">-->
+              <!--                    <div class="btn-group">-->
+              <!--                      <button type="button" class="btn btn-primary">Paramètres</button>-->
+              <!--                      <button type="button" class="btn btn-primary bg-split-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">	<span class="sr-only">Toggle Dropdown</span>-->
+              <!--                      </button>-->
+              <!--                      <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left">-->
+              <!--                        <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addModal">Ajouter un projet</a>-->
+              <!--                      </div>-->
+              <!--                    </div>-->
+              <!--                  </div>-->
             </div>
           </div>
         </div>
@@ -39,7 +39,8 @@
               <!-- Search Bar -->
               <div class="form-inline my-2 my-lg-0">
                 <div class="input-group w-20">
-                  <input type="text" class="form-control" placeholder="Rechercher affaire..." [(ngModel)]="pfiltre" aria-label="Search">
+                  <input type="text" class="form-control" placeholder="Rechercher affaire..." [(ngModel)]="pfiltre"
+                    aria-label="Search">
                   <div class="input-group-append">
                     <!-- Ajoutez un bouton ou un élément ici si nécessaire -->
                   </div>
@@ -49,7 +50,8 @@
               <!-- Rows per Page Selector -->
               <div class="d-flex align-items-center">
                 Afficher&nbsp;
-                <select [(ngModel)]="tableSize" class="custom-select custom-select-sm form-control form-control-sm" style="width: 100px;" (change)="onTableSizeChange()">
+                <select [(ngModel)]="tableSize" class="custom-select custom-select-sm form-control form-control-sm"
+                  style="width: 100px;" (change)="onTableSizeChange()">
                   <option [value]="10">10</option>
                   <option [value]="20">20</option>
                   <option [value]="50">50</option>
@@ -66,75 +68,74 @@
             <div class="table-responsive">
               <table id="example2" class="table table-striped table-bordered" style="width:100%">
                 <thead class="table-light">
-                <tr>
-                  <th>
-                    Id
-                    <button class="btn-tri-transparent" (click)="sortColumn('id')"><i class="lni lni-sort-amount-dsc"></i></button>
-                  </th>
-                  <th>
-                    Affaire
-                    <button class="btn-tri-transparent" (click)="sortColumn('affaireConcat')"><i class="lni lni-sort-amount-dsc"></i></button>
-                  </th>
-                  <th>
-                    Statut
-                    <button class="btn-tri-transparent" (click)="sortColumn('projet.status')"><i class="lni lni-sort-amount-dsc"></i></button>
-                  </th>
-                  <th class="text-center">Actions</th>
-                </tr>
+                  <tr>
+                    <th>
+                      Id
+                      <button class="btn-tri-transparent" (click)="sortColumn('id')"><i
+                          class="lni lni-sort-amount-dsc"></i></button>
+                    </th>
+                    <th>
+                      Affaire
+                      <button class="btn-tri-transparent" (click)="sortColumn('affaireConcat')"><i
+                          class="lni lni-sort-amount-dsc"></i></button>
+                    </th>
+                    <th>
+                      Statut
+                      <button class="btn-tri-transparent" (click)="sortColumn('projet.status')"><i
+                          class="lni lni-sort-amount-dsc"></i></button>
+                    </th>
+                    <!--<th class="text-center">Actions</th>-->
+                  </tr>
                 </thead>
 
                 <tbody>
-                <!--     <tr *ngFor="let post of POSTS  |  search: searchTerm | paginate:{
+                  <!--     <tr *ngFor="let post of POSTS  |  search: searchTerm | paginate:{
                           itemsPerPage: tableSize,
                           currentPage: page,
                           totalItems: count}; let i = index ">-->
-                <tr *ngFor="let post of POSTS  | search:pfiltre | paginate:{
+                  <tr *ngFor="let post of POSTS  | search:pfiltre | paginate:{
                      itemsPerPage: tableSize,
                      currentPage: page,
                      totalItems: count}; let i = index ">
-                  <td>{{ post?.id }}</td>
+                    <td>{{ post?.id }}</td>
 
-                  <td class="col-affaire">
-                    <div class="affaire-cell">
-                      <div class="affaire-code">{{ post?.code }}</div>
-                      <div class="affaire-designation">{{ post?.designation }}</div>
-                    </div>
-                  </td>
+                    <td class="col-affaire">
+                      <div class="affaire-cell">
+                        <div class="affaire-code">{{ post?.code }}</div>
+                        <div class="affaire-designation">{{ post?.designation }}</div>
+                      </div>
+                    </td>
 
-                  <td class="align-middle text-center">
-  <span
-    class="badge rounded-pill w-100 text-dark"
-    [ngClass]="{
+                    <td class="align-middle text-center">
+                      <span class="badge rounded-pill w-100 text-white" [ngClass]="{
       'bg-success': post?.status == 2,
       'bg-danger': post?.status == 1
     }">
-    {{ post?.status == 2 ? 'Actif' : 'Inactif' }}
-  </span>
-                  </td>
+                        {{ post?.status == 2 ? 'Actif' : 'Inactif' }}
+                      </span>
+                    </td>
 
 
 
 
-                  <td class="align-middle col-md-1">
-                    <div class="d-flex order-actions w-auto">
-                      <a *ngIf="hasRole(ROLES.ADMIN)" title="Modifier" (click)="recupAffaire(post)" data-toggle="modal" data-target="#updateModal">
-                        <i class='bx bxs-edit icon-large'></i>
-                      </a>
-                      <a *ngIf="hasRole(ROLES.ADMIN)" title="Supprimer" (click)="recupAffaire(post)" data-toggle="modal" data-target="#deleteModal">
-                        <i class='bx bxs-trash icon-large'></i>
-                      </a>
-                    </div>
-                  </td>
+                    <!--                  <td class="align-middle col-md-1">-->
+                    <!--                    <div class="d-flex order-actions w-auto">-->
+                    <!--                      <a *ngIf="hasRole(ROLES.ADMIN)" title="Modifier" (click)="recupAffaire(post)" data-toggle="modal" data-target="#updateModal">-->
+                    <!--                        <i class='bx bxs-edit icon-large'></i>-->
+                    <!--                      </a>-->
+                    <!--                      <a *ngIf="hasRole(ROLES.ADMIN)" title="Supprimer" (click)="recupAffaire(post)" data-toggle="modal" data-target="#deleteModal">-->
+                    <!--                        <i class='bx bxs-trash icon-large'></i>-->
+                    <!--                      </a>-->
+                    <!--                    </div>-->
+                    <!--                  </td>-->
 
-                </tr>
+                  </tr>
                 </tbody>
 
               </table>
               <br>
               <div class="pagination justify-content-center">
-                <pagination-controls
-                  previousLabel="Précedent"
-                  nextLabel="Suivant"
+                <pagination-controls previousLabel="Précedent" nextLabel="Suivant"
                   (pageChange)="onTableDataChange($event)">
                 </pagination-controls>
               </div>
@@ -149,25 +150,21 @@
   <div class="overlay toggle-btn-mobile"></div>
   <a href="javaScript:;" class="back-to-top"><i class='bx bxs-up-arrow-alt'></i></a>
 </div>
-<!------------------------Modal Ajout ----------------------------->
-<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-hidden="true">
-  <app-add-projet [projet]="affaireSelected"
-                  (refreshTable)="ngOnInit()"></app-add-projet>
-</div>
+<!--<!------------------------Modal Ajout ----------------------------->-->
+<!--<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-hidden="true">-->
+<!--  <app-add-projet [projet]="affaireSelected" (refreshTable)="ngOnInit()"></app-add-projet>-->
+<!--</div>-->
 
-<!------------------------Modal Update ----------------------------->
+<!--<!------------------------Modal Update ----------------------------->-->
 
-<div class="modal fade bd-Users-modal-sm" id="updateModal"
-     tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <app-update-projet [projet]="affaireSelected"
-                     (refreshTable)="ngOnInit()"></app-update-projet>
+<!--<div class="modal fade bd-Users-modal-sm" id="updateModal" tabindex="-1" aria-labelledby="exampleModalLabel"-->
+<!--  aria-hidden="true">-->
+<!--  <app-update-projet [projet]="affaireSelected" (refreshTable)="ngOnInit()"></app-update-projet>-->
 
-</div>
+<!--</div>-->
 
-<!-------------------------Modal Suppression-------------------------------->
-<div class="modal fade bd-Users-modal-sm" id="deleteModal"
-     tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <app-delete-projet [projet]="affaireSelected"
-                     (refreshTable)="ngOnInit()"></app-delete-projet>
-</div>
-
+<!--<!-------------------------Modal Suppression-------------------------------->-->
+<!--<div class="modal fade bd-Users-modal-sm" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel"-->
+<!--  aria-hidden="true">-->
+<!--  <app-delete-projet [projet]="affaireSelected" (refreshTable)="ngOnInit()"></app-delete-projet>-->
+<!--</div>-->
