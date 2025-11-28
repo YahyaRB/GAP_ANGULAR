@@ -50,6 +50,16 @@
                                         </button>
                                     </div>
                                 </div>
+                                <div class="btn-group ml-2" role="group" *ngIf="calculs.length > 0">
+                                    <button type="button" class="btn btn-outline-primary"
+                                        [class.active]="!showGlobalChart" (click)="showGlobalChart = false">
+                                        <i class="bx bx-table"></i> Tableau
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary"
+                                        [class.active]="showGlobalChart" (click)="toggleGlobalView()">
+                                        <i class="bx bx-bar-chart-alt-2"></i> Graphique
+                                    </button>
+                                </div>
                                 <button class="btn btn-success ml-2" (click)="exportGlobal()"
                                     *ngIf="calculs.length > 0">
                                     <i class="bx bx-export"></i> Exporter
@@ -72,7 +82,7 @@
                         <hr />
 
                         <!-- Data Table -->
-                        <div class="table-responsive">
+                        <div class="table-responsive" [style.display]="!showGlobalChart ? 'block' : 'none'">
                             <table class="table table-striped table-bordered responsive-table">
                                 <thead class="table-light">
                                     <tr>
@@ -114,6 +124,13 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Global Chart -->
+                        <div id="globalChart" #globalChartRef [style.display]="showGlobalChart ? 'block' : 'none'"
+                            style="min-height: 400px; width: 100%; border: 1px solid red;">
+                            <p class="text-center text-muted p-5">Chargement du graphique...</p>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -175,17 +192,41 @@
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- Toggle Buttons -->
                 <div class="mb-3" *ngIf="selectedCalcul">
-                    <h6 class="font-weight-bold text-primary">
-                        Projet: {{ selectedCalcul.projet?.code }} - {{ selectedCalcul.projet?.designation }}
-                    </h6>
-                    <p class="mb-0">
-                        <strong>Total Heures Projet:</strong> {{ selectedCalcul.heureTrav }} Heures
-                    </p>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="font-weight-bold text-primary">
+                                Projet: {{ selectedCalcul.projet?.code }} - {{ selectedCalcul.projet?.designation }}
+                            </h6>
+                            <p class="mb-0">
+                                <strong>Total Heures Projet:</strong> {{ selectedCalcul.heureTrav }} Heures
+                            </p>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                [class.active]="!showEmployeeChart" (click)="showEmployeeChart = false">
+                                <i class="bx bx-table"></i> Tableau
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                [class.active]="showEmployeeChart" (click)="toggleEmployeeView()">
+                                <i class="bx bx-pie-chart-alt-2"></i> Graphique
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-borderless">
-                        <thead>
+
+                <!-- Employee Chart Container -->
+                <div [style.display]="showEmployeeChart ? 'block' : 'none'" class="w-100">
+                    <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+                        <div id="employeeChart" #employeeChartRef style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <!-- Employee Table Container -->
+                <div class="table-responsive" [style.display]="!showEmployeeChart ? 'block' : 'none'">
+                    <table class="table table-borderless table-striped">
+                        <thead class="thead-light">
                             <tr class="text-muted border-bottom">
                                 <th>Matricule</th>
                                 <th>Nom et Prénom</th>
@@ -203,6 +244,7 @@
                         </tbody>
                     </table>
                 </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>

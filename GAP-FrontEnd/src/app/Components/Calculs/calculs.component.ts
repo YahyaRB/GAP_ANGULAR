@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { CalculService } from '../../services/calcul.service';
 import { AtelierService } from '../../services/atelier.service';
 import { TokenStorageService } from '../../Auth/services/token-storage.service';
+import ApexCharts from 'apexcharts';
 
 declare var $: any;
 
@@ -43,10 +44,20 @@ export class CalculsComponent implements OnInit {
     filteredCalculs: any[] = [];
     selectedCalcul: any = null;
 
+    // Chart properties
+    showGlobalChart: boolean = false;
+    showEmployeeChart: boolean = false;
+    globalChart: ApexCharts | null = null;
+    employeeChart: ApexCharts | null = null;
+
+    @ViewChild('globalChartRef') globalChartRef!: ElementRef;
+    @ViewChild('employeeChartRef') employeeChartRef!: ElementRef;
+
     constructor(
         private calculService: CalculService,
         private atelierService: AtelierService,
-        private tokenStorage: TokenStorageService
+        private tokenStorage: TokenStorageService,
+        private cd: ChangeDetectorRef
     ) {
         const currentYear = new Date().getFullYear();
         for (let i = currentYear; i >= currentYear - 5; i--) {
@@ -77,6 +88,8 @@ export class CalculsComponent implements OnInit {
                     this.calculs = data;
                     this.filteredCalculs = data;
                     document.getElementById('closeModalBtn')?.click();
+                    // Reset view to table
+                    this.showGlobalChart = false;
                 },
                 err => {
                     console.error(err);
@@ -100,7 +113,147 @@ export class CalculsComponent implements OnInit {
 
     openEmployeeModal(calcul: any) {
         this.selectedCalcul = calcul;
+        this.showEmployeeChart = false;
         $('#employeeModal').modal('show');
+    }
+
+    toggleGlobalView() {
+        this.showGlobalChart = !this.showGlobalChart;
+        if (this.showGlobalChart) {
+            this.cd.detectChanges(); // Force view update to create the element
+            setTimeout(() => this.renderGlobalChart(), 300);
+        }
+    }
+
+    toggleEmployeeView() {
+        this.showEmployeeChart = !this.showEmployeeChart;
+        if (this.showEmployeeChart) {
+            this.cd.detectChanges(); // Force view update to create the element
+            setTimeout(() => this.renderEmployeeChart(), 300);
+        }
+    }
+
+    renderGlobalChart() {
+        console.log('Rendering Global Chart. Data:', this.filteredCalculs);
+
+        if (this.globalChart) {
+            this.globalChart.destroy();
+            this.globalChart = null;
+        }
+
+        // Use setTimeout to ensure the *ngIf has applied the changes to the DOM
+        setTimeout(() => {
+            const element = document.getElementById("globalChart");
+
+            if (!element) {
+                console.error('Global Chart element not found via getElementById');
+                return;
+            }
+
+            // Clear the "Loading..." text
+            element.innerHTML = "";
+
+            this.createGlobalChart(element);
+        }, 300);
+    }
+
+    createGlobalChart(element: HTMLElement) {
+        try {
+            const options = {
+                series: [{
+                    name: 'Heures',
+                    data: this.filteredCalculs.map(c => c.heureTrav)
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    width: '100%',
+                    events: {
+                        mounted: (chart: any) => {
+                            console.log('Global Chart Mounted');
+                        }
+                    }
+                },
+                xaxis: {
+                    categories: this.filteredCalculs.map(c => c.projet?.code || c.projet?.designation),
+                }
+            };
+
+            this.globalChart = new ApexCharts(element, options);
+            this.globalChart.render().then(() => {
+                console.log('Global Chart Render Promise Resolved');
+                window.dispatchEvent(new Event('resize'));
+            }).catch((err: any) => {
+                console.error('Global Chart Render Error:', err);
+            });
+
+        } catch (error) {
+            console.error('Error creating global chart:', error);
+            alert('Erreur lors de la création du graphique: ' + error);
+        }
+    }
+
+    renderEmployeeChart() {
+        if (this.employeeChart) {
+            this.employeeChart.destroy();
+            this.employeeChart = null;
+        }
+
+        if (!this.selectedCalcul || !this.selectedCalcul.employesCalculs) return;
+
+        setTimeout(() => {
+            const element = document.getElementById("employeeChart");
+
+            if (!element) {
+                console.error('Employee Chart element not found via getElementById');
+                return;
+            }
+
+            element.innerHTML = "";
+            this.createEmployeeChart(element);
+        }, 300);
+    }
+
+    createEmployeeChart(element: HTMLElement) {
+        try {
+            const options = {
+                series: this.selectedCalcul.employesCalculs.map((e: any) => e.heures),
+                chart: {
+                    width: '100%', // Set width to 100% to fill the modal
+                    height: 500,   // Set a fixed height for better visibility
+                    type: 'pie',
+                },
+                labels: this.selectedCalcul.employesCalculs.map((e: any) => `${e.nom} ${e.prenom}`),
+                legend: {
+                    position: 'bottom' // Move legend to bottom to save horizontal space
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 300,
+                            height: 300
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }]
+            };
+
+            this.employeeChart = new ApexCharts(element, options);
+            this.employeeChart.render().then(() => {
+                console.log('Employee Chart Render Promise Resolved');
+                // Force resize to ensure it fits
+                window.dispatchEvent(new Event('resize'));
+            }).catch((err: any) => {
+                console.error('Employee Chart Render Error:', err);
+            });
+
+        } catch (error) {
+            console.error('Error creating employee chart:', error);
+            alert('Erreur lors de la création du graphique employé: ' + error);
+        }
     }
 
     exportGlobal() {

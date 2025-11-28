@@ -21,7 +21,7 @@
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
     "@ng-select/ng-select": "^11.2.0",
-    "apexcharts": "^4.0.0",
+    "apexcharts": "^3.41.0",
     "datatables.net": "^2.1.8",
     "datatables.net-bs4": "^2.1.8",
     "datatables.net-buttons": "^3.1.2",
