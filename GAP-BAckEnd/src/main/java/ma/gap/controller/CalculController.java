@@ -1,45 +1,69 @@
 package ma.gap.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-import lombok.AllArgsConstructor;
-import ma.gap.entity.Ateliers;
 import ma.gap.entity.CalculPerProjet;
-import ma.gap.service.AtelierImpService;
-import ma.gap.service.CalculImpService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import ma.gap.service.CalculService;
+import ma.gap.service.ExcelExportService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.text.ParseException;
 import java.util.List;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/")
-
-@AllArgsConstructor
+@RequestMapping("/api")
 public class CalculController {
 
-    private CalculImpService calculImpService;
+    @Autowired
+    private CalculService calculService;
 
-    private AtelierImpService atelierImpService;
-
-
-
+    @Autowired
+    private ExcelExportService excelExportService;
 
     @GetMapping("/Calcul/CalculerParProjet")
-    public String doCalculPerProject(@RequestParam(name = "idUser") long idUser,@RequestParam(name = "atelier") Long id, @RequestParam(name = "month") Integer month, @RequestParam(name = "year") Integer year,Model model) throws JsonProcessingException, ParseException {
-        Ateliers atelier = atelierImpService.getAtelierById(id);
-        List<CalculPerProjet> list = calculImpService.getAffectationPerProject(id,month,year);
-        if (list.isEmpty()){
-            model.addAttribute("Affectations",null);
-            model.addAttribute("donneesNull","Aucun Projet était affecter à cet atelier au cours du mois : "+month+" ( "+atelier.getDesignation()+" )");
-            model.addAttribute("Ateliers",atelierImpService.allAteliers(idUser));
-        }else
+    public ResponseEntity<List<CalculPerProjet>> doCalculPerProject(
+            @RequestParam(name = "idUser", required = false) Long idUser,
+            @RequestParam(name = "atelier") Long id,
+            @RequestParam(name = "month") Integer month,
+            @RequestParam(name = "year") Integer year) throws JsonProcessingException, ParseException {
 
-        model.addAttribute("Affectations",list);
-        model.addAttribute("Ateliers",atelierImpService.allAteliers(idUser));
+        List<CalculPerProjet> list = calculService.getAffectationPerProject(id, month, year);
+        return ResponseEntity.ok(list);
+    }
 
-        return "Calcul/ListCalcul";
+    @GetMapping("/Calcul/export/calculs")
+    public ResponseEntity<InputStreamResource> exportCalculs(
+            @RequestParam(name = "atelier") Long id,
+            @RequestParam(name = "month") Integer month,
+            @RequestParam(name = "year") Integer year) {
+
+        List<CalculPerProjet> list = calculService.getAffectationPerProject(id, month, year);
+        ByteArrayInputStream in = excelExportService.exportCalculsToExcel(list);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=calculs.xlsx");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
+    }
+
+    @PostMapping("/Calcul/export/details")
+    public ResponseEntity<InputStreamResource> exportDetails(@RequestBody CalculPerProjet calcul) {
+        ByteArrayInputStream in = excelExportService.exportEmployeeDetailsToExcel(calcul);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=details_employes.xlsx");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(in));
     }
 }

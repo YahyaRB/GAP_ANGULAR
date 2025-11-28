@@ -21,6 +21,7 @@ import { ListeArticlesComponent } from "./Components/Articles/liste-articles/lis
 import { ListeFonctionsComponent } from "./Components/Fonctions/liste-fonctions/liste-fonctions.component";
 import { ListeOFComponent } from "./Components/OrdreFabrication/liste-of/liste-of.component";
 import { DashboardComponent } from "./Components/dashboard/dashboard.component";
+import { CalculsComponent } from "./Components/Calculs/calculs.component";
 
 
 const routes: Routes = [
@@ -83,6 +84,10 @@ const routes: Routes = [
   {
     path: 'Fonctions', component: ListeFonctionsComponent,
     canActivate: [AuthGuard], data: { expectedRoles: [ROLES.ADMIN, ROLES.CONSULTEUR, ROLES.AGENTSAISIE, ROLES.RH] }
+  },
+  {
+    path: 'Calcul', component: CalculsComponent,
+    canActivate: [AuthGuard], data: { expectedRoles: [ROLES.ADMIN, ROLES.CONSULTEUR, ROLES.AGENTSAISIE] }
   },
 ];
 

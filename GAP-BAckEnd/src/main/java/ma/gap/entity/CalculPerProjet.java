@@ -11,7 +11,7 @@ public class CalculPerProjet {
     private Integer heureTrav;
     private float pourcHeur;
     private Integer totalHeur;
-    private List<Employee> employes;
+    private List<EmployeeCalcul> employesCalculs;
     private Integer empHeurTrav;
     private float pourcHeurEmp;
 
@@ -31,12 +31,12 @@ public class CalculPerProjet {
         this.empHeurTrav = empHeurTrav;
     }
 
-    public List<Employee> getEmployes() {
-        return employes;
+    public List<EmployeeCalcul> getEmployesCalculs() {
+        return employesCalculs;
     }
 
-    public void setEmployes(List<Employee> employes) {
-        this.employes = employes;
+    public void setEmployesCalculs(List<EmployeeCalcul> employesCalculs) {
+        this.employesCalculs = employesCalculs;
     }
 
     public Integer getTotalHeur() {
@@ -62,7 +62,6 @@ public class CalculPerProjet {
     public void setHeureTrav(Integer heureTrav) {
         this.heureTrav = heureTrav;
     }
-
 
     public Projet getProjet() {
         return projet;
