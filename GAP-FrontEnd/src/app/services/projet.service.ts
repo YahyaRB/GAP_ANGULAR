@@ -62,6 +62,9 @@ export class ProjetService {
   getAffairesByAtelier(userId: number): Observable<Iprojet[]> {
     return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + '/by-atelier/' + userId);
   }
+  getAffairesByAtelierDeliverable(atelierId: number): Observable<Iprojet[]> {
+    return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + '/by-atelier-deliverable/' + atelierId);
+  }
   findAffairesByAtelierAndQteArticle_Sup_QteOF(
     idatelier: number
 

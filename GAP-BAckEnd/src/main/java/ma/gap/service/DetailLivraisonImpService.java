@@ -181,10 +181,23 @@ public class DetailLivraisonImpService implements DetailLivraisonService {
 
                     nomenclatureRepository.save(nomenclature);
 
-                    // Définir SEULEMENT la nomenclature
+                    // Update parent OF based on nomenclature delivery
+                    updateOfFromNomenclature(nomenclature, qte);
+
+                    // Définir la nomenclature
                     dl.setNomenclature(nomenclature);
 
-                    System.out.println("DEBUG NOMENCLATURE - Nomenclature ID: " + nomenclature.getId() + ", OF: null");
+                    // Populate OF and Article for reference (as requested by user)
+                    OrdreFabrication parentOf = nomenclature.getOrdreFabrication();
+                    if (parentOf != null) {
+                        dl.setOrdreFabrication(parentOf);
+                        if (parentOf.getArticle() != null) {
+                            dl.setArticle(parentOf.getArticle());
+                        }
+                    }
+
+                    System.out.println("DEBUG NOMENCLATURE - Nomenclature ID: " + nomenclature.getId() + ", OF: "
+                            + (parentOf != null ? parentOf.getId() : "null"));
                     break;
                 }
 
@@ -254,6 +267,9 @@ public class DetailLivraisonImpService implements DetailLivraisonService {
                 nomenclature.setQuantiteLivre(nomenclature.getQuantiteLivre() + qteDiff);
 
                 nomenclatureRepository.save(nomenclature);
+
+                // Update parent OF based on nomenclature delivery change
+                updateOfFromNomenclature(nomenclature, qteDiff);
             }
         }
 
@@ -320,6 +336,9 @@ public class DetailLivraisonImpService implements DetailLivraisonService {
                     nomenclature.setQuantiteLivre(nomenclature.getQuantiteLivre() - detaillivraison.getQuantite());
 
                     nomenclatureRepository.save(nomenclature);
+
+                    // Revert parent OF based on nomenclature delivery deletion
+                    updateOfFromNomenclature(nomenclature, -detaillivraison.getQuantite());
                 }
             }
 
@@ -429,5 +448,45 @@ public class DetailLivraisonImpService implements DetailLivraisonService {
 
         // Sauvegarder le détail
         return detailLivraisonRepository.save(detaillivraison);
+    }
+
+    @Override
+    public void updateOfAndArticleFromNomenclature(Nomenclature nomenclature, float quantity) {
+        updateOfFromNomenclature(nomenclature, quantity);
+    }
+
+    private void updateOfFromNomenclature(Nomenclature nomenclature, float qteDelta) {
+        OrdreFabrication of = nomenclature.getOrdreFabrication();
+        if (of != null && of.getQuantite() > 0 && nomenclature.getQuantiteTot() > 0) {
+            double ratio = nomenclature.getQuantiteTot() / of.getQuantite();
+            double equivalentOfDelta = qteDelta / ratio;
+
+            // Update OF
+            of.setQteRest(of.getQteRest() - equivalentOfDelta);
+            of.setQteLivre(of.getQteLivre() + equivalentOfDelta);
+            int avancement = (int) Math.round((of.getQteLivre() / of.getQuantite()) * 100);
+            of.setAvancement(avancement);
+
+            // Update Article (similar to OF_COMPLET logic in saveDetailLivraison)
+            Article article = of.getArticle();
+            if (article != null) {
+                article.setQuantiteLivre((float) (article.getQuantiteLivre() + equivalentOfDelta));
+                article.setQuantiteProd((float) (article.getQuantiteProd() + equivalentOfDelta));
+                article.setQuantiteEnProd((float) (article.getQuantiteEnProd() - equivalentOfDelta));
+
+                try {
+                    articleService.editArticle(article, article.getId());
+                } catch (ArticleNotFoundException e) {
+                    // Log error but don't stop the process as OF update is primary here
+                    System.err.println("Error updating article from nomenclature delivery: " + e.getMessage());
+                }
+            }
+
+            try {
+                ordreFabricationService.updateOf(of, of.getId());
+            } catch (Exception e) {
+                System.err.println("Error updating OF from nomenclature delivery: " + e.getMessage());
+            }
+        }
     }
 }

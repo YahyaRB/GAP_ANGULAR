@@ -18,23 +18,33 @@ import java.util.stream.Collectors;
 
 public interface DetailLivraisonService {
 
-
     List<DetailLivraison> allDetailsLivraisons(Long id);
 
     public Optional<DetailLivraison> detailLivraisonById(Long id);
 
-    public DetailLivraison saveDetailLivraison(DetailLivraison detaillivraison,Long id) throws OrdreFabricationNotFoundException, IOException, ArticleNotFoundException;
+    public DetailLivraison saveDetailLivraison(DetailLivraison detaillivraison, Long id)
+            throws OrdreFabricationNotFoundException, IOException, ArticleNotFoundException;
 
-    public DetailLivraison editDetailLivraison(DetailLivraison detaillivraison) throws OrdreFabricationNotFoundException, IOException, ArticleNotFoundException;
+    void updateOfAndArticleFromNomenclature(Nomenclature nomenclature, float quantity);
 
-    public void deleteDetailLivraison(Long id) throws OrdreFabricationNotFoundException, IOException, ArticleNotFoundException;
+    public DetailLivraison editDetailLivraison(DetailLivraison detaillivraison)
+            throws OrdreFabricationNotFoundException, IOException, ArticleNotFoundException;
+
+    public void deleteDetailLivraison(Long id)
+            throws OrdreFabricationNotFoundException, IOException, ArticleNotFoundException;
 
     List<DetailLivraison> findAllBylivraison(Livraisons livraisons);
-    ResponseEntity<byte[]> impLivraison(Long id) throws JRException, FileNotFoundException, IOException, EmptyResultDataAccessException, OrdreFabricationNotFoundException;
-    ResponseEntity<byte[]> impArticle(Long id) throws JRException, FileNotFoundException, IOException, EmptyResultDataAccessException, OrdreFabricationNotFoundException;
+
+    ResponseEntity<byte[]> impLivraison(Long id) throws JRException, FileNotFoundException, IOException,
+            EmptyResultDataAccessException, OrdreFabricationNotFoundException;
+
+    ResponseEntity<byte[]> impArticle(Long id) throws JRException, FileNotFoundException, IOException,
+            EmptyResultDataAccessException, OrdreFabricationNotFoundException;
+
     List<OfProjectQteRestDto> getAvailableOFByProjet(Long projetId);
 
-     OfProjectQteRestDto mapToOfProjectQteRestDto(OrdreFabrication of);
-     DetailLivraison saveDetailLivraisonWithType(DetailLivraison detaillivraison, Long idLivraison);
+    OfProjectQteRestDto mapToOfProjectQteRestDto(OrdreFabrication of);
+
+    DetailLivraison saveDetailLivraisonWithType(DetailLivraison detaillivraison, Long idLivraison);
 
 }

@@ -38,5 +38,7 @@ public interface ProjetService {
     public Page<OrdreFabrication> ofProjetFiltred(Pageable pageable, User user, long idprojet, long idof, long atelier,
             String libelle, String avancement) throws ParseException;
 
+    public List<Projet> getAffairesByAtelierAndOfDeliverable(Long atelierId);
+
     public List<Projet> findAffairesByAtelierAndQteArticle_Sup_QteENPROD(long atelierId);
 }

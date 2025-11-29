@@ -220,7 +220,8 @@
 
 <!-- Modals -->
 <div class="modal fade" id="addModal">
-  <app-add-livraison [livraisons]="livraisons" [ateliers]="listeAteliers"></app-add-livraison>
+  <app-add-livraison [livraisons]="livraisons" [ateliers]="listeAteliers"
+    (refreshTable)="ngOnInit()"></app-add-livraison>
 </div>
 
 <div class="modal fade" id="updateModal">

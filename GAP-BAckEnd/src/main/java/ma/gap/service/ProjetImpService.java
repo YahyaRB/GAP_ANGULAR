@@ -101,6 +101,11 @@ public class ProjetImpService implements ProjetService {
     }
 
     @Override
+    public List<Projet> getAffairesByAtelierAndOfDeliverable(Long atelierId) {
+        return projetRepository.findAffairesByAtelierAndOfDeliverable(atelierId);
+    }
+
+    @Override
     public List<Projet> findAffairesByAtelierAndQteArticle_Sup_QteENPROD(long atelierId) {
         System.out.println("sdfdsfds");
         System.out.println(projetRepository.findAffairesByAtelierAndQteArticle_Sup_QteEnProd(atelierId));

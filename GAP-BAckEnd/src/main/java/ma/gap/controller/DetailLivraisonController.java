@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+
 @AllArgsConstructor
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -59,21 +60,19 @@ public class DetailLivraisonController {
         } catch (Exception e) {
             System.err.println("=== ERREUR DANS LE CONTRÔLEUR ===");
             e.printStackTrace();
-            return new ResponseEntity<>("Erreur lors de l'ajout du détail: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Erreur lors de l'ajout du détail: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @GetMapping("Livraison/ListeDetailByBL/{idLivraison}")
     // @PreAuthorize("hasAnyAuthority('admin','agentSaisie','consulteur')")
     public List<DetailLivraison> listeDetailsByBL(@PathVariable Long idLivraison) {
 
-
         Livraisons livraisons = livraisonService.livraisonById(idLivraison).get();
 
         return detailLivraisonService.findAllBylivraison(livraisons);
     }
-
 
     @PutMapping(value = "/Editer/{id}")
     public ResponseEntity<?> updateDetail(@PathVariable Long id, @Valid @RequestBody DetailLivraison detail) {
@@ -109,8 +108,9 @@ public class DetailLivraisonController {
     }
 
     @GetMapping("/ArticleOf/Imprimer/{id}")
-//@PreAuthorize("hasAnyAuthority('admin','agentSaisie')")
-    public ResponseEntity<byte[]> impressionArticle(Model model, @PathVariable("id") Long id) throws JRException, IOException, OrdreFabricationNotFoundException, ArticleNotFoundException {
+    // @PreAuthorize("hasAnyAuthority('admin','agentSaisie')")
+    public ResponseEntity<byte[]> impressionArticle(Model model, @PathVariable("id") Long id)
+            throws JRException, IOException, OrdreFabricationNotFoundException, ArticleNotFoundException {
 
         DetailLivraison dl = detailLivraisonService.detailLivraisonById(id).get();
         dl.setImprime(true);
@@ -132,7 +132,8 @@ public class DetailLivraisonController {
             Long projetId = livraison.getProjet().getId();
 
             // Récupérer toutes les nomenclatures disponibles pour ce projet
-            List<NomenclatureQteRestDto> nomenclatures = nomenclatureService.getNomenclaturesByProjetWithQuantities(projetId);
+            List<NomenclatureQteRestDto> nomenclatures = nomenclatureService
+                    .getNomenclaturesByProjetWithQuantities(projetId);
 
             return ResponseEntity.ok(nomenclatures);
 
@@ -192,7 +193,8 @@ public class DetailLivraisonController {
             if ("OF_COMPLET".equals(request.getType())) {
                 // Traitement pour OF complet
                 if (request.getOrdreFabricationId() == null) {
-                    return ResponseEntity.badRequest().body("L'ID de l'ordre de fabrication est requis pour un OF complet");
+                    return ResponseEntity.badRequest()
+                            .body("L'ID de l'ordre de fabrication est requis pour un OF complet");
                 }
 
                 OrdreFabrication of = ordreFabricationRepository.findById(request.getOrdreFabricationId())
@@ -225,17 +227,29 @@ public class DetailLivraisonController {
 
                 // Vérifier les quantités disponibles
                 if (request.getQuantite() > nomenclature.getQuantiteRest()) {
-                    return ResponseEntity.badRequest().body("Quantité demandée supérieure à la quantité restante de la nomenclature");
+                    return ResponseEntity.badRequest()
+                            .body("Quantité demandée supérieure à la quantité restante de la nomenclature");
                 }
 
                 detail.setNomenclature(nomenclature);
                 detail.setTypeDetail(TypeDetail.NOMENCLATURE);
+
+                // Populate OF and Article for reference
+                if (nomenclature.getOrdreFabrication() != null) {
+                    detail.setOrdreFabrication(nomenclature.getOrdreFabrication());
+                    if (nomenclature.getOrdreFabrication().getArticle() != null) {
+                        detail.setArticle(nomenclature.getOrdreFabrication().getArticle());
+                    }
+                }
 
                 // Sauvegarder le détail
                 DetailLivraison savedDetail = detailLivraisonService.saveDetailLivraisonWithType(detail, idLivraison);
 
                 // Mettre à jour les quantités de la nomenclature
                 nomenclatureService.updateQuantitiesAfterDelivery(request.getNomenclatureId(), request.getQuantite());
+
+                // Mettre à jour les quantités de l'OF et de l'Article
+                detailLivraisonService.updateOfAndArticleFromNomenclature(nomenclature, request.getQuantite());
 
             } else {
                 return ResponseEntity.badRequest().body("Type de détail non reconnu: " + request.getType());

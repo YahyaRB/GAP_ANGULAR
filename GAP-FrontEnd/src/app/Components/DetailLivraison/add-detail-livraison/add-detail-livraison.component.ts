@@ -1,24 +1,24 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
-import {Ilivraison} from "../../../services/Interfaces/ilivraison";
-import {LivraisonService} from "../../../services/livraison.service";
-import {ListeLivraisonsComponent} from "../../Livraison/liste-livraisons/liste-livraisons.component";
-import {NotificationService} from "../../../services/notification.service";
-import {RoleService} from "../../../services/role.service";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {Iateliers} from "../../../services/Interfaces/iateliers";
-import {Iprojet} from "../../../services/Interfaces/iprojet";
-import {ProjetService} from "../../../services/projet.service";
-import {IordreFabrication} from "../../../services/Interfaces/iordre-fabrication";
-import {DetailLivraisonService} from "../../../services/detail-livraison.service";
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Ilivraison } from "../../../services/Interfaces/ilivraison";
+import { LivraisonService } from "../../../services/livraison.service";
+import { ListeLivraisonsComponent } from "../../Livraison/liste-livraisons/liste-livraisons.component";
+import { NotificationService } from "../../../services/notification.service";
+import { RoleService } from "../../../services/role.service";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { Iateliers } from "../../../services/Interfaces/iateliers";
+import { Iprojet } from "../../../services/Interfaces/iprojet";
+import { ProjetService } from "../../../services/projet.service";
+import { IordreFabrication } from "../../../services/Interfaces/iordre-fabrication";
+import { DetailLivraisonService } from "../../../services/detail-livraison.service";
 
-import {ActivatedRoute} from "@angular/router";
-import {OfProjectQteRest} from "../../../services/Interfaces/of-project-qte-rest";
-import {OfService} from "../../../services/of.service";
-import {ROLES_ADMIN, ROLES_ADMIN_AGENTSAISIE} from "../../../Roles";
+import { ActivatedRoute } from "@angular/router";
+import { OfProjectQteRest } from "../../../services/Interfaces/of-project-qte-rest";
+import { OfService } from "../../../services/of.service";
+import { ROLES_ADMIN, ROLES_ADMIN_AGENTSAISIE } from "../../../Roles";
 import { switchMap } from 'rxjs/operators';
-import {INomenclature} from "../../../services/Interfaces/inomenclature";
-import {DetailLivraisonRequest} from "../../../services/Interfaces/detail-livraison-request";
-import {IdetailLivraison} from "../../../services/Interfaces/idetail-livraison";
+import { INomenclature } from "../../../services/Interfaces/inomenclature";
+import { DetailLivraisonRequest } from "../../../services/Interfaces/detail-livraison-request";
+import { IdetailLivraison } from "../../../services/Interfaces/idetail-livraison";
 
 @Component({
   selector: 'app-add-detail-livraison',
@@ -56,12 +56,12 @@ export class AddDetailLivraisonComponent implements OnInit, OnChanges {
     private detailLivraisonService: DetailLivraisonService,
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
-    private livraisonService:LivraisonService,
+    private livraisonService: LivraisonService,
     private notificationService: NotificationService
   ) { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(this.livraison){
+    if (this.livraison) {
       this.loadDetailLivraison();
     }
   }
@@ -70,7 +70,7 @@ export class AddDetailLivraisonComponent implements OnInit, OnChanges {
     this.initmyForm();
   }
 
-  onMaterialGroupChange(event) {}
+  onMaterialGroupChange(event) { }
 
   private initmyForm() {
     this.myFormAdd = this.formBuilder.group({
@@ -107,7 +107,8 @@ export class AddDetailLivraisonComponent implements OnInit, OnChanges {
           this.nomenclatures = [];
         }
       });
-    }}
+    }
+  }
 
   loadDetailLivraison(): void {
     if (this.livraison.id) {
@@ -391,11 +392,27 @@ export class AddDetailLivraisonComponent implements OnInit, OnChanges {
         this.notificationService.showSuccess(data, "Ajout Livraison");
         this.initmyForm();
         this.loadDetailLivraison();
+
+        // Rafraîchir les nomenclatures si un OF est sélectionné
+        if (this.typeDetail === 'NOMENCLATURE' && this.selectedOF) {
+          this.refreshNomenclatures(this.selectedOF.id);
+        }
       },
       error: (error) => {
         console.error("Erreur lors de l'ajout :", error);
         this.notificationService.showError(error.error || "Échec de l'ajout", "Erreur");
       },
+    });
+  }
+
+  refreshNomenclatures(ofId: number) {
+    this.detailLivraisonService.getNomenclaturesByOF(ofId).subscribe({
+      next: (data) => {
+        this.nomenclatures = data;
+      },
+      error: (err) => {
+        console.error('Erreur lors du rafraîchissement des nomenclatures:', err);
+      }
     });
   }
 

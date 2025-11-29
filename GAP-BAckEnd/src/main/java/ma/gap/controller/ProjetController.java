@@ -137,6 +137,16 @@ public class ProjetController {
         }
     }
 
+    @GetMapping("/by-atelier-deliverable/{atelierId}")
+    public ResponseEntity<?> getAffairesByAtelierDeliverable(@PathVariable Long atelierId) {
+        try {
+            return ResponseEntity.ok(projetService.getAffairesByAtelierAndOfDeliverable(atelierId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la récupération des projets.");
+        }
+    }
+
     @GetMapping(value = "/Projets/Search")
     public List<Projet> getProjectFiltred(@RequestParam("code") String code, @RequestParam("affaire") String affaire,
             @RequestParam("atelier") String atelier, @RequestParam("article") String article) {
