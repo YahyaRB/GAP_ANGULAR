@@ -1,38 +1,39 @@
-import {Component, OnChanges, OnInit, ViewChild} from '@angular/core';
-import {Iprojet} from "../../../services/Interfaces/iprojet";
-import {TokenStorageService} from "../../../Auth/services/token-storage.service";
-import {ProjetService} from "../../../services/projet.service";
-import {RoleService} from "../../../services/role.service";
-import {Iaffaire} from "../../../services/Interfaces/iaffaire";
-import {ROLES, ROLES_ADMIN} from "../../../Roles";
+import { Component, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { Iprojet } from "../../../services/Interfaces/iprojet";
+import { TokenStorageService } from "../../../Auth/services/token-storage.service";
+import { ProjetService } from "../../../services/projet.service";
+import { RoleService } from "../../../services/role.service";
+import { Iaffaire } from "../../../services/Interfaces/iaffaire";
+import { ROLES, ROLES_ADMIN } from "../../../Roles";
 
 @Component({
   selector: 'app-liste-projets',
   templateUrl: './liste-projets.component.html',
   styleUrls: ['./liste-projets.component.css']
 })
-export class ListeProjetsComponent implements OnInit,OnChanges{
+export class ListeProjetsComponent implements OnInit, OnChanges {
   @ViewChild(ListeProjetsComponent) ListeUtilisateurs: ListeProjetsComponent;
-  POSTS:Iprojet[];
+  POSTS: Iprojet[];
   page: number = 1;
   count: number = 0;
   tableSize: number = 10;
   pfiltre: any;
   affaireSelected: any;
-  affairesActives:Iprojet[]=[];
+  affairesActives: Iprojet[] = [];
   sortDirection: { [key: string]: boolean } = {};
   constructor(private tokenstorage: TokenStorageService,
-              private affaireService: ProjetService,
-              private roleService: RoleService) {}
+    private affaireService: ProjetService,
+    private roleService: RoleService) { }
   postList(): void {
-    this.affaireService.getAll().subscribe(data=>{
-
-      this.POSTS=data;
-    })
+    this.affaireService.getAll().subscribe(data => {
+      this.POSTS = data;
+      this.count = data.length; // Optional, but good for info
+    });
   }
-  getAffairesActives(){
-    this.affaireService.affairesByStatut("Actif").subscribe(data=>
-      this.affairesActives=data
+
+  getAffairesActives() {
+    this.affaireService.affairesByStatut("Actif").subscribe(data =>
+      this.affairesActives = data
     );
   }
 
@@ -46,20 +47,20 @@ export class ListeProjetsComponent implements OnInit,OnChanges{
   }
 
   recupAffaire(affaire: Iprojet) {
-    this.affaireSelected=affaire;
+    this.affaireSelected = affaire;
   }
   onTableDataChange(event: any) {
     this.page = event;
-    this.postList();
-
   }
 
 
-  hasRoleGroup(rolesToCheck:string[]):boolean {
+
+
+  hasRoleGroup(rolesToCheck: string[]): boolean {
     return this.roleService.hasRoleGroup(rolesToCheck);
   }
 
-  hasRole(roleToCheck: string):boolean {
+  hasRole(roleToCheck: string): boolean {
     return this.roleService.hasRole(roleToCheck);
   }
 

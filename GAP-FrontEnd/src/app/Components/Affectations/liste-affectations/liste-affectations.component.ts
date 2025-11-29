@@ -116,6 +116,7 @@ export class ListeAffectationsComponent implements OnInit, OnChanges {
   // Méthode appelée lors du changement de taille de la table
   onTableSizeChange(): void {
     this.page = 1;  // Réinitialiser à la première page lors du changement de taille de la table
+    this.searchAffectation();
   }
   sortColumn(column: string) {
     this.sortService.sortColumn(this.POSTS, column);

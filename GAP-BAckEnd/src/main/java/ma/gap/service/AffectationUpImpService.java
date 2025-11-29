@@ -76,6 +76,36 @@ public class AffectationUpImpService implements AffectationUpService {
     }
 
     @Override
+    public Page<AffectationUpdate> allAffectation(long idUser, Pageable pageable) {
+        try {
+            User user = userImpService.findbyusername(idUser);
+            if (user == null) {
+                logger.warn("Utilisateur non trouvé avec l'ID : {}", idUser);
+                return Page.empty();
+            }
+
+            List<Role> roles = user.getRoles();
+
+            for (Role role : roles) {
+                if ("agentSaisie".equals(role.getName())) {
+                    List<Ateliers> ateliers = user.getAteliers();
+                    if (ateliers == null || ateliers.isEmpty()) {
+                        return Page.empty();
+                    }
+                    return affectationRepository.findAllByAteliersIn(ateliers, pageable);
+                } else {
+                    return affectationRepository.findAll(pageable);
+                }
+            }
+            return Page.empty();
+        } catch (Exception e) {
+            logger.error("Erreur lors de la récupération des affectations paginées pour l'utilisateur {}: {}", idUser,
+                    e.getMessage());
+            return Page.empty();
+        }
+    }
+
+    @Override
     public String saveAffectation(AffectationUpdate affectation) {
         try {
             validateAffectation(affectation);

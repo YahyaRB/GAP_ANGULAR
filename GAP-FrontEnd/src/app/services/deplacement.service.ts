@@ -140,8 +140,13 @@ export class DeplacementService {
 
   // *** TOUTES LES AUTRES MÉTHODES AVEC AUTHENTIFICATION ***
 
-  getAll(idUser: number): Observable<Ideplacement[]> {
-    return this.http.get<Ideplacement[]>(`${environment.apiUrl}${AUTH_API}/getAll/${idUser}`, {
+  getAll(idUser: number, page: number = 0, size: number = 10): Observable<any> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    return this.http.get<any>(`${environment.apiUrl}${AUTH_API}/getAll/${idUser}`, {
+      params,
       headers: this.getAuthHeaders()  // ← AJOUT AUTH
     }).pipe(catchError(this.handleError));
   }
@@ -180,8 +185,10 @@ export class DeplacementService {
     idatelier: number,
     motif: string,
     dateDebut: string,
-    dateFin: string
-  ): Observable<Ideplacement[]> {
+    dateFin: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<any> {
     let params = new HttpParams()
       .set('idUser', idUser)
       .set('idemploye', idemploye)
@@ -189,9 +196,11 @@ export class DeplacementService {
       .set('idatelier', idatelier)
       .set('motif', motif)
       .set('dateDebut', dateDebut)
-      .set('dateFin', dateFin);
+      .set('dateFin', dateFin)
+      .set('page', page.toString())
+      .set('size', size.toString());
 
-    return this.http.get<Ideplacement[]>(`${environment.apiUrl}${AUTH_API}/search`, {
+    return this.http.get<any>(`${environment.apiUrl}${AUTH_API}/search`, {
       params,
       headers: this.getAuthHeaders()  // ← AJOUT AUTH
     }).pipe(catchError(this.handleError));

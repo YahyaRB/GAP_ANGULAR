@@ -176,7 +176,7 @@
                 </thead>
                 <tbody>
                   <tr
-                    *ngFor="let post of POSTS | search:pfiltre | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
+                    *ngFor="let post of POSTS | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
                     <td class="col-numero">{{ post?.id }}</td>
 
                     <td class="col-employe" *ngIf="post.employee.length>0">
@@ -212,7 +212,7 @@
                         <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)"
                           title="Télécharger l'ordre de mission (PDF pour chaque employé)"
                           (click)="downloadOrdreMission(post)" class="action-btn">
-                          <i class="bx bxs-file-pdf icon-large text-danger"></i>
+                          <i class="bx bxs-file-pdf icon-large"></i>
                         </a>
                         <!-- Bouton Modifier -->
                         <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Modifier le déplacement"

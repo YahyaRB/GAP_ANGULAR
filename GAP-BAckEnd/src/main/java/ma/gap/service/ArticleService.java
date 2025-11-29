@@ -13,7 +13,9 @@ public interface ArticleService {
 
 	// --------------------- GESTION DES ARTICLES ---------------------
 	public List<Article> findAll(Sort id);
+
 	public Optional<Article> findById(long i);
+
 	public List<Article> allArticleByProject(long idUser, long projet);
 
 	public List<Article> allArticleByAtelierAndProjet(long atelier, long projet);
@@ -23,12 +25,26 @@ public interface ArticleService {
 	public Article editArticle(Article article, long id) throws ArticleNotFoundException;
 
 	public boolean deleteArticle(long id);
+
 	public List<Article> allArticleByAtelier(long atelier);
-	public List<Article> allArticleByProjectAndAtelier(long idUser,long projet,long atelier) throws ProjetNotFoundException;
-	//public List<Article> allArticleByProjectAndAtelier(long idUser, long projet, long atelier) throws ProjetNotFoundException;
 
-    List<Article> searchArticle(long idUser, String numPrix,String designation, long idProjet, long idAtelier, long idArticle) throws ParseException;
+	public List<Article> allArticleByProjectAndAtelier(long idUser, long projet, long atelier)
+			throws ProjetNotFoundException;
+	// public List<Article> allArticleByProjectAndAtelier(long idUser, long projet,
+	// long atelier) throws ProjetNotFoundException;
 
-	public List<Article> findArticles_QteSup_QteOF(long projetId,long atelierId);
+	List<Article> searchArticle(long idUser, String numPrix, String designation, long idProjet, long idAtelier,
+			long idArticle) throws ParseException;
+
+	public List<Article> findArticles_QteSup_QteOF(long projetId, long atelierId);
+
+	public org.springframework.data.domain.Page<Article> findAll(org.springframework.data.domain.Pageable pageable);
+
+	public org.springframework.data.domain.Page<Article> allArticleByAtelier(long atelier,
+			org.springframework.data.domain.Pageable pageable);
+
+	public org.springframework.data.domain.Page<Article> searchArticlePaginated(long idUser, String numPrix,
+			String designation, long idProjet, long idAtelier, long idArticle,
+			org.springframework.data.domain.Pageable pageable) throws ParseException;
 
 }

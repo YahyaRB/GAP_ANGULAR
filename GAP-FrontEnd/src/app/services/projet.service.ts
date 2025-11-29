@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import {environment} from "../../environments/environment";
-import {Iprojet} from "./Interfaces/iprojet";
-import {Observable} from "rxjs";
-import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
-import {Iarticle} from "./Interfaces/iarticle";
+import { environment } from "../../environments/environment";
+import { Iprojet } from "./Interfaces/iprojet";
+import { Observable } from "rxjs";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { Iarticle } from "./Interfaces/iarticle";
 const AUTH_API = 'api/project';
 
 const httpOptions = {
@@ -14,48 +14,56 @@ const httpOptions = {
 })
 export class ProjetService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(): Observable<Iprojet[]> {
     return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + '/getAll');
   }
-  getAllByStaut(status:number): Observable<Iprojet[]> {
-    return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + '/getAllByStatus/'+status);
+
+  searchProjets(keyword: string, page: number, size: number): Observable<any> {
+    let params = new HttpParams()
+      .set('keyword', keyword)
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<any>(environment.apiUrl + AUTH_API + '/searchPaginated', { params });
   }
-  getAffaireById(id:number):Observable<Iprojet>{
-    return this.http.get<Iprojet>(environment.apiUrl + AUTH_API + '/searchById/'+id);
+  getAllByStaut(status: number): Observable<Iprojet[]> {
+    return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + '/getAllByStatus/' + status);
   }
-  getAffairesByUser(id:number):Observable<Iprojet[]>{
-    return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + '/affaireByUser/'+id);
+  getAffaireById(id: number): Observable<Iprojet> {
+    return this.http.get<Iprojet>(environment.apiUrl + AUTH_API + '/searchById/' + id);
   }
-  updateProjet(data: any,id:number, options: any = {}){
-    return this.http.put(environment.apiUrl + AUTH_API +"/updateProject/"+id, data, {
+  getAffairesByUser(id: number): Observable<Iprojet[]> {
+    return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + '/affaireByUser/' + id);
+  }
+  updateProjet(data: any, id: number, options: any = {}) {
+    return this.http.put(environment.apiUrl + AUTH_API + "/updateProject/" + id, data, {
       responseType: options.responseType || 'json', // Définit le type de réponse
     });
   }
   addProjet(data: any, options: any = {}) {
-    return this.http.post(environment.apiUrl + AUTH_API +'/addProject', data, {
+    return this.http.post(environment.apiUrl + AUTH_API + '/addProject', data, {
       responseType: options.responseType || 'json', // Définit le type de réponse
     });
   }
 
 
-  deleteProjet(id:number, options: any = {}){
-    return this.http.delete(environment.apiUrl + AUTH_API +"/deleteProject/"+id,{
+  deleteProjet(id: number, options: any = {}) {
+    return this.http.delete(environment.apiUrl + AUTH_API + "/deleteProject/" + id, {
       responseType: options.responseType || 'json', // Définit le type de réponse
     });
   }
-  affairesByUserAndStatut(id:number,statut:string):Observable<Iprojet[]>{
-    return this.http.get<Iprojet[]>(environment.apiUrl+AUTH_API+'/affairesByUserAndStatut/'+id+'/'+statut);
+  affairesByUserAndStatut(id: number, statut: string): Observable<Iprojet[]> {
+    return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + '/affairesByUserAndStatut/' + id + '/' + statut);
   }
-  affairesByStatut(statut:string):Observable<Iprojet[]>{
-    return this.http.get<Iprojet[]>(environment.apiUrl+AUTH_API+'/affairesByStatut/'+statut)
+  affairesByStatut(statut: string): Observable<Iprojet[]> {
+    return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + '/affairesByStatut/' + statut)
   }
   getAffairesByAtelier(userId: number): Observable<Iprojet[]> {
-    return this.http.get<Iprojet[]>(environment.apiUrl+AUTH_API+'/by-atelier/'+userId);
+    return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + '/by-atelier/' + userId);
   }
   findAffairesByAtelierAndQteArticle_Sup_QteOF(
-    idatelier:number
+    idatelier: number
 
   ): Observable<Iprojet[]> {
     // Création des paramètres HTTP
@@ -63,7 +71,7 @@ export class ProjetService {
       .set('idatelier', idatelier)
     // Envoi de la requête GET à l'API avec les paramètres
 
-    return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API+"/findAffairesByAtelierAndQteArticle_Sup_QteOF", { params });
+    return this.http.get<Iprojet[]>(environment.apiUrl + AUTH_API + "/findAffairesByAtelierAndQteArticle_Sup_QteOF", { params });
   }
 
 }

@@ -38,9 +38,15 @@ public class AffectationController {
     private AffectationDebugService debugService; // Nouveau service de debug
 
     @GetMapping("/Liste/{idUser}")
-    public List<AffectationUpdate> getlistAffectation(@PathVariable long idUser) {
-        List<AffectationUpdate> listeAffectations = affectationImpService.allAffectation(idUser);
-        return listeAffectations;
+    public ResponseEntity<Page<AffectationUpdate>> getlistAffectation(
+            @PathVariable long idUser,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size,
+                org.springframework.data.domain.Sort.by("id").descending());
+        Page<AffectationUpdate> listeAffectations = affectationImpService.allAffectation(idUser, pageable);
+        return ResponseEntity.ok(listeAffectations);
     }
 
     @PostMapping(value = "/add", produces = MediaType.TEXT_PLAIN_VALUE)

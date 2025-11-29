@@ -20,11 +20,13 @@
             <!-- Settings Button -->
             <div class="btn-group">
               <button type="button" class="btn btn-primary">Paramètres</button>
-              <button type="button" class="btn btn-primary bg-split-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+              <button type="button" class="btn btn-primary bg-split-primary dropdown-toggle dropdown-toggle-split"
+                data-toggle="dropdown">
                 <span class="sr-only">Toggle Dropdown</span>
               </button>
               <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left">
-                <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addModal">Ajouter un article</a>
+                <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addModal">Ajouter un
+                  article</a>
                 <a type="button" class="dropdown-item" (click)="exportExcel()">Export Exce</a>
               </div>
             </div>
@@ -39,9 +41,11 @@
               <!-- Search Bar -->
               <div class="form-inline my-2 my-lg-0">
                 <div class="input-group">
-                  <input type="text" class="form-control" placeholder="Rechercher affaire..." [(ngModel)]="pfiltre" aria-label="Search">
+                  <input type="text" class="form-control" placeholder="Rechercher affaire..." [(ngModel)]="pfiltre"
+                    aria-label="Search">
                   <div class="input-group-append">
-                    <button class="btn btn-white" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <button class="btn btn-white" type="button" data-toggle="collapse" data-target="#collapseExample"
+                      aria-expanded="false" aria-controls="collapseExample">
                       <i class="lni lni-funnel"></i>
                     </button>
                   </div>
@@ -50,7 +54,8 @@
               <!-- Rows per Page Selector -->
               <div class="d-flex align-items-center">
                 Afficher&nbsp;
-                <select [(ngModel)]="tableSize" class="custom-select custom-select-sm form-control form-control-sm" style="width: 100px;" (change)="onTableSizeChange()">
+                <select [(ngModel)]="tableSize" class="custom-select custom-select-sm form-control form-control-sm"
+                  style="width: 100px;" (change)="onTableSizeChange()">
                   <option [value]="10">10</option>
                   <option [value]="20">20</option>
                   <option [value]="50">50</option>
@@ -63,23 +68,15 @@
             <!-- Collapsible Filters -->
             <div class="collapse" id="collapseExample">
               <div class="card card-body">
-                <form [formGroup]="myFormSearch" (ngSubmit)="searchOF()">
+                <form [formGroup]="myFormSearch" (ngSubmit)="onSearchSubmit()">
                   <div class="form-group row">
                     <div class="col-sm-1-5">
                       <label class="col-form-label mt-1">N° Prix</label>
-                      <ng-select placeholder="Sélectionnez un OF" formControlName="numPrix">
-                        <ng-option *ngFor="let ordre of POSTS" [value]="ordre.numPrix">
-                          {{ ordre.numPrix }}
-                        </ng-option>
-                      </ng-select>
+                      <input type="text" class="form-control" placeholder="N° Prix" formControlName="numPrix">
                     </div>
                     <div class="col-sm-6">
                       <label class="col-form-label mt-1">Désignation</label>
-                      <ng-select placeholder="Sélectionnez une désignation" formControlName="designation">
-                        <ng-option *ngFor="let ordre of POSTS" [value]="ordre.designation">
-                          {{ ordre.designation }}
-                        </ng-option>
-                      </ng-select>
+                      <input type="text" class="form-control" placeholder="Désignation" formControlName="designation">
                     </div>
                   </div>
 
@@ -124,103 +121,92 @@
             <div class="table-responsive">
               <table id="example2" class="table table-striped table-bordered responsive-table">
                 <thead class="table-light">
-                <tr>
-                  <th class="col-numprix">N° Prix
-                    <button class="btn-tri-transparent" (click)="sortColumn('numPrix')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-designation">Désignation
-                    <button class="btn-tri-transparent" (click)="sortColumn('designation')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-affaire">Affaire
-                    <button class="btn-tri-transparent" (click)="sortColumn('projet.code')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-unite">Unite
-                    <button class="btn-tri-transparent" (click)="sortColumn('unite')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-quantite">Quantité
-                    <button class="btn-tri-transparent" (click)="sortColumn('quantiteTot')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-atelier">Atelier
-                    <button class="btn-tri-transparent" (click)="sortColumn('ateliers.designation')">
-                      <i class="lni lni-sort-amount-dsc"></i>
-                    </button>
-                  </th>
-                  <th class="col-actions text-center">Actions</th>
-                </tr>
+                  <tr>
+                    <th class="col-numprix">N° Prix
+                      <button class="btn-tri-transparent" (click)="sortColumn('numPrix')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-designation">Désignation
+                      <button class="btn-tri-transparent" (click)="sortColumn('designation')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-affaire">Affaire
+                      <button class="btn-tri-transparent" (click)="sortColumn('projet.code')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-unite">Unite
+                      <button class="btn-tri-transparent" (click)="sortColumn('unite')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-quantite">Quantité
+                      <button class="btn-tri-transparent" (click)="sortColumn('quantiteTot')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-atelier">Atelier
+                      <button class="btn-tri-transparent" (click)="sortColumn('ateliers.designation')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-actions text-center">Actions</th>
+                  </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let post of POSTS | search:pfiltre | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
-                  <td class="col-numprix">{{ post?.numPrix }}</td>
+                  <tr
+                    *ngFor="let post of POSTS | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
+                    <td class="col-numprix">{{ post?.numPrix }}</td>
 
-                  <td class="col-designation">
-                    <div class="cell-content">{{ post?.designation }}</div>
-                  </td>
+                    <td class="col-designation">
+                      <div class="cell-content">{{ post?.designation }}</div>
+                    </td>
 
-                  <td class="col-affaire">
-                    <div class="affaire-cell">
-                      <div class="affaire-code">{{ post?.projet?.code }}</div>
-                      <div class="affaire-designation">{{ post?.projet?.designation }}</div>
-                    </div>
-                  </td>
+                    <td class="col-affaire">
+                      <div class="affaire-cell">
+                        <div class="affaire-code">{{ post?.projet?.code }}</div>
+                        <div class="affaire-designation">{{ post?.projet?.designation }}</div>
+                      </div>
+                    </td>
 
 
-                  <td class="col-unite">{{ post?.unite }}</td>
+                    <td class="col-unite">{{ post?.unite }}</td>
 
-                  <td class="col-quantite">{{ post?.quantiteTot }}</td>
+                    <td class="col-quantite">{{ post?.quantiteTot }}</td>
 
-                  <td class="col-atelier">
-                    <div class="cell-content">{{ post?.ateliers?.designation }}</div>
-                  </td>
+                    <td class="col-atelier">
+                      <div class="cell-content">{{ post?.ateliers?.designation }}</div>
+                    </td>
 
-                  <td class="col-actions text-center">
-                    <div class="d-flex justify-content-center flex-wrap">
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)"
-                         title="Afficher détails livraison"
-                         (click)="ImprimeLivraison(post)"
-                         class="action-btn">
-                        <i class="bx bxs-layer icon-large"></i>
-                      </a>
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN)"
-                         title="Modifier une livraison"
-                         (click)="recupItem(post)"
-                         data-toggle="modal"
-                         data-target="#updateModal"
-                         class="action-btn">
-                        <i class='bx bxs-edit icon-large'></i>
-                      </a>
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN)"
-                         title="Supprimer une livraison"
-                         (click)="recupItem(post)"
-                         data-toggle="modal"
-                         data-target="#deleteModal"
-                         class="action-btn">
-                        <i class='bx bxs-trash icon-large'></i>
-                      </a>
-                      <a *ngIf="hasRoleGroup(ROLES_ADMIN) && post.chauffeur!=null"
-                         title="Imprimer BL"
-                         (click)="ImprimeLivraison(post)"
-                         data-toggle="modal"
-                         data-target="#deleteModal"
-                         class="action-btn">
-                        <i class='bx bxs-file-pdf icon-large'></i>
-                      </a>
-                    </div>
-                  </td>
-                </tr>
+                    <td class="col-actions text-center">
+                      <div class="d-flex justify-content-center flex-wrap">
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Afficher détails livraison"
+                          (click)="ImprimeLivraison(post)" class="action-btn">
+                          <i class="bx bxs-layer icon-large"></i>
+                        </a>
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN)" title="Modifier une livraison" (click)="recupItem(post)"
+                          data-toggle="modal" data-target="#updateModal" class="action-btn">
+                          <i class='bx bxs-edit icon-large'></i>
+                        </a>
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN)" title="Supprimer une livraison" (click)="recupItem(post)"
+                          data-toggle="modal" data-target="#deleteModal" class="action-btn">
+                          <i class='bx bxs-trash icon-large'></i>
+                        </a>
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN) && post.chauffeur!=null" title="Imprimer BL"
+                          (click)="ImprimeLivraison(post)" data-toggle="modal" data-target="#deleteModal"
+                          class="action-btn">
+                          <i class='bx bxs-file-pdf icon-large'></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
               <div class="pagination justify-content-center">
-                <pagination-controls previousLabel="Précédent" nextLabel="Suivant" (pageChange)="onTableDataChange($event)"></pagination-controls>
+                <pagination-controls previousLabel="Précédent" nextLabel="Suivant"
+                  (pageChange)="onTableDataChange($event)"></pagination-controls>
               </div>
             </div>
           </div>
@@ -235,16 +221,13 @@
 
 <!-- Modals -->
 <div class="modal fade" id="addModal">
-  <app-add-article
-    (refreshTable)="ngOnInit()"></app-add-article>
+  <app-add-article (refreshTable)="ngOnInit()"></app-add-article>
 </div>
 
 <div class="modal fade" id="updateModal">
-  <app-update-article [article]="articleSelected"
-                      (refreshTable)="ngOnInit()"></app-update-article>
+  <app-update-article [article]="articleSelected" (refreshTable)="ngOnInit()"></app-update-article>
 </div>
 
 <div class="modal fade" id="deleteModal">
-  <app-delete-article [article]="articleSelected"
-                      (refreshTable)="ngOnInit()"></app-delete-article>
+  <app-delete-article [article]="articleSelected" (refreshTable)="ngOnInit()"></app-delete-article>
 </div>

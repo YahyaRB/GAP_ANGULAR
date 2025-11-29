@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
-import {Observable} from "rxjs";
-import {environment} from "../../environments/environment";
-import {Iarticle} from "./Interfaces/iarticle";
-import {Iprojet} from "./Interfaces/iprojet";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { environment } from "../../environments/environment";
+import { Iarticle } from "./Interfaces/iarticle";
+import { Iprojet } from "./Interfaces/iprojet";
 const AUTH_API = 'api/article';
 
 const httpOptions = {
@@ -18,8 +18,11 @@ export class ArticleService {
   constructor(private http: HttpClient) {
   }
 
-  getAll(idUser:number): Observable<Iarticle[]> {
-    return this.http.get<Iarticle[]>(environment.apiUrl + AUTH_API + '/getAll/'+idUser);
+  getAll(idUser: number, page: number = 0, size: number = 10): Observable<any> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<any>(environment.apiUrl + AUTH_API + '/getAll/' + idUser, { params });
   }
 
   getById(id: number): Observable<Iarticle> {
@@ -50,8 +53,8 @@ export class ArticleService {
 
 
   atriclesByProjet(
-    idprojet:number,
-    idatelier:number
+    idprojet: number,
+    idatelier: number
 
   ): Observable<Iarticle[]> {
     // Création des paramètres HTTP
@@ -59,31 +62,34 @@ export class ArticleService {
       .set('idprojet', idprojet)
       .set('idatelier', idatelier)
     // Envoi de la requête GET à l'API avec les paramètres
-    return this.http.get<Iarticle[]>(environment.apiUrl + AUTH_API+"/findArticles_QteSup_QteOF", { params });
+    return this.http.get<Iarticle[]>(environment.apiUrl + AUTH_API + "/findArticles_QteSup_QteOF", { params });
   }
-searchArticle(
+  searchArticle(
     idUser: number,
-    numPrix:string,
+    numPrix: string,
     designation: string,
-    idprojet:number,
+    idprojet: number,
     idatelier: number,
     idarticle: number,
-
-  ): Observable<Iarticle[]> {
+    page: number = 0,
+    size: number = 10
+  ): Observable<any> {
     // Création des paramètres HTTP
     let params = new HttpParams()
       .set('idUser', idUser)
       .set('numPrix', numPrix)
-      .set('designation',designation)
+      .set('designation', designation)
       .set('idprojet', idprojet)
       .set('idatelier', idatelier)
-      .set('idarticle', idarticle);
+      .set('idarticle', idarticle)
+      .set('page', page.toString())
+      .set('size', size.toString());
 
 
     // Envoi de la requête GET à l'API avec les paramètres
-    return this.http.get<Iarticle[]>(environment.apiUrl + AUTH_API+"/search", { params });
+    return this.http.get<any>(environment.apiUrl + AUTH_API + "/search", { params });
   }
   getArticlesByAtelier(userId: number): Observable<Iarticle[]> {
-    return this.http.get<Iarticle[]>(environment.apiUrl+AUTH_API+'/by-atelier/'+userId);
+    return this.http.get<Iarticle[]>(environment.apiUrl + AUTH_API + '/by-atelier/' + userId);
   }
 }

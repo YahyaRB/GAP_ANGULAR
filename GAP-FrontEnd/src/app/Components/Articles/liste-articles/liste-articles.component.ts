@@ -1,16 +1,16 @@
-import {AfterViewInit, Component, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
-import {Iateliers} from "../../../services/Interfaces/iateliers";
-import {Iprojet} from "../../../services/Interfaces/iprojet";
-import {Iarticle} from "../../../services/Interfaces/iarticle";
-import {FormBuilder, FormGroup} from "@angular/forms";
-import {TokenStorageService} from "../../../Auth/services/token-storage.service";
-import {OfService} from "../../../services/of.service";
-import {ArticleService} from "../../../services/article.service";
-import {ProjetService} from "../../../services/projet.service";
-import {RoleService} from "../../../services/role.service";
-import {Ilivraison} from "../../../services/Interfaces/ilivraison";
-import {ROLES_ADMIN, ROLES_ADMIN_AGENTSAISIE} from "../../../Roles";
-import {SortService} from "../../../services/sort.service";
+import { AfterViewInit, Component, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Iateliers } from "../../../services/Interfaces/iateliers";
+import { Iprojet } from "../../../services/Interfaces/iprojet";
+import { Iarticle } from "../../../services/Interfaces/iarticle";
+import { FormBuilder, FormGroup } from "@angular/forms";
+import { TokenStorageService } from "../../../Auth/services/token-storage.service";
+import { OfService } from "../../../services/of.service";
+import { ArticleService } from "../../../services/article.service";
+import { ProjetService } from "../../../services/projet.service";
+import { RoleService } from "../../../services/role.service";
+import { Ilivraison } from "../../../services/Interfaces/ilivraison";
+import { ROLES_ADMIN, ROLES_ADMIN_AGENTSAISIE } from "../../../Roles";
+import { SortService } from "../../../services/sort.service";
 import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-liste-articles',
@@ -27,23 +27,23 @@ export class ListeArticlesComponent implements OnInit, OnChanges {
   pfiltre: string = '';  // Filtre de recherche
   sortDirection: { [key: string]: boolean } = {};  // Direction de tri pour chaque colonne
   listeAteliers: Iateliers[] = [];  // Liste des ateliers
-  listeAffairesByAtelier:Iprojet[]=[];
+  listeAffairesByAtelier: Iprojet[] = [];
   idUser: number = 1; // Assurez-vous que l'ID de l'utilisateur est récupéré correctement
   idprojet: number = 0;  // Définir l'ID du projet
   idatelier: number = 0;  // Définir l'ID de l'atelier
   idarticle: number = 0;  // Définir l'ID de l'article
-  numPrix:string;
-  designation:string;
-  articleSelected:Iarticle;
+  numPrix: string;
+  designation: string;
+  articleSelected: Iarticle;
   myFormSearch: FormGroup;
 
 
   constructor(private tokenstorage: TokenStorageService,
-              private formBuilder: FormBuilder,
-              private articleService:ArticleService,
-              private projetService: ProjetService,
-              private roleService: RoleService,
-              private sortService: SortService
+    private formBuilder: FormBuilder,
+    private articleService: ArticleService,
+    private projetService: ProjetService,
+    private roleService: RoleService,
+    private sortService: SortService
   ) {
     // Récupération d'id d'utilisateur connecté
     this.idUser = this.tokenstorage.getUser().id
@@ -59,8 +59,8 @@ export class ListeArticlesComponent implements OnInit, OnChanges {
 
   private initmyForm() {
     this.myFormSearch = this.formBuilder.group({
-      numPrix:[],             // Valeur par défaut : 0
-      designation:[],
+      numPrix: [],             // Valeur par défaut : 0
+      designation: [],
       idprojet: [],        // Valeur par défaut : 0
       idarticle: [],       // Valeur par défaut : 0
       idatelier: [],       // Valeur par défaut : 0
@@ -89,6 +89,7 @@ export class ListeArticlesComponent implements OnInit, OnChanges {
   // Méthode appelée lors du changement de taille de la table
   onTableSizeChange(): void {
     this.page = 1;  // Réinitialiser à la première page lors du changement de taille de la table
+    this.searchOF();
   }
   sortColumn(column: string) {
     this.sortService.sortColumn(this.POSTS, column);
@@ -98,29 +99,51 @@ export class ListeArticlesComponent implements OnInit, OnChanges {
     this.searchOF();
   }
   ClearSearch() {
-this.initmyForm();
-this.searchOF();
+    this.initmyForm();
+    this.onSearchSubmit();
   }
-  searchOF(): void {
-    this.articleService.searchArticle(
-      this.idUser,
-      this.myFormSearch.value.numPrix?? '',
-      this.myFormSearch.value.designation?? '',
-      this.myFormSearch.value.idprojet?? 0,
-      this.myFormSearch.value.idatelier?? 0,
-      this.myFormSearch.value.idarticle?? 0,
-    ).subscribe(
-      (data) => {
-        this.POSTS = data;  // Stocke les livraisons retournées
-      },
-      (error) => {
-        console.error('Erreur lors de la recherche des livraisons:', error);
-      }
-    );
-    setTimeout(() => {
-      this.extractUniqueTables();
-    }, 1000);
 
+  onSearchSubmit(): void {
+    this.page = 1;
+    this.searchOF();
+  }
+
+  searchOF(): void {
+    const formValues = this.myFormSearch.value;
+    const isFilterEmpty = !formValues.numPrix && !formValues.designation && !formValues.idprojet && !formValues.idatelier && !formValues.idarticle;
+
+    if (isFilterEmpty) {
+      this.articleService.getAll(this.idUser, this.page - 1, this.tableSize).subscribe({
+        next: (data) => {
+          this.POSTS = data.content;
+          this.count = data.totalElements;
+          // extractUniqueTables is disabled for server-side pagination
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des articles:', error);
+        }
+      });
+    } else {
+      this.articleService.searchArticle(
+        this.idUser,
+        formValues.numPrix || '',
+        formValues.designation || '',
+        formValues.idprojet || 0,
+        formValues.idatelier || 0,
+        formValues.idarticle || 0,
+        this.page - 1,
+        this.tableSize
+      ).subscribe({
+        next: (data) => {
+          this.POSTS = data.content;
+          this.count = data.totalElements;
+          // extractUniqueTables is disabled for server-side pagination
+        },
+        error: (error) => {
+          console.error('Erreur lors de la recherche des articles:', error);
+        }
+      });
+    }
   }
 
 
@@ -130,7 +153,7 @@ this.searchOF();
 
 
   recupItem(article: Iarticle) {
-        this.articleSelected=article;
+    this.articleSelected = article;
   }
   ImprimeLivraison(livraison: Ilivraison) {
     /*   this.detailService.impressionLivraison(livraison.id).subscribe(

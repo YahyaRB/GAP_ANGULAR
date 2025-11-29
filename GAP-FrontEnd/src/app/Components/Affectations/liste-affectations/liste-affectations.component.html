@@ -139,105 +139,103 @@
             <!-- Data Table -->
             <!-- Data Table Section -->
             <div class="table-responsive">
-              <cdk-virtual-scroll-viewport itemSize="50" class="table-viewport" [style.height.px]="500">
-                <table id="example2" class="table table-striped table-bordered responsive-table">
-                  <thead class="table-light">
-                    <tr>
-                      <th class="col-numero">Numéro
-                        <button class="btn-tri-transparent" (click)="sortColumn('id')">
-                          <i class="lni lni-sort-amount-dsc"></i>
-                        </button>
-                      </th>
-                      <th class="col-affaire">Affaire
-                        <button class="btn-tri-transparent" (click)="sortColumn('projets.code')">
-                          <i class="lni lni-sort-amount-dsc"></i>
-                        </button>
-                      </th>
-                      <th class="col-atelier">Atelier
-                        <button class="btn-tri-transparent" (click)="sortColumn('ateliers.designation')">
-                          <i class="lni lni-sort-amount-dsc"></i>
-                        </button>
-                      </th>
-                      <th class="col-article">Article
-                        <button class="btn-tri-transparent" (click)="sortColumn('article.designation')">
-                          <i class="lni lni-sort-amount-dsc"></i>
-                        </button>
-                      </th>
-                      <th class="col-date">Date Affectation
-                        <button class="btn-tri-transparent" (click)="sortColumn('date')">
-                          <i class="lni lni-sort-amount-dsc"></i>
-                        </button>
-                      </th>
-                      <th class="col-periode">Période
-                        <button class="btn-tri-transparent" (click)="sortColumn('periode')">
-                          <i class="lni lni-sort-amount-dsc"></i>
-                        </button>
-                      </th>
-                      <th class="col-duree">Durée
-                        <button class="btn-tri-transparent" (click)="sortColumn('nombreHeures')">
-                          <i class="lni lni-sort-amount-dsc"></i>
-                        </button>
-                      </th>
-                      <th class="col-employe">Employés
-                        <button class="btn-tri-transparent" (click)="sortColumn('employee.nom')">
-                          <i class="lni lni-sort-amount-dsc"></i>
-                        </button>
-                      </th>
-                      <th class="col-actions text-center">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      *cdkVirtualFor="let post of POSTS | search:pfiltre | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
-                      <td class="col-numero">{{ post?.id }}</td>
-                      <td class="col-affaire">
-                        <div class="affaire-cell">
-                          <div class="cell-content">
+              <table id="example2" class="table table-striped table-bordered responsive-table">
+                <thead class="table-light">
+                  <tr>
+                    <th class="col-numero">Numéro
+                      <button class="btn-tri-transparent" (click)="sortColumn('id')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-affaire">Affaire
+                      <button class="btn-tri-transparent" (click)="sortColumn('projets.code')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-atelier">Atelier
+                      <button class="btn-tri-transparent" (click)="sortColumn('ateliers.designation')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-article">Article
+                      <button class="btn-tri-transparent" (click)="sortColumn('article.designation')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-date">Date Affectation
+                      <button class="btn-tri-transparent" (click)="sortColumn('date')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-periode">Période
+                      <button class="btn-tri-transparent" (click)="sortColumn('periode')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-duree">Durée
+                      <button class="btn-tri-transparent" (click)="sortColumn('nombreHeures')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-employe">Employés
+                      <button class="btn-tri-transparent" (click)="sortColumn('employee.nom')">
+                        <i class="lni lni-sort-amount-dsc"></i>
+                      </button>
+                    </th>
+                    <th class="col-actions text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="let post of POSTS | paginate:{ itemsPerPage: tableSize, currentPage: page, totalItems: count }">
+                    <td class="col-numero">{{ post?.id }}</td>
+                    <td class="col-affaire">
+                      <div class="affaire-cell">
+                        <div class="cell-content">
 
-                            <div class="affaire-code">{{ post?.projets?.code}}</div>
-                            <div class="affaire-designation">{{ post?.projets?.designation}}</div>
-                          </div>
+                          <div class="affaire-code">{{ post?.projets?.code}}</div>
+                          <div class="affaire-designation">{{ post?.projets?.designation}}</div>
                         </div>
-                      </td>
+                      </div>
+                    </td>
 
 
-                      <td class="col-atelier">
-                        <div class="cell-content">{{ post?.ateliers.designation }}</div>
-                      </td>
+                    <td class="col-atelier">
+                      <div class="cell-content">{{ post?.ateliers.designation }}</div>
+                    </td>
 
-                      <td class="col-article">
-                        <div class="article-cell">
-                          <div class="article-code">{{ post?.article?.numPrix }}</div>
-                          <div class="article-designation">{{ post?.article?.designation }}</div>
-                        </div>
-                      </td>
+                    <td class="col-article">
+                      <div class="article-cell">
+                        <div class="article-code">{{ post?.article?.numPrix }}</div>
+                        <div class="article-designation">{{ post?.article?.designation }}</div>
+                      </div>
+                    </td>
 
-                      <td class="col-date">{{ post?.date | date: 'dd/MM/yyyy' }}</td>
-                      <td class="col-periode">{{ post?.periode }}</td>
-                      <td class="col-duree">{{ post?.nombreHeures }}</td>
-                      <td class="col-employe">
-                        <div class="cell-content">{{ post?.employees.nom +' '+ post?.employees.prenom }}</div>
-                      </td>
-                      <td class="col-actions text-center">
-                        <div class="d-flex justify-content-center">
-                          <!--    <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Modifier une affectation"
-                           (click)="recupItem(post)" data-toggle="modal" data-target="#updateModal" class="action-btn">
-                          <i class='bx bxs-edit icon-large'></i>
-                        </a>-->
-                          <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Supprimer une affectation"
-                            (click)="recupItem(post)" data-toggle="modal" data-target="#deleteModal" class="action-btn">
-                            <i class='bx bxs-trash icon-large'></i>
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </cdk-virtual-scroll-viewport>
-              <div class="pagination justify-content-center">
-                <pagination-controls previousLabel="Précédent" nextLabel="Suivant"
-                  (pageChange)="onTableDataChange($event)"></pagination-controls>
-              </div>
+                    <td class="col-date">{{ post?.date | date: 'dd/MM/yyyy' }}</td>
+                    <td class="col-periode">{{ post?.periode }}</td>
+                    <td class="col-duree">{{ post?.nombreHeures }}</td>
+                    <td class="col-employe">
+                      <div class="cell-content">{{ post?.employees.nom +' '+ post?.employees.prenom }}</div>
+                    </td>
+                    <td class="col-actions text-center">
+                      <div class="d-flex justify-content-center">
+                        <!--    <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Modifier une affectation"
+                         (click)="recupItem(post)" data-toggle="modal" data-target="#updateModal" class="action-btn">
+                        <i class='bx bxs-edit icon-large'></i>
+                      </a>-->
+                        <a *ngIf="hasRoleGroup(ROLES_ADMIN_AGENTSAISIE)" title="Supprimer une affectation"
+                          (click)="recupItem(post)" data-toggle="modal" data-target="#deleteModal" class="action-btn">
+                          <i class='bx bxs-trash icon-large'></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination justify-content-center">
+              <pagination-controls previousLabel="Précédent" nextLabel="Suivant"
+                (pageChange)="onTableDataChange($event)"></pagination-controls>
             </div>
           </div>
         </div>

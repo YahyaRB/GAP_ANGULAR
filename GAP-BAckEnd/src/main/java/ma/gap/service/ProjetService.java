@@ -1,6 +1,5 @@
 package ma.gap.service;
 
-
 import ma.gap.entity.Article;
 import ma.gap.entity.OrdreFabrication;
 import ma.gap.entity.Projet;
@@ -19,13 +18,25 @@ import java.util.Optional;
 public interface ProjetService {
 
     public List<Projet> allProjet();
+
+    public Page<Projet> searchProjets(String keyword, Pageable pageable);
+
     public List<Projet> getAllProjetsByStatus(int status);
+
     public Projet saveProjet(Projet projet);
+
     public Projet updateProjet(Projet projet, long id);
+
     public void deleteProjet(long id);
+
     public Optional<Projet> findById(long id);
+
     public List<Projet> getAffairesByAtelier(Long atelierId);
+
     public List<Projet> ProjetFiltred(String code, String affaire, String article, String atelier);
-    public Page<OrdreFabrication> ofProjetFiltred(Pageable pageable, User user, long idprojet, long idof, long atelier, String libelle, String avancement) throws ParseException;
+
+    public Page<OrdreFabrication> ofProjetFiltred(Pageable pageable, User user, long idprojet, long idof, long atelier,
+            String libelle, String avancement) throws ParseException;
+
     public List<Projet> findAffairesByAtelierAndQteArticle_Sup_QteENPROD(long atelierId);
 }

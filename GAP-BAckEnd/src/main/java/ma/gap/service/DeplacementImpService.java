@@ -83,6 +83,27 @@ public class DeplacementImpService implements DeplacementService {
     }
 
     @Override
+    public Page<Deplacement> allDeplacement(long idUser, Pageable pageable) {
+        User user = userImpService.findbyusername(idUser);
+        List<Role> roles = user.getRoles();
+        List<Ateliers> ateliers = user.getAteliers();
+        List<Employee> employeeList = new ArrayList<>();
+        for (Role role : roles) {
+            if (role.getName().equals("agentSaisie")) {
+                for (Ateliers atelier : ateliers) {
+                    employeeList
+                            .addAll(employeeRepository.findAllByAteliers(atelier, Sort.by(Sort.Direction.ASC, "nom")));
+                }
+
+                return deplacementRepository.findDistinctByEmployeeIn(employeeList, pageable);
+            } else {
+                return deplacementRepository.findAll(pageable);
+            }
+        }
+        return Page.empty();
+    }
+
+    @Override
     public Deplacement saveDeplacement(Deplacement deplacement) {
         deplacement.setFlag(StatutEntity.SAISI.valeur);
         return deplacementRepository.save(deplacement);
@@ -132,7 +153,8 @@ public class DeplacementImpService implements DeplacementService {
         // Vérification du template JasperReports
         Resource resource = new ClassPathResource("files/OrdreMission.jrxml");
         if (!resource.exists()) {
-            throw new FileNotFoundException("Le fichier template OrdreMission.jrxml est introuvable dans resources/files/");
+            throw new FileNotFoundException(
+                    "Le fichier template OrdreMission.jrxml est introuvable dans resources/files/");
         }
 
         try {
@@ -156,7 +178,8 @@ public class DeplacementImpService implements DeplacementService {
                 nomPrenom += firstEmployee.getNom();
             }
             if (firstEmployee.getPrenom() != null) {
-                if (!nomPrenom.isEmpty()) nomPrenom += " ";
+                if (!nomPrenom.isEmpty())
+                    nomPrenom += " ";
                 nomPrenom += firstEmployee.getPrenom();
             }
             if (nomPrenom.isEmpty()) {
@@ -200,9 +223,16 @@ public class DeplacementImpService implements DeplacementService {
 
     @Override
     public List<Deplacement> searchDeplacement(long idUser, long idemploye, long idprojet, long idatelier, String motif,
-                                               String dateDebut, String dateFin) throws ParseException {
+            String dateDebut, String dateFin) throws ParseException {
         return deplacementSearchDao.searchDeplacement(idUser, idemploye, idprojet, idatelier, motif, dateDebut,
                 dateFin);
+    }
+
+    @Override
+    public Page<Deplacement> searchDeplacement(long idUser, long idemploye, long idprojet, long idatelier, String motif,
+            String dateDebut, String dateFin, Pageable pageable) throws ParseException {
+        return deplacementSearchDao.searchDeplacementPaginated(idUser, idemploye, idprojet, idatelier, motif, dateDebut,
+                dateFin, pageable);
     }
 
     /**
@@ -234,7 +264,8 @@ public class DeplacementImpService implements DeplacementService {
         // Si plusieurs employés, créer un ZIP avec un PDF par employé
         Resource resource = new ClassPathResource("files/OrdreMission.jrxml");
         if (!resource.exists()) {
-            throw new FileNotFoundException("Le fichier template OrdreMission.jrxml est introuvable dans resources/files/");
+            throw new FileNotFoundException(
+                    "Le fichier template OrdreMission.jrxml est introuvable dans resources/files/");
         }
 
         JasperReport compileReport;
@@ -268,7 +299,8 @@ public class DeplacementImpService implements DeplacementService {
                     nomPrenom += employee.getNom();
                 }
                 if (employee.getPrenom() != null) {
-                    if (!nomPrenom.isEmpty()) nomPrenom += " ";
+                    if (!nomPrenom.isEmpty())
+                        nomPrenom += " ";
                     nomPrenom += employee.getPrenom();
                 }
                 if (nomPrenom.isEmpty()) {

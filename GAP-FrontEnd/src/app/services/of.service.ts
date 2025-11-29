@@ -21,8 +21,11 @@ export class OfService {
   constructor(private http: HttpClient) {
   }
 
-  getAll(idUser: number): Observable<IordreFabrication[]> {
-    return this.http.get<IordreFabrication[]>(environment.apiUrl + AUTH_API + '/getAll/' + idUser);
+  getAll(idUser: number, page: number = 0, size: number = 10): Observable<any> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<any>(environment.apiUrl + AUTH_API + '/getAll/' + idUser, { params });
   }
 
   update(data: any, id: number, options: any = {}) {
@@ -50,8 +53,10 @@ export class OfService {
     idAtelier: number | null,
     idArticle: number | null,
     dateDebut: string | null,
-    dateFin: string | null
-  ): Observable<IordreFabrication[]> {
+    dateFin: string | null,
+    page: number = 0,
+    size: number = 10
+  ): Observable<any> {
 
     console.log('🔧 Service searchOF appelé avec:', {
       idUser, numOF, idProjet, idAtelier, idArticle, dateDebut, dateFin
@@ -88,12 +93,15 @@ export class OfService {
       params = params.set('dateFin', dateFin.trim());
     }
 
+    params = params.set('page', page.toString());
+    params = params.set('size', size.toString());
+
     const url = `${environment.apiUrl + AUTH_API}/Search`;
 
     console.log('🔧 URL finale construite:', url);
     console.log('🔧 Paramètres envoyés:', params.toString());
 
-    return this.http.get<IordreFabrication[]>(url, {
+    return this.http.get<any>(url, {
       params: params,
       headers: httpOptions.headers // Correction ici - utiliser httpOptions au lieu de this.httpOptions
     }).pipe(

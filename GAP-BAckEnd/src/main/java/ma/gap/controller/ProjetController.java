@@ -5,6 +5,9 @@ import ma.gap.entity.*;
 import ma.gap.exceptions.ArticleNotFoundException;
 import ma.gap.repository.*;
 import ma.gap.service.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +41,14 @@ public class ProjetController {
         return projetService.allProjet();
     }
 
+    @GetMapping(value = "/searchPaginated")
+    public Page<Projet> searchProjets(@RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return projetService.searchProjets(keyword, pageable);
+    }
+
     @GetMapping(value = "/getAllByStatus/{status}")
     public List<Projet> getAllProjectByStatus(@PathVariable("status") int status) {
         return projetService.getAllProjetsByStatus(status);
@@ -62,7 +73,7 @@ public class ProjetController {
     /**
      * Endpoint pour éditer un projet existant.
      *
-     * @param id Identifiant du projet à éditer
+     * @param id     Identifiant du projet à éditer
      * @param projet Objet projet avec les nouvelles données
      * @return ResponseEntity avec message de succès ou d'erreur
      */
@@ -96,36 +107,39 @@ public class ProjetController {
         }
     }
 
-
     /**
-     * Endpoint pour récupérer les affaires (projets) en fonction d'un atelier donné.
+     * Endpoint pour récupérer les affaires (projets) en fonction d'un atelier
+     * donné.
      *
      * @param idUser Identifiant de l'utilisateur connecté'
      * @return Liste des projets associés à l'atelier d'user
      */
     @GetMapping("/by-atelier/{idUser}")
     public ResponseEntity<?> getAffairesByAtelier(@PathVariable Long idUser) {
-        /*List<Projet> affaires = projetService.getAffairesByAtelier(atelierId);
-        return ResponseEntity.ok(affaires);*/
+        /*
+         * List<Projet> affaires = projetService.getAffairesByAtelier(atelierId);
+         * return ResponseEntity.ok(affaires);
+         */
         try {
             User user = userImpService.finduserById(idUser);
             boolean isAdminOrLogistique = user.getRoles().stream()
-                    .anyMatch(role -> role.getName().equals("admin") || role.getName().equals("logistique") || role.getName().equals("consulteur"));
+                    .anyMatch(role -> role.getName().equals("admin") || role.getName().equals("logistique")
+                            || role.getName().equals("consulteur"));
             if (isAdminOrLogistique) {
                 return ResponseEntity.ok(projetRepository.findAll(Sort.by(Sort.Direction.DESC, "id")));
             } else {
-                long idAtelier=user.getAteliers().get(0).getId();
+                long idAtelier = user.getAteliers().get(0).getId();
                 return ResponseEntity.ok(projetService.getAffairesByAtelier(idAtelier));
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la récupération des livraisons.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la récupération des livraisons.");
         }
     }
 
-
     @GetMapping(value = "/Projets/Search")
     public List<Projet> getProjectFiltred(@RequestParam("code") String code, @RequestParam("affaire") String affaire,
-                                          @RequestParam("atelier") String atelier, @RequestParam("article") String article) {
+            @RequestParam("atelier") String atelier, @RequestParam("article") String article) {
         return projetService.ProjetFiltred(code, affaire, article, atelier);
     }
 
@@ -138,7 +152,8 @@ public class ProjetController {
             return ResponseEntity.ok(projets);
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la récupération des projets.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la récupération des projets.");
         }
     }
 }

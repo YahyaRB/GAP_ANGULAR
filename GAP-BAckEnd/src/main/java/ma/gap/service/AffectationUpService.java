@@ -16,13 +16,24 @@ public interface AffectationUpService {
 
     /**
      * Récupère toutes les affectations pour un utilisateur donné
+     * 
      * @param idUser ID de l'utilisateur
      * @return Liste des affectations
      */
     List<AffectationUpdate> allAffectation(long idUser);
 
     /**
+     * Récupère toutes les affectations pour un utilisateur donné avec pagination
+     * 
+     * @param idUser   ID de l'utilisateur
+     * @param pageable Information de pagination
+     * @return Page des affectations
+     */
+    Page<AffectationUpdate> allAffectation(long idUser, org.springframework.data.domain.Pageable pageable);
+
+    /**
      * Sauvegarde une nouvelle affectation
+     * 
      * @param affectation L'affectation à sauvegarder
      * @return Message de confirmation
      */
@@ -30,6 +41,7 @@ public interface AffectationUpService {
 
     /**
      * Supprime une affectation
+     * 
      * @param id ID de l'affectation à supprimer
      * @return true si suppression réussie, false sinon
      */
@@ -37,6 +49,7 @@ public interface AffectationUpService {
 
     /**
      * Trouve une affectation par son ID
+     * 
      * @param id ID de l'affectation
      * @return L'affectation trouvée
      */
@@ -44,6 +57,7 @@ public interface AffectationUpService {
 
     /**
      * Vérifie l'existence d'une affectation
+     * 
      * @param affectation L'affectation à vérifier
      * @return L'affectation existante ou null
      */
@@ -51,26 +65,30 @@ public interface AffectationUpService {
 
     /**
      * Récupère la dernière affectation créée
+     * 
      * @return La dernière affectation
      */
     AffectationUpdate lastAff();
 
     /**
      * Envoie un email à l'agent de saisie
+     * 
      * @param affectationUpdate L'affectation concernée
-     * @param ateliers L'atelier concerné
+     * @param ateliers          L'atelier concerné
      */
     void sendEmailAgentSaisi(AffectationUpdate affectationUpdate, Ateliers ateliers);
 
     /**
      * Envoie un email au consulteur
+     * 
      * @param affectationUpdate L'affectation concernée
-     * @param ateliers L'atelier concerné
+     * @param ateliers          L'atelier concerné
      */
     void sendEmailConsulteur(AffectationUpdate affectationUpdate, Ateliers ateliers);
 
     /**
      * Sauvegarde les affectations dupliquées
+     * 
      * @param affectations Liste des affectations à sauvegarder
      * @return Message de résultat
      */
@@ -78,6 +96,7 @@ public interface AffectationUpService {
 
     /**
      * Duplique des affectations selon les critères donnés
+     * 
      * @param request Requête de duplication
      * @return Message de résultat
      */
@@ -85,6 +104,7 @@ public interface AffectationUpService {
 
     /**
      * Prévisualise une duplication d'affectations
+     * 
      * @param request Requête de duplication
      * @return Liste des affectations qui seront dupliquées
      */
@@ -92,36 +112,38 @@ public interface AffectationUpService {
 
     /**
      * Récupère les affectations filtrées selon des critères avec pagination
-     * @param idUser ID de l'utilisateur
-     * @param idprojet ID du projet (0 pour tous)
+     * 
+     * @param idUser    ID de l'utilisateur
+     * @param idprojet  ID du projet (0 pour tous)
      * @param idemploye ID de l'employé (0 pour tous)
      * @param idarticle ID de l'article (0 pour tous)
      * @param idatelier ID de l'atelier (0 pour tous)
      * @param dateDebut Date de début (format dd/MM/yyyy)
-     * @param dateFin Date de fin (format dd/MM/yyyy)
-     * @param page Numéro de page (commence à 0)
-     * @param size Taille de la page
+     * @param dateFin   Date de fin (format dd/MM/yyyy)
+     * @param page      Numéro de page (commence à 0)
+     * @param size      Taille de la page
      * @return Page des affectations filtrées
      * @throws ParseException Si les dates ne sont pas dans le bon format
      */
     Page<AffectationUpdate> affectationFiltredPaginated(long idUser, long idprojet, long idemploye,
-                                                        long idarticle, long idatelier,
-                                                        String dateDebut, String dateFin,
-                                                        int page, int size) throws ParseException;
+            long idarticle, long idatelier,
+            String dateDebut, String dateFin,
+            int page, int size) throws ParseException;
 
     /**
      * Récupère les affectations filtrées selon des critères
-     * @param idUser ID de l'utilisateur
-     * @param idprojet ID du projet (0 pour tous)
+     * 
+     * @param idUser    ID de l'utilisateur
+     * @param idprojet  ID du projet (0 pour tous)
      * @param idemploye ID de l'employé (0 pour tous)
      * @param idarticle ID de l'article (0 pour tous)
      * @param idatelier ID de l'atelier (0 pour tous)
      * @param dateDebut Date de début (format dd/MM/yyyy)
-     * @param dateFin Date de fin (format dd/MM/yyyy)
+     * @param dateFin   Date de fin (format dd/MM/yyyy)
      * @return Liste des affectations filtrées
      * @throws ParseException Si les dates ne sont pas dans le bon format
      */
     List<AffectationUpdate> affectationFiltred(long idUser, long idprojet, long idemploye,
-                                               long idarticle, long idatelier,
-                                               String dateDebut, String dateFin) throws ParseException;
+            long idarticle, long idatelier,
+            String dateDebut, String dateFin) throws ParseException;
 }

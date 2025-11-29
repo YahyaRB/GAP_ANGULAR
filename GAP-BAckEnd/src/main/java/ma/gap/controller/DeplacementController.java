@@ -13,6 +13,7 @@ import net.sf.jasperreports.engine.JRException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -43,14 +44,15 @@ public class DeplacementController {
     private DeplacementImpService deplacementImpService;
 
     @GetMapping(value = "/getAll/{idUser}")
-    public ResponseEntity<?> findAll(@PathVariable("idUser") long idUser) {
+    public ResponseEntity<Page<Deplacement>> findAll(@PathVariable("idUser") long idUser,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         try {
-            List<Deplacement> listeDeplacements = deplacementImpService.allDeplacement(idUser);
-            listeDeplacements.sort(Comparator.comparing(Deplacement::getId).reversed());
+            Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+            Page<Deplacement> listeDeplacements = deplacementImpService.allDeplacement(idUser, pageable);
             return ResponseEntity.ok(listeDeplacements);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erreur lors de la récupération des deplacements.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -99,15 +101,16 @@ public class DeplacementController {
     }
 
     @GetMapping("/search")
-    public List<Deplacement> SearchDeplacements(@RequestParam("idUser") long idUser,
-                                                @RequestParam("idemploye") long idemploye, @RequestParam("idprojet") long idprojet,
-                                                @RequestParam("idatelier") long idatelier, @RequestParam("motif") String motif,
-                                                @RequestParam("dateDebut") String dateDebut, @RequestParam("dateFin") String dateFin)
+    public Page<Deplacement> SearchDeplacements(@RequestParam("idUser") long idUser,
+            @RequestParam("idemploye") long idemploye, @RequestParam("idprojet") long idprojet,
+            @RequestParam("idatelier") long idatelier, @RequestParam("motif") String motif,
+            @RequestParam("dateDebut") String dateDebut, @RequestParam("dateFin") String dateFin,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size)
             throws ParseException {
-        List<Deplacement> deplacements = deplacementImpService.searchDeplacement(idUser, idemploye, idprojet, idatelier,
-                motif, dateDebut, dateFin);
-        deplacements.sort(Comparator.comparing(Deplacement::getId).reversed());
-        return deplacements;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return deplacementImpService.searchDeplacement(idUser, idemploye, idprojet, idatelier,
+                motif, dateDebut, dateFin, pageable);
     }
 
     // *** MÉTHODE AMÉLIORÉE POUR L'IMPRESSION ***
@@ -214,7 +217,7 @@ public class DeplacementController {
 
     @PostMapping("/savePjDeplacementById/{id}")
     ResponseEntity<ResponseMessage> savePjSuiviCaisse(@PathVariable("id") long id,
-                                                      @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file) {
 
         String message = "";
         try {

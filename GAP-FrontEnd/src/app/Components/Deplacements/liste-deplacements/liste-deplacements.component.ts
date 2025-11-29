@@ -15,6 +15,8 @@ import { Ideplacement } from "../../../services/Interfaces/ideplacement";
 import { Iemploye } from "../../../services/Interfaces/iemploye";
 import * as XLSX from 'xlsx';
 
+import { EmployeService } from "../../../services/employe.service";
+
 @Component({
   selector: 'app-liste-deplacements',
   templateUrl: './liste-deplacements.component.html',
@@ -46,15 +48,17 @@ export class ListeDeplacementsComponent implements OnInit, OnChanges {
   downloadingId: number | null = null; // Pour afficher un loader sur le bouton d'impression
 
   constructor(private tokenstorage: TokenStorageService,
-              private formBuilder: FormBuilder,
-              private deplacementService: DeplacementService,
-              private projetService: ProjetService,
-              private roleService: RoleService,
-              private sortService: SortService
+    private formBuilder: FormBuilder,
+    private deplacementService: DeplacementService,
+    private projetService: ProjetService,
+    private roleService: RoleService,
+    private sortService: SortService,
+    private employeService: EmployeService
   ) {
     this.idUser = this.tokenstorage.getUser().id
     this.listeAteliers = this.tokenstorage.getUser().atelier;
     this.projetService.getAffairesByAtelier(this.tokenstorage.getUser().id).subscribe(x => this.listeAffairesByAtelier = x);
+    this.employeService.getAll(this.tokenstorage.getUser().id).subscribe(data => this.listeEmploye = data);
   }
 
   ngOnInit(): void {
@@ -92,6 +96,7 @@ export class ListeDeplacementsComponent implements OnInit, OnChanges {
 
   onTableSizeChange(): void {
     this.page = 1;
+    this.searchDeplacement();
   }
 
   sortColumn(column: string) {
@@ -105,6 +110,7 @@ export class ListeDeplacementsComponent implements OnInit, OnChanges {
   ClearSearch() {
     this.initmyForm();
     this.error = null; // Nettoyer les erreurs lors de la réinitialisation
+    this.page = 1;
     this.searchDeplacement();
   }
 
@@ -119,15 +125,18 @@ export class ListeDeplacementsComponent implements OnInit, OnChanges {
       this.myFormSearch.value.idatelier ?? 0,
       this.myFormSearch.value.motif ?? '',
       this.myFormSearch.value.dateDebut,
-      this.myFormSearch.value.dateFin
+      this.myFormSearch.value.dateFin,
+      this.page - 1,
+      this.tableSize
     ).subscribe({
       next: (data) => {
-        this.POSTS = data;
+        this.POSTS = data.content;
+        this.count = data.totalElements;
         this.loading = false;
-        console.log(`Chargé ${data.length} déplacements`);
-        setTimeout(() => {
-          this.extractUniqueTables();
-        }, 1000);
+        console.log(`Chargé ${data.content.length} déplacements`);
+        // setTimeout(() => {
+        //   this.extractUniqueTables();
+        // }, 1000);
       },
       error: (error) => {
         console.error('Erreur lors de la recherche des déplacements:', error);

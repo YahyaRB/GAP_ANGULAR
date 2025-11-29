@@ -1,28 +1,28 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder, FormGroup} from "@angular/forms";
-import {IordreFabrication} from "../../../services/Interfaces/iordre-fabrication";
-import {INomenclature} from "../../../services/Interfaces/inomenclature";
-import {Iateliers} from "../../../services/Interfaces/iateliers";
-import {Iprojet} from "../../../services/Interfaces/iprojet";
-import {Iarticle} from "../../../services/Interfaces/iarticle";
-import {OfService} from "../../../services/of.service";
-import {NomenclatureService} from "../../../services/nomenclature.service";
-import {AtelierService} from "../../../services/atelier.service";
-import {ProjetService} from "../../../services/projet.service";
-import {ArticleService} from "../../../services/article.service";
-import {RoleService} from "../../../services/role.service";
-import {NotificationService} from "../../../services/notification.service";
-import {AddOFComponent} from "../add-of/add-of.component";
-import {UpdateOFComponent} from "../update-of/update-of.component";
-import {DeleteOFComponent} from "../delete-of/delete-of.component";
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup } from "@angular/forms";
+import { IordreFabrication } from "../../../services/Interfaces/iordre-fabrication";
+import { INomenclature } from "../../../services/Interfaces/inomenclature";
+import { Iateliers } from "../../../services/Interfaces/iateliers";
+import { Iprojet } from "../../../services/Interfaces/iprojet";
+import { Iarticle } from "../../../services/Interfaces/iarticle";
+import { OfService } from "../../../services/of.service";
+import { NomenclatureService } from "../../../services/nomenclature.service";
+import { AtelierService } from "../../../services/atelier.service";
+import { ProjetService } from "../../../services/projet.service";
+import { ArticleService } from "../../../services/article.service";
+import { RoleService } from "../../../services/role.service";
+import { NotificationService } from "../../../services/notification.service";
+import { AddOFComponent } from "../add-of/add-of.component";
+import { UpdateOFComponent } from "../update-of/update-of.component";
+import { DeleteOFComponent } from "../delete-of/delete-of.component";
 
-import {ROLES_ADMIN, ROLES_ADMIN_AGENTSAISIE} from 'src/app/Roles';
+import { ROLES_ADMIN, ROLES_ADMIN_AGENTSAISIE } from 'src/app/Roles';
 import * as XLSX from 'xlsx';
-import {TokenStorageService} from "../../../Auth/services/token-storage.service";
-import {AddNomenclatureComponent} from "../../Nomenclature/add-nomenclature/add-nomenclature.component";
-import {UpdateNomenclatureComponent} from "../../Nomenclature/update-nomenclature/update-nomenclature.component";
-import {DeleteNomenclatureComponent} from "../../Nomenclature/delete-nomenclature/delete-nomenclature.component";
-import {HttpClient} from "@angular/common/http";
+import { TokenStorageService } from "../../../Auth/services/token-storage.service";
+import { AddNomenclatureComponent } from "../../Nomenclature/add-nomenclature/add-nomenclature.component";
+import { UpdateNomenclatureComponent } from "../../Nomenclature/update-nomenclature/update-nomenclature.component";
+import { DeleteNomenclatureComponent } from "../../Nomenclature/delete-nomenclature/delete-nomenclature.component";
+import { HttpClient } from "@angular/common/http";
 
 @Component({
   selector: 'app-liste-of',
@@ -70,7 +70,7 @@ export class ListeOFComponent implements OnInit {
 
   constructor(
     private ofService: OfService,
-    private tokenStorage:TokenStorageService,
+    private tokenStorage: TokenStorageService,
     private nomenclatureService: NomenclatureService,
     private atelierService: AtelierService,
     private projetService: ProjetService,
@@ -82,7 +82,7 @@ export class ListeOFComponent implements OnInit {
   ) {
     this.initForm();
     // Récupération d'id d'utilisateur connecté
-    this.idUser=this.tokenStorage.getUser().id
+    this.idUser = this.tokenStorage.getUser().id
   }
 
   ngOnInit(): void {
@@ -109,6 +109,11 @@ export class ListeOFComponent implements OnInit {
     this.loadArticles();
   }
 
+  onSearchSubmit(): void {
+    this.page = 1;
+    this.searchOF();
+  }
+
   searchOF(): void {
     console.log('🔍 Recherche avec searchOF réel');
 
@@ -121,15 +126,18 @@ export class ListeOFComponent implements OnInit {
       formValues.idatelier || null,
       formValues.idarticle || null,
       formValues.dateDebut || null,
-      formValues.dateFin || null
+      formValues.dateFin || null,
+      this.page - 1,
+      this.tableSize
     ).subscribe({
       next: (data) => {
         console.log('✅ searchOF réussi - Données reçues:', data);
-        this.POSTS = data;
-        this.count = data.length;
-        setTimeout(() => {
-          this.extractUniqueTables();
-        }, 1000);
+        this.POSTS = data.content;
+        this.count = data.totalElements;
+        // extractUniqueTables is disabled for server-side pagination as it only sees current page data
+        // setTimeout(() => {
+        //   this.extractUniqueTables();
+        // }, 1000);
       },
       error: (error) => {
         console.error('❌ searchOF échoué:', error);
@@ -138,6 +146,8 @@ export class ListeOFComponent implements OnInit {
     });
   }
   extractUniqueTables() {
+    // This method is less useful with server-side pagination as it only filters based on visible items.
+    // Keeping it commented out or as is, but it won't be called automatically.
     const uniqueProjectsMap = new Map<number, Iprojet>();
     const uniqueAteliersMap = new Map<number, Iateliers>();
     const uniqueArticlesMap = new Map<number, Iarticle>();
@@ -154,9 +164,10 @@ export class ListeOFComponent implements OnInit {
       }
     });
 
-    this.listeAffairesByAtelier = Array.from(uniqueProjectsMap.values());
-    this.listeAteliers = Array.from(uniqueAteliersMap.values());
-    this.listeArticles=Array.from(uniqueArticlesMap.values());
+    // Only update if lists are empty (initial load) - optional strategy
+    // this.listeAffairesByAtelier = Array.from(uniqueProjectsMap.values());
+    // this.listeAteliers = Array.from(uniqueAteliersMap.values());
+    // this.listeArticles=Array.from(uniqueArticlesMap.values());
   }
 
   // Chargement des ateliers
@@ -186,8 +197,16 @@ export class ListeOFComponent implements OnInit {
   // Chargement des articles
   private loadArticles(): void {
     this.articleService.getAll(this.idUser).subscribe({
-      next: (data: Iarticle[]) => {
-        this.listeArticles = data;
+      next: (data: any) => {
+        // Handle paginated response (Page<Article>)
+        if (data && data.content) {
+          this.listeArticles = data.content;
+        } else if (Array.isArray(data)) {
+          this.listeArticles = data;
+        } else {
+          this.listeArticles = [];
+          console.warn('Format de réponse inattendu pour loadArticles:', data);
+        }
       },
       error: (error) => {
         console.error('Erreur lors du chargement des articles:', error);
@@ -230,7 +249,7 @@ export class ListeOFComponent implements OnInit {
       next: (nomenclatures: INomenclature[]) => {
         this.nomenclaturesCache.set(ofId, nomenclatures);
         this.loadingStatesCache.set(ofId, false);
-        console.log( 'xxxxxxxx',this.nomenclaturesCache)
+        console.log('xxxxxxxx', this.nomenclaturesCache)
       },
       error: (error) => {
         console.error(`Erreur lors du chargement des nomenclatures pour l'OF ${ofId}:`, error);
@@ -417,10 +436,12 @@ export class ListeOFComponent implements OnInit {
 
   onTableDataChange(event: any): void {
     this.page = event;
+    this.searchOF();
   }
 
   onTableSizeChange(): void {
     this.page = 1;
+    this.searchOF();
   }
 
   ClearSearch(): void {
